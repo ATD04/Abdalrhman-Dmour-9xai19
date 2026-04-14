@@ -1,0 +1,25 @@
+
+
+  A. Gap Analysis & Decision Support
+   * Prompt Example: "Based on the goals in the ESP and the results in the 2023 M&E report, which strategic pillars are
+     furthest behind their targets, and what are the cited reasons for the delay?"
+   * Value: Automatically identifies underperforming areas to help officials prioritize resources.
+
+
+  B. Stakeholder & Donor Reporting
+   * Prompt Example: "Draft a 3-page progress brief for an international donor summarizing our achievements in 'Quality
+     of Education' during 2023, using the specific metrics found in the M&E report."
+   * Value: Reduces the time spent by Ministry staff on manual report writing from days to minutes.
+
+
+  C. Policy Alignment Checker
+   * Prompt Example: "I am drafting a new initiative for teacher training. Does this align with the priorities set out
+     in the Education Strategic Plan? Point out any contradictions."
+   * Value: Ensures that new projects or local initiatives remain consistent with the national high-level strategy.
+
+
+  D. Institutional "Brain" (Q&A)
+   * Prompt Example: "What is the Ministry's specific target for Kindergarten (KG2) enrollment by the end of the plan,
+     and what was the actual enrollment rate recorded in 2023?"
+   * Value: Provides instant, cited answers to technical questions that would otherwise require searching through
+     hundreds of pages.

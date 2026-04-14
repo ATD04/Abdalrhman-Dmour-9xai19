@@ -1,0 +1,92 @@
+
+Jordan National Policy Intelligence Platform
+Government-Grade Multi-Agent AI System – Team Guide
+Objective
+You are building a production-ready, multi-agent national intelligence platform that analyzes,
+monitors, and explains Jordan’s strategic policies and modernization programs. This is not a
+prototype. This is a modular, microservice-based enterprise AI system.
+Architectural Mandate (Applies to All Teams)
+• Each team owns one independent microservice.
+• Each microservice exposes well-defined APIs.
+• Each feature must be built as a self-contained, reusable module.
+• Modules must be reusable in other applications.
+• Every module must be documented.
+• System must be modular, replaceable, service-oriented, independently deployable, and
+observable.
+• Backend: FastAPI.
+• Frontend: React + TypeScript + Tailwind.
+Repository & Branch Governance
+Single shared GitHub repository.
+Structure:
+/services
+/knowledge-service
+/agent-service
+/governance-service
+/workflow-service
+/frontend-app
+/shared
+/docs
+Branches:
+main → production-ready
+dev → integration
+service/* → microservice development
+feature/* → feature branches
+Only the Governance Team merges into main.
+Team 1 – Knowledge & Retrieval Microservice
+(knowledge-service)
+• Mission: Build a reusable and scalable national knowledge layer.
+• DNA: Data-first, structured, precise, stability-oriented.
+• Modules: Ingestion engine, chunking engine, multilingual embeddings, metadata tagging,
+version tracking, vector retrieval API, source filtering, evidence ranking.
+• APIs: /ingest, /retrieve, /sources, /versions, /health.
+• Must operate independently and serve other AI systems.
+Team 2 – Agent Orchestration Microservice (agent-service)
+• Mission: Design and implement the multi-agent orchestration layer.
+• DNA: System designers, logical modelers, delegation-focused.
+• Modules: Router agent, specialist agents, tool abstraction, confidence scoring, delegation
+engine, escalation triggers, self-verification, citation enforcement.
+• APIs: /query, /delegate, /confidence, /validate, /explain_decision.
+• Must operate independently from frontend.
+Team 3 – Governance, DevOps & Platform Integrity
+(governance-service)
+• Mission: Ensure quality, evaluation, monitoring, compliance, and release control.
+• DNA: Institutional mindset, disciplined, risk-aware.
+• Modules: Guardrails, policy enforcement, logging & audit, evaluation framework, performance
+metrics, CI/CD, security validation, release pipeline, benchmarking.
+• APIs: /audit, /evaluate, /logs, /guardrail_check, /metrics, /release_status.
+• This team governs merges into main.
+Team 4 – Workflow, HITL & Institutional Operations
+(workflow-service)
+• Mission: Build the operational backbone of the platform.
+• DNA: Process architects, reliability-focused, state-machine thinkers.
+• HITL Modules: Ticket creation, escalation state machine, assignment workflow, resolution
+engine, human response storage.
+• Operations Modules: Notification engine, conflict resolution, clarification module, feedback
+ingestion, response archive, SLA tracking, RBAC, admin APIs, queue prioritization, activity
+timeline.
+• APIs: /tickets, /escalate, /resolve, /feedback, /notifications, /admin, /roles, /timeline.
+Team 5 – Intelligence Experience & Interface Platform
+(frontend-app)
+• Tech Stack: React, TypeScript, Tailwind.
+• Mission: Build a government-grade AI intelligence interface.
+• DNA: UX clarity obsessed, trust-first design, structured interaction thinkers.
+• Core UI Modules: Chat, source panel, citation viewer, confidence explanation, escalation
+status.
+• Intelligence Features: Policy comparison, change dashboard, executive briefing UI, reading
+path explorer, structured answer views, export tools, role switching.
+• Operational UI: Human review console, ticket dashboard, audit viewer, system metrics
+dashboard, notification center.
+• All components must be reusable across applications.
+System Characteristics
+• Fully modular.
+• Service-isolated.
+• Reusable feature components.
+• Microservice-based.
+• Audit-ready.
+• Deployment-ready.
+• API-first.
+• Observability built-in.
+What This Project Truly Becomes
+This is not a chatbot. This is not a student experiment. This is a modular, agentic,
+government-ready AI platform built with real service separation, DevOps discipline, institutional
+workflow, human override mechanisms, governance enforcement, and a production-grade frontend.

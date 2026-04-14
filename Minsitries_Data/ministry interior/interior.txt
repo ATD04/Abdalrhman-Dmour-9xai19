@@ -1,0 +1,21 @@
+1. 0003_ميثاق_تقديم_الخدمة.pdf (Service Delivery Charter)
+Why it is the best: This document is the definitive guide to the citizen-Ministry relationship. It tells the LLM exactly how the Ministry classifies its users, what the expected standard of service is, and the mutual rights and responsibilities of both parties.
+
+Core Use Cases:
+
+General Inquiry Handling: Answering questions like "What documents do I need to prepare before visiting?" or "What are the rules for entering the Ministry building?"
+
+Rights & Duties: Informing users of their rights regarding data privacy, expected wait times, and the facilities available to them (like accessibility for the elderly).
+
+Setting Expectations: Explaining what happens if a user submits an incomplete application according to the official charter.
+
+2. 0005_دليل_الشكاوى.pdf (Complaints Guide 2025)
+Why it is the best: A chatbot’s most valuable function is often troubleshooting. This document gives the LLM the exact, up-to-date (2025) operational workflow for handling grievances. Instead of giving vague advice, the LLM can provide real phone numbers, emails, and procedural steps.
+
+Core Use Cases:
+
+Issue Resolution Routing: Directing frustrated users on exactly how to file a complaint if a service is delayed or if they encounter an administrative error.
+
+Contact Information: Providing the LLM with official, verified contact channels, such as the Inspector General's email, the official WhatsApp complaint number, and instructions for the "Bukhadmatkum" (At Your Service) platform.
+
+Process Tracking: Explaining the lifecycle of a complaint to a user, from submission to how the Ministry verifies and closes the issue.

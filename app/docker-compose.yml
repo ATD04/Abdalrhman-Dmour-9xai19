@@ -1,0 +1,161 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# JNPI — Jordan National Policy Intelligence Platform
+# Master Docker Compose — All Services
+# ─────────────────────────────────────────────────────────────────────────────
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: jnpi-redis
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+      --appendonly yes
+      --appendfsync everysec
+    volumes:
+      - redis-data:/data
+    dns:
+      - 192.168.65.7
+
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: jnpi-frontend
+    ports:
+      - "5173:3000"
+    depends_on:
+      agent-service:
+        condition: service_healthy
+    dns:
+      - 192.168.65.7
+
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  knowledge-service:
+    build:
+      context: .
+      dockerfile: ./services/knowledge-service/Dockerfile
+    container_name: knowledge-service
+    ports:
+      - "9100:8100"
+    env_file:
+      - ./.env.shared
+      - ./services/knowledge-service/.env
+    volumes:
+      - knowledge-data:/app/data
+    depends_on:
+      redis:
+        condition: service_healthy
+    dns:
+      - 192.168.65.7
+
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  agent-service:
+    build:
+      context: .
+      dockerfile: ./services/agent-service/Dockerfile
+    container_name: agent-service
+    ports:
+      - "9200:8200"
+    env_file:
+      - ./.env.shared
+      - ./services/agent-service/.env
+    depends_on:
+      knowledge-service:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    dns:
+      - 192.168.65.7
+
+    volumes:
+      - agent-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8200/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  governance-service:
+    build:
+      context: ./services/governance-service
+      dockerfile: Dockerfile
+    container_name: governance-service
+    ports:
+      - "9300:8300"
+    env_file:
+      - ./.env.shared
+      - ./services/governance-service/.env
+    depends_on:
+      agent-service:
+        condition: service_healthy
+    dns:
+      - 192.168.65.7
+
+    volumes:
+      - governance-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8300/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  workflow-service:
+    build:
+      context: ./services/workflow-service
+      dockerfile: Dockerfile
+    container_name: workflow-service
+    ports:
+      - "9400:8400"
+    env_file:
+      - ./.env.shared
+      - ./services/workflow-service/.env
+    depends_on:
+      agent-service:
+        condition: service_healthy
+    dns:
+      - 192.168.65.7
+
+    volumes:
+      - workflow-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8400/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  redis-data:
+    driver: local
+  knowledge-data:
+    driver: local
+  agent-data:
+    driver: local
+  governance-data:
+    driver: local
+  workflow-data:
+    driver: local

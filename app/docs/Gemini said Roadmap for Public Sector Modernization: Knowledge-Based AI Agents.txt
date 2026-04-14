@@ -1,0 +1,298 @@
+## Roadmap for Public Sector Modernization: Knowledge-Based AI Agents
+
+### Page 1
+
+* 
+**Source 1:** Roadmap for Public Sector Modernization 
+
+
+* 
+**Source 2:** General 
+
+
+* 
+**Source 3:** Knowledge-Based AI Agents 
+
+
+* 
+**Source 4:** February 2026 
+
+
+
+---
+
+### Page 2: Knowledge-Based AI and Governance
+
+* 
+**Knowledge and Governance:** Government AI agents operate on approved, governed, and updated knowledge, not on open or unregulated data.
+
+
+* 
+**Knowledge-First Approach:** AI construction relies on managing government knowledge institutionally before deployment; data, policies, and instructions are gathered into a central Knowledge Hub with clear governance, versioning, and official approval.
+
+
+* 
+**Knowledge Management System:** For every piece of content, there is an official owner, a specific version, and an update history/change log.
+
+
+* 
+**Response Policy:** The AI agent only answers based on the latest approved version of knowledge.
+
+
+
+---
+
+### Page 3: Knowledge Levels within AI Agents
+
+* 
+**Layered Knowledge Model:** Each agent operates according to clear levels of guidance to ensure consistency, specialization, and commitment to government policies.
+
+
+* 
+**Level 1 (General Guidance):** General government policies, response style, and "do’s and don’ts" managed by government entities.
+
+
+* 
+**Level 2 (Sectoral Guidance):** Specialized sector information (e.g., Labor or Civil Status) managed by sectoral entities.
+
+
+* 
+**Level 3 (Institutional Guidance):** Specific instructions and procedures for a particular entity.
+
+
+* 
+**Level 4 (Departmental Guidance):** Optional specialized functions for a specific administration.
+
+
+
+---
+
+### Page 4: Separation Between Citizen and Employee
+
+* 
+**Access Control:** A single platform with different permissions and data based on the user category to ensure privacy and trust.
+
+
+* 
+**Permission Model:** Access is determined by user type (citizen/employee), job role, and government entity; agents only see authorized data.
+
+
+* 
+**External Agents (Citizens):** Focus on public data, announced services, service requirements, and nearest locations.
+
+
+* 
+**Internal Agents (Employees):** Focus on internal instructions, circulars, decisions, work procedures, and data related to their specific job roles.
+
+
+
+---
+
+### Page 5: Data Ingestion and Response Methodology
+
+* 
+**Operational Path:** Every response passes through a workflow ensuring accuracy, permissions, and institutional approval.
+
+
+* 
+**Knowledge Ingestion Path:** Approved documents are stored in the Knowledge Management System and converted into "Embeddings" (Knowledge representation).
+
+
+* **Inference Flow (Response Path):**
+* User query is received.
+
+
+* Verification via Input Guardrail.
+
+
+* Relevant knowledge retrieval (RAG) and tool utilization (MCP/Function Calling).
+
+
+* Answer generation followed by Output Guardrail (accuracy and compliance).
+
+
+* Final answer or transfer to a human employee.
+
+
+
+
+* 
+**Observability:** Continuous monitoring and evaluations (Evals).
+
+
+
+---
+
+### Page 6: AI Construction Methodology
+
+* 
+**Development Phases:** Starts with identifying the use case, followed by data preparation (KHJI and Embeddings), and choosing to buy or build the AI model.
+
+
+* 
+**Implementation:** Developing the custom agent, linking it to knowledge sources, and applying Guardrails for response control.
+
+
+* 
+**Deployment & Improvement:** Phased launch across digital or voice channels, followed by a continuous improvement cycle (monitoring, measuring, analyzing unanswered questions, and retraining).
+
+
+
+---
+
+### Page 7: Use Cases (1/3) - Knowledge Management
+
+* 
+**Unified Source:** AI-powered guidance for citizens to understand services/documents and for employees to process requests consistently.
+
+
+* 
+**Examples:** Specialized agents for Civil Status, Ministry of Justice, Civil Service and Administration Bureau, and Ministry of Labor.
+
+
+* 
+**Success Indicators:** Service efficiency (reduced time/repeated visits), higher first-contact resolution, accuracy (less contradictory info), and operational consistency.
+
+
+
+---
+
+### Page 8: Use Cases (2/3) - Process Mining
+
+* 
+**Process Optimization:** Analyzing digital footprints to automatically map actual workflows, identify bottlenecks, and improve service efficiency.
+
+
+* **Methodology:**
+* 
+**Inputs:** Digital records from gov systems (time data, users, status) and standard procedures.
+
+
+* 
+**Processing:** Analyzing records to build actual maps, comparing execution to standards, and discovering deviations.
+
+
+* 
+**Outputs:** Reports on bottlenecks, critical deviations, and actionable recommendations.
+
+
+
+
+* 
+**Success Indicators:** Reduced cycle time, reduced delays, increased compliance with standard procedures, and operational consistency.
+
+
+
+---
+
+### Page 9: Use Cases (3/3) - National Call Center
+
+* 
+**Smart Gateway:** Transforming the national call center into a voice-enabled interface for handling citizen inquiries and resolving issues.
+
+
+* 
+**Workflow:** A "Main Agent" learns from employees and coordinates with specialized agents.
+
+
+* 
+**Success Indicators:** Faster resolution (reduced call time), higher first-contact resolution, service consistency, and improved accessibility for citizens with limited digital skills or disabilities.
+
+
+
+---
+
+### Page 10: Handling Out-of-Scope Queries
+
+* 
+**Decision Logic:** AI agents operate within defined scopes; anything outside or unclear is handled automatically.
+
+
+* **Assessment Steps:**
+* Is the query within the agent's scope?.
+
+
+* If yes: Is the available knowledge sufficient? If yes, the agent responds.
+
+
+* If no (insufficient knowledge): Transfer to a specialized human employee.
+
+
+* If out of scope: Check if a specialized agent (A2A) exists to transfer the query.
+
+
+
+
+
+---
+
+### Page 11: Continuous Improvement Cycle
+
+* 
+**Methodology:** Agents improve through usage, measurement, and systematic knowledge updates.
+
+
+* **Improvement Activities:**
+* Analyzing frequently asked questions.
+
+
+* Monitoring unanswered or low-quality questions.
+
+
+* Updating the Knowledge Hub and retraining agents on the latest approved versions.
+
+
+* Measuring answer quality, user satisfaction, response speed, and cost (via Evals).
+
+
+
+
+
+---
+
+### Page 12: Technology and Technical Solutions
+
+* 
+**Solution Categories:** The platform selects secure, scalable technology for knowledge drafting and reliable generation.
+
+
+* 
+**Foundation Models:** Enabling language understanding (e.g., OpenAI, Claude, Gemini).
+
+
+* 
+**Management Platforms:** For hosting and scaling agents (e.g., Nvidia NeMo, MS Foundry).
+
+
+* 
+**KM Tools:** Systems for storage, versioning, and approval (e.g., Document360, Pinecone).
+
+
+* 
+**Development Tools:** Organizing logic and task distribution (e.g., LangGraph, Pydantic AI).
+
+
+* 
+**Memory Tools:** Securely managing context and history (e.g., Cognee, memo.ai).
+
+
+* 
+**Monitoring & Analysis:** Measuring quality, cost, and errors (e.g., LangSmith, Confident AI).
+
+
+
+---
+
+### Page 13: Buy vs. Build Framework
+
+* 
+**Decision Framework:** Classification of use cases based on data sensitivity.
+
+
+* **Public/Non-Sensitive Data:** Use ready-made APIs (OpenAI, Claude, Gemini); Low complexity, high speed, limited sovereignty.
+
+
+* **Medium Sensitivity:** Use masking/hashing tools before sending data to external models; Medium complexity, balanced speed and protection.
+
+
+* **High Sensitivity/Sovereign Data:** Use local LLMs (Llama, Mistral) or internal models hosted on government clouds/centers; High complexity/cost, long development time, maximum control and sovereignty.

@@ -1,0 +1,22 @@
+services:
+  workflow-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: workflow-service
+    ports:
+      - "8400:8400"
+    env_file:
+      - .env
+    volumes:
+      - workflow-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8400/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  workflow-data:
+    driver: local

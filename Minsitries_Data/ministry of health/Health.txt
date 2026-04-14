@@ -1,0 +1,31 @@
+
+  1. Document: 0003_دليل_الخدمات_2023__1_.pdf (Service Directory 2023)
+  This is the most critical document for any citizen-facing or operational AI application. It likely contains a detailed
+  catalog of all services provided by the Ministry, including requirements, procedures, and locations.
+
+
+   * Why it's one of the best: It serves as the "source of truth" for what the Ministry actually does on a day-to-day
+     basis. It is data-rich and highly structured.
+   * Use Cases:
+       * Citizen Support Chatbot: An AI that can answer questions like "How do I renew my health insurance?" or "What
+         documents are needed for a pharmaceutical license?"
+       * Automated Service Routing: Helping users identify which department or facility they need to visit based on
+         their specific health or administrative needs.
+       * Internal Knowledge Base: A tool for Ministry employees to quickly find specific service protocols without
+         manually searching through large PDF directories.
+
+
+  2. Document: 0079_الخطة_الإستراتيجية_لوزارة_الصحة_للأعوام_2023___2025.pdf (Strategic Plan 2023-2025)
+  This document provides the vision, mission, strategic goals, and Key Performance Indicators (KPIs) of the Ministry.
+
+
+   * Why it's one of the best: While the Service Directory covers the "How," this document covers the "Why" and "What's
+     Next." It provides the LLM with the necessary context to understand the Ministry’s priorities (e.g., digital
+     transformation, primary care expansion).
+   * Use Cases:
+       * Policy Analysis & Planning: Assisting health officials in drafting new initiatives that align with the
+         established 2023–2025 goals.
+       * Performance Monitoring AI: An LLM can use this to compare current performance reports (like the 2023 Annual
+         Report) against the strategic targets to identify gaps.
+       * Stakeholder & Donor Reporting: Automatically generating summaries or presentations for international partners
+         (like the World Bank) showing how specific projects contribute to the national health strategy.

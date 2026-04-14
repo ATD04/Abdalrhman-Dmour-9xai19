@@ -1,0 +1,25 @@
+1. 0002_الخطة_الاستراتيجية_2023-2025.pdf (Strategic Plan 2023-2025)
+  This is the foundational document that defines the Ministry's identity and roadmap.
+
+
+   * Why it's the best: It contains the high-level vision, mission, strategic goals, and Key Performance Indicators
+     (KPIs). It explains the "Why" behind every regulation and project.
+   * Use Cases:
+       * Policy Inquiries: Answering questions about the Ministry's long-term goals for the industrial and trade
+         sectors.
+       * Strategic Alignment: Helping businesses or researchers align their projects with national priorities.
+       * Goal Tracking: Identifying which sectors (e.g., SMEs, exports, consumer protection) are currently prioritized.
+
+
+  2. 0066_التقرير_السنوي_2024-0.pdf (Annual Report 2024)
+  This is the most recent "performance" document, providing concrete data and summaries of activities.
+
+
+   * Why it's the best: While the Strategic Plan is about the future, the Annual Report is about the recent past and
+     present. It contains statistics on registered companies, patents granted, trade volumes, and specific challenges
+     faced in the last year.
+   * Use Cases:
+       * Data Extraction: Answering questions like "How many trademarks were registered in 2024?" or "What were the
+         major trade achievements last year?"
+       * Performance Auditing: Summarizing the Ministry's actual progress against its stated goals.
+       * Trend Analysis: Helping users understand current market dynamics based on the Ministry’s recorded data.
