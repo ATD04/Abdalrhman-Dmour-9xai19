@@ -1,0 +1,12 @@
+  1. Transport Sector Strategic Plan 2024–2028
+       * File: 0002_الخطة_الاستراتيجية_لقطاع_النقل_للأعوام_2024-2028.pdf (or its duplicate 0063)
+       * Why: This is the primary roadmap for the entire sector. It contains specific goals, KPIs (Key Performance
+         Indicators), upcoming projects, and budget allocations for the next few years. It provides the "What" and
+         "When."
+
+
+   2. Public Policy Document for the Jordanian Transport Sector 2024
+       * File: 0040_وثيقة_السياسات_العامة_لقطاع_النقل_الاردني___2024.pdf (or its duplicate 0115)
+       * Why: While the strategy focuses on execution, the Policy document explains the "Why" and the "How." It outlines
+         the regulatory environment, government stance on privatization, sustainability, and cross-border transport
+         logic. It is essential for an LLM to understand the rules of the game.

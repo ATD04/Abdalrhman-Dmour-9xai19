@@ -1,0 +1,16 @@
+  Use Cases for the Strategic Plan (0206)
+   * Policy & Investment Analysis: Ask the LLM to identify priority projects for the next three years to help in budget
+     planning or attracting international grants.
+   * Risk Assessment: Have the model summarize the ministry's strategy for dealing with climate change and population
+     growth to generate reports for stakeholders.
+   * Internal Alignment: Use the LLM to check if a new proposed local project aligns with the national strategic pillars
+     defined in this document.
+
+
+  Use Cases for the Services Guide (0002)
+   * Smart Citizen Chatbot: Build a RAG (Retrieval-Augmented Generation) system where a citizen asks: "What are the
+     requirements for a new water meter in Amman?" and the LLM provides a precise, verified answer.
+   * Staff Training Assistant: New employees can use the LLM to quickly learn complex administrative workflows without
+     needing to read hundreds of pages manually.
+   * Automated Document Verification: The LLM can be used to generate a "Checklist" for any specific service, which can
+     then be used to automatically verify if a citizen's application is complete.

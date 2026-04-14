@@ -1,0 +1,25 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Governance, DevOps & Platform Integrity Microservice — Docker Compose (Independent)
+# ─────────────────────────────────────────────────────────────────────────────
+services:
+  governance-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: governance-service
+    ports:
+      - "8300:8300"
+    env_file:
+      - .env
+    volumes:
+      - governance-data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8300/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  governance-data:
+    driver: local

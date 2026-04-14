@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JNPI Agent Service — Test Console</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #232733;
+    --border: #2e3345;
+    --text: #e1e4ed;
+    --text2: #8b90a0;
+    --accent: #6c5ce7;
+    --accent2: #a29bfe;
+    --green: #00b894;
+    --red: #e17055;
+    --orange: #fdcb6e;
+    --blue: #74b9ff;
+    --radius: 10px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  header h1 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--accent2);
+  }
+  header h1 span { color: var(--text2); font-weight: 400; }
+  #health-badge {
+    font-size: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+  }
+  #health-badge.ok { border-color: var(--green); color: var(--green); }
+  #health-badge.fail { border-color: var(--red); color: var(--red); }
+
+  /* ── Layout ── */
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+
+  /* ── Tabs ── */
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+    overflow-x: auto;
+  }
+  .tab {
+    padding: 10px 18px;
+    font-size: 13px;
+    font-family: inherit;
+    background: none;
+    border: none;
+    color: var(--text2);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--accent2);
+    border-bottom-color: var(--accent);
+  }
+  .tab .method {
+    font-size: 10px;
+    font-weight: 700;
+    margin-right: 6px;
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+  .method-post { background: var(--green); color: #000; }
+  .method-get { background: var(--blue); color: #000; }
+
+  /* ── Panels ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  .panel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  @media (max-width: 800px) {
+    .panel-grid { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+  }
+  .card h3 {
+    font-size: 13px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+  }
+
+  /* ── Form elements ── */
+  label {
+    display: block;
+    font-size: 12px;
+    color: var(--text2);
+    margin-bottom: 4px;
+    margin-top: 12px;
+  }
+  label:first-child { margin-top: 0; }
+
+  textarea, input[type="text"], select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  textarea:focus, input:focus, select:focus {
+    border-color: var(--accent);
+  }
+  textarea { resize: vertical; min-height: 80px; }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .row-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+
+  button.send {
+    margin-top: 16px;
+    width: 100%;
+    padding: 12px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: opacity 0.2s;
+  }
+  button.send:hover { opacity: 0.85; }
+  button.send:disabled { opacity: 0.4; cursor: wait; }
+
+  /* ── Mode Toggle ── */
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    margin-top: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+  }
+  .mode-toggle label {
+    flex: 1;
+    margin: 0;
+    padding: 8px 0;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--surface2);
+    color: var(--text2);
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .mode-toggle input { display: none; }
+  .mode-toggle input:checked + label {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  /* ── Response ── */
+  .response-area {
+    position: relative;
+    min-height: 200px;
+  }
+  .response-area pre {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    font-size: 12px;
+    line-height: 1.6;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    max-height: 600px;
+    overflow-y: auto;
+    color: var(--text);
+  }
+
+  /* ── Answer card (for /query/stream) ── */
+  .answer-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 16px;
+    margin-bottom: 12px;
+  }
+  .answer-card .answer-text {
+    font-size: 14px;
+    line-height: 1.7;
+    direction: auto;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .badge {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+  }
+  .badge.green { border-color: var(--green); color: var(--green); }
+  .badge.red { border-color: var(--red); color: var(--red); }
+  .badge.orange { border-color: var(--orange); color: var(--orange); }
+  .badge.blue { border-color: var(--blue); color: var(--blue); }
+  .badge.purple { border-color: var(--accent2); color: var(--accent2); }
+
+  .citations-list {
+    margin-top: 12px;
+    font-size: 12px;
+  }
+  .citation-item {
+    padding: 8px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .citation-item .score {
+    color: var(--green);
+    font-weight: 600;
+  }
+
+  .spinner {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent2);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .timer { color: var(--text2); font-size: 12px; margin-top: 8px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>JNPI Agent Service <span>Test Console</span></h1>
+  <div id="health-badge">checking...</div>
+</header>
+
+<div class="container">
+  <div class="tabs">
+    <button class="tab active" data-panel="query">
+      <span class="method method-post">POST</span>/query/stream
+    </button>
+    <button class="tab" data-panel="validate">
+      <span class="method method-post">POST</span>/validate
+    </button>
+    <button class="tab" data-panel="delegate">
+      <span class="method method-post">POST</span>/delegate
+    </button>
+    <button class="tab" data-panel="confidence">
+      <span class="method method-get">GET</span>/confidence
+    </button>
+    <button class="tab" data-panel="explain">
+      <span class="method method-get">GET</span>/explain_decision
+    </button>
+    <button class="tab" data-panel="health">
+      <span class="method method-get">GET</span>/health
+    </button>
+  </div>
+
+  <!-- ═══════ /query/stream ═══════ -->
+  <div class="panel active" id="panel-query">
+    <div class="panel-grid">
+      <div class="card">
+        <h3>Request</h3>
+        <label>Query</label>
+        <textarea id="q-query" placeholder="ما هي شروط التقاعد المبكر في قانون الضمان الاجتماعي؟">ما هي شروط التقاعد المبكر في قانون الضمان الاجتماعي؟</textarea>
+        <div class="row">
+          <div>
+            <label>User Type</label>
+            <select id="q-user-type">
+              <option value="citizen">citizen</option>
+              <option value="employee">employee</option>
+              <option value="admin">admin</option>
+            </select>
+          </div>
+          <div>
+            <label>Language</label>
+            <select id="q-lang">
+              <option value="ar">Arabic</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Session ID (optional)</label>
+            <input type="text" id="q-session" placeholder="leave empty for no session">
+          </div>
+          <div>
+            <label>Sector Hint (optional)</label>
+            <input type="text" id="q-sector" placeholder="e.g. labor, justice, interior">
+          </div>
+        </div>
+        <div class="row">
+          <div>
+            <label>Top K</label>
+            <input type="text" id="q-topk" value="5">
+          </div>
+          <div>
+            <label>Mode</label>
+            <div class="mode-toggle">
+              <input type="radio" name="q-mode" id="q-mode-concise" value="concise" checked>
+              <label for="q-mode-concise">Concise</label>
+              <input type="radio" name="q-mode" id="q-mode-detailed" value="detailed">
+              <label for="q-mode-detailed">Detailed</label>
+            </div>
+          </div>
+        </div>
+        <button class="send" id="q-send">Send Query</button>
+      </div>
+      <div class="card">
+        <h3>Response</h3>
+        <div class="response-area" id="q-response">
+          <pre style="color:var(--text2)">Response will appear here...</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ /validate ═══════ -->
+  <div class="panel" id="panel-validate">
+    <div class="panel-grid">
+      <div class="card">
+        <h3>Request</h3>
+        <label>Answer to Validate</label>
+        <textarea id="v-answer" placeholder="Paste an answer to validate against the knowledge base..."></textarea>
+        <label>Query (context for retrieval)</label>
+        <input type="text" id="v-query" placeholder="Original query that produced this answer">
+        <label>Source IDs (comma-separated)</label>
+        <input type="text" id="v-sources" placeholder="e.g. 78044f36, 8975bf4e">
+        <button class="send" id="v-send">Validate Answer</button>
+      </div>
+      <div class="card">
+        <h3>Response</h3>
+        <div class="response-area" id="v-response">
+          <pre style="color:var(--text2)">Response will appear here...</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ /delegate ═══════ -->
+  <div class="panel" id="panel-delegate">
+    <div class="panel-grid">
+      <div class="card">
+        <h3>Request</h3>
+        <label>Original Query</label>
+        <textarea id="d-query" placeholder="A complex question that spans multiple ministries...">قارن بين حقوق العامل وحقوق الموظف الحكومي</textarea>
+        <label>Sub-Questions (JSON array)</label>
+        <textarea id="d-subs" style="min-height:120px">[
+  {"question": "ما هي حقوق العامل ذات الصلة في هذا السؤال؟", "agent": "labor_agent", "sector": "labor"},
+  {"question": "ما هي حقوق الموظف الحكومي ذات الصلة في هذا السؤال؟", "agent": "civil_service_agent", "sector": "general"}
+]</textarea>
+        <div class="row">
+          <div>
+            <label>User Type</label>
+            <select id="d-user-type">
+              <option value="citizen">citizen</option>
+              <option value="employee">employee</option>
+              <option value="admin">admin</option>
+            </select>
+          </div>
+          <div>
+            <label>Language</label>
+            <select id="d-lang">
+              <option value="ar">Arabic</option>
+              <option value="en">English</option>
+            </select>
+          </div>
+        </div>
+        <button class="send" id="d-send">Delegate Query</button>
+      </div>
+      <div class="card">
+        <h3>Response</h3>
+        <div class="response-area" id="d-response">
+          <pre style="color:var(--text2)">Response will appear here...</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ /confidence ═══════ -->
+  <div class="panel" id="panel-confidence">
+    <div class="panel-grid">
+      <div class="card">
+        <h3>Request</h3>
+        <label>Response ID</label>
+        <input type="text" id="c-id" placeholder="e.g. 59a645cb (from a /query/stream completion)">
+        <button class="send" id="c-send">Get Confidence</button>
+      </div>
+      <div class="card">
+        <h3>Response</h3>
+        <div class="response-area" id="c-response">
+          <pre style="color:var(--text2)">Response will appear here...</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ /explain_decision ═══════ -->
+  <div class="panel" id="panel-explain">
+    <div class="panel-grid">
+      <div class="card">
+        <h3>Request</h3>
+        <label>Response ID</label>
+        <input type="text" id="e-id" placeholder="e.g. 70b9a7d6 (from a /query/stream completion)">
+        <button class="send" id="e-send">Explain Decision</button>
+      </div>
+      <div class="card">
+        <h3>Response</h3>
+        <div class="response-area" id="e-response">
+          <pre style="color:var(--text2)">Response will appear here...</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ /health ═══════ -->
+  <div class="panel" id="panel-health">
+    <div class="panel-grid">
+      <div class="card">
+        <h3>Request</h3>
+        <p style="color:var(--text2);font-size:13px;margin-bottom:16px">No parameters needed.</p>
+        <button class="send" id="h-send">Check Health</button>
+      </div>
+      <div class="card">
+        <h3>Response</h3>
+        <div class="response-area" id="h-response">
+          <pre style="color:var(--text2)">Response will appear here...</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const API = window.location.origin;
+
+// ── Tabs ──
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.panel).classList.add('active');
+  });
+});
+
+// ── Health check on load ──
+async function checkHealth() {
+  const badge = document.getElementById('health-badge');
+  try {
+    const r = await fetch(API + '/health');
+    const d = await r.json();
+    badge.textContent = d.status + ' | KS: ' + d.knowledge_service;
+    badge.className = d.status === 'healthy' ? 'ok' : 'fail';
+    badge.id = 'health-badge';
+  } catch {
+    badge.textContent = 'unreachable';
+    badge.className = 'fail';
+    badge.id = 'health-badge';
+  }
+}
+checkHealth();
+
+// ── Helpers ──
+function showLoading(el) {
+  el.innerHTML = '<div><span class="spinner"></span> Processing...</div><div class="timer" id="timer-' + el.id + '">0.0s</div>';
+  const start = Date.now();
+  el._timer = setInterval(() => {
+    const t = ((Date.now() - start) / 1000).toFixed(1);
+    const timerEl = document.getElementById('timer-' + el.id);
+    if (timerEl) timerEl.textContent = t + 's';
+  }, 100);
+}
+
+function stopTimer(el) {
+  if (el._timer) { clearInterval(el._timer); el._timer = null; }
+}
+
+function renderJSON(data) {
+  return '<pre>' + escapeHtml(JSON.stringify(data, null, 2)) + '</pre>';
+}
+
+function escapeHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function renderQueryResponse(data, elapsed) {
+  let html = '<div class="answer-card">';
+  html += '<div class="answer-text">' + escapeHtml(data.answer || '') + '</div>';
+  html += '<div class="meta-row">';
+
+  // confidence badge
+  const conf = (data.confidence * 100).toFixed(1);
+  const confClass = data.confidence >= 0.7 ? 'green' : data.confidence >= 0.4 ? 'orange' : 'red';
+  html += '<span class="badge ' + confClass + '">' + conf + '% confidence</span>';
+  html += '<span class="badge purple">' + (data.agent_used || '?') + '</span>';
+  html += '<span class="badge blue">' + (data.sector || '?') + '</span>';
+
+  if (data.has_amendments) html += '<span class="badge orange">has amendments</span>';
+  if (data.escalated) html += '<span class="badge red">escalated</span>';
+  if (data.session_id) html += '<span class="badge blue">session: ' + data.session_id + '</span>';
+  html += '<span class="badge">id: ' + (data.response_id || '?') + '</span>';
+  html += '</div>';
+
+  if (data.escalation_reason) {
+    html += '<div style="margin-top:10px;padding:8px 12px;background:var(--bg);border:1px solid var(--red);border-radius:6px;font-size:12px;color:var(--red)">';
+    html += escapeHtml(data.escalation_reason) + '</div>';
+  }
+  if (data.amendment_note) {
+    html += '<div style="margin-top:10px;padding:8px 12px;background:var(--bg);border:1px solid var(--orange);border-radius:6px;font-size:12px;color:var(--orange)">';
+    html += escapeHtml(data.amendment_note) + '</div>';
+  }
+  html += '</div>';
+
+  // Citations
+  if (data.citations && data.citations.length) {
+    html += '<div class="citations-list">';
+    html += '<div style="color:var(--text2);margin-bottom:6px;font-size:11px;text-transform:uppercase;letter-spacing:1px">' + data.citations.length + ' Citations</div>';
+    data.citations.forEach(c => {
+      html += '<div class="citation-item">';
+      html += '<div>' + escapeHtml(c.source_name || '?') + ' &mdash; p.' + (c.page || '?') + ' (' + (c.document_year || '?') + ')';
+      if (c.is_amendment) html += ' <span class="badge orange" style="font-size:10px">amendment</span>';
+      html += '</div>';
+      html += '<div class="score">' + ((c.relevance_score || 0) * 100).toFixed(1) + '%</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  html += '<div class="timer">' + elapsed + 's</div>';
+
+  // Raw JSON toggle
+  html += '<details style="margin-top:12px"><summary style="cursor:pointer;font-size:12px;color:var(--text2)">Raw JSON</summary>';
+  html += '<pre style="margin-top:8px">' + escapeHtml(JSON.stringify(data, null, 2)) + '</pre></details>';
+
+  return html;
+}
+
+function renderValidateResponse(data, elapsed) {
+  let html = '<div class="answer-card">';
+  const validClass = data.valid ? 'green' : 'red';
+  html += '<div class="meta-row"><span class="badge ' + validClass + '">' + (data.valid ? 'VALID' : 'INVALID') + '</span></div>';
+
+  if (data.issues && data.issues.length) {
+    html += '<div style="margin-top:12px">';
+    html += '<div style="color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Issues Found</div>';
+    data.issues.forEach((issue, i) => {
+      html += '<div style="padding:8px 12px;background:var(--bg);border:1px solid var(--red);border-radius:6px;margin-bottom:6px;font-size:12px;color:var(--text)">';
+      html += (i+1) + '. ' + escapeHtml(issue) + '</div>';
+    });
+    html += '</div>';
+  }
+
+  if (data.corrected_answer) {
+    html += '<div style="margin-top:12px">';
+    html += '<div style="color:var(--text2);font-size:11px;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px">Corrected Answer</div>';
+    html += '<div style="padding:12px;background:var(--bg);border:1px solid var(--green);border-radius:6px;font-size:13px;line-height:1.7;direction:auto">';
+    html += escapeHtml(data.corrected_answer) + '</div>';
+    html += '</div>';
+  }
+
+  html += '</div>';
+  html += '<div class="timer">' + elapsed + 's</div>';
+  html += '<details style="margin-top:12px"><summary style="cursor:pointer;font-size:12px;color:var(--text2)">Raw JSON</summary>';
+  html += '<pre style="margin-top:8px">' + escapeHtml(JSON.stringify(data, null, 2)) + '</pre></details>';
+  return html;
+}
+
+// ── API Calls ──
+
+function parseSseEvent(rawEvent) {
+  let eventType = 'message';
+  const dataLines = [];
+  const lines = rawEvent.split('\n');
+
+  for (const line of lines) {
+    if (line.startsWith('event:')) {
+      eventType = line.slice(6).trim() || 'message';
+      continue;
+    }
+    if (line.startsWith('data:')) {
+      dataLines.push(line.slice(5).trimStart());
+    }
+  }
+
+  if (!dataLines.length) return null;
+  const rawData = dataLines.join('\n');
+
+  try {
+    return { eventType, data: JSON.parse(rawData) };
+  } catch {
+    return { eventType, data: { text: rawData } };
+  }
+}
+
+function mergeCitations(existing, incoming) {
+  const map = new Map();
+  for (const c of existing || []) {
+    map.set((c.source_id || '?') + '-' + String(c.page || '?'), c);
+  }
+  for (const c of incoming || []) {
+    map.set((c.source_id || '?') + '-' + String(c.page || '?'), c);
+  }
+  return Array.from(map.values());
+}
+
+// POST /query/stream
+document.getElementById('q-send').addEventListener('click', async () => {
+  const btn = document.getElementById('q-send');
+  const out = document.getElementById('q-response');
+  btn.disabled = true;
+  showLoading(out);
+  const start = Date.now();
+  try {
+    const mode = document.querySelector('input[name="q-mode"]:checked').value;
+    const body = {
+      query: document.getElementById('q-query').value,
+      user_type: document.getElementById('q-user-type').value,
+      language: document.getElementById('q-lang').value,
+      mode: mode,
+    };
+    const session = document.getElementById('q-session').value.trim();
+    if (session) body.session_id = session;
+    const sector = document.getElementById('q-sector').value.trim();
+    if (sector) body.sector_hint = sector;
+    const topk = parseInt(document.getElementById('q-topk').value);
+    if (topk) body.top_k = topk;
+
+    const r = await fetch(API + '/query/stream', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) {
+      const text = await r.text();
+      let parsed = text;
+      try {
+        parsed = JSON.stringify(JSON.parse(text), null, 2);
+      } catch {
+        parsed = text;
+      }
+      stopTimer(out);
+      out.innerHTML = '<pre style="color:var(--red)">Error ' + r.status + '\n' + escapeHtml(parsed) + '</pre>';
+      btn.disabled = false;
+      return;
+    }
+
+    const reader = r.body ? r.body.getReader() : null;
+    if (!reader) throw new Error('No stream body available');
+
+    const decoder = new TextDecoder();
+    let buffer = '';
+    let streamedAnswer = '';
+    let streamedCitations = [];
+    let metadataEvent = null;
+    let completeEvent = null;
+
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+
+      buffer += decoder.decode(value, { stream: true });
+      let sep = buffer.indexOf('\n\n');
+      while (sep !== -1) {
+        const rawEvent = buffer.slice(0, sep);
+        buffer = buffer.slice(sep + 2);
+        sep = buffer.indexOf('\n\n');
+
+        const parsed = parseSseEvent(rawEvent);
+        if (!parsed) continue;
+
+        const { eventType, data } = parsed;
+        if (eventType === 'metadata') {
+          metadataEvent = data;
+          continue;
+        }
+        if (eventType === 'chunk') {
+          streamedAnswer += String(data.text || '');
+          continue;
+        }
+        if (eventType === 'citation') {
+          streamedCitations = mergeCitations(streamedCitations, [data]);
+          continue;
+        }
+        if (eventType === 'complete') {
+          completeEvent = data;
+          continue;
+        }
+        if (eventType === 'error') {
+          throw new Error(String(data.error || data.text || 'Streaming error'));
+        }
+      }
+    }
+
+    stopTimer(out);
+    const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+    const finalData = {
+      ...(completeEvent || {}),
+      ...(metadataEvent || {}),
+    };
+    if (!finalData.answer && streamedAnswer) finalData.answer = streamedAnswer;
+    if ((!finalData.citations || !finalData.citations.length) && streamedCitations.length) {
+      finalData.citations = streamedCitations;
+    }
+
+    if (Object.keys(finalData).length) {
+      out.innerHTML = renderQueryResponse(finalData, elapsed);
+      if (finalData.response_id) {
+        document.getElementById('c-id').value = finalData.response_id;
+        document.getElementById('e-id').value = finalData.response_id;
+      }
+    } else {
+      out.innerHTML = '<pre style="color:var(--red)">Stream ended without a complete payload.</pre>';
+    }
+  } catch (e) {
+    stopTimer(out);
+    out.innerHTML = '<pre style="color:var(--red)">' + escapeHtml(e.message) + '</pre>';
+  }
+  btn.disabled = false;
+});
+
+// POST /validate
+document.getElementById('v-send').addEventListener('click', async () => {
+  const btn = document.getElementById('v-send');
+  const out = document.getElementById('v-response');
+  btn.disabled = true;
+  showLoading(out);
+  const start = Date.now();
+  try {
+    const sources = document.getElementById('v-sources').value.trim();
+    const body = {
+      answer: document.getElementById('v-answer').value,
+      source_ids: sources ? sources.split(',').map(s => s.trim()) : [],
+      query: document.getElementById('v-query').value || null,
+    };
+    const r = await fetch(API + '/validate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await r.json();
+    stopTimer(out);
+    const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+    out.innerHTML = r.ok ? renderValidateResponse(data, elapsed) : renderJSON(data);
+  } catch (e) {
+    stopTimer(out);
+    out.innerHTML = '<pre style="color:var(--red)">' + escapeHtml(e.message) + '</pre>';
+  }
+  btn.disabled = false;
+});
+
+// POST /delegate
+document.getElementById('d-send').addEventListener('click', async () => {
+  const btn = document.getElementById('d-send');
+  const out = document.getElementById('d-response');
+  btn.disabled = true;
+  showLoading(out);
+  const start = Date.now();
+  try {
+    let subs;
+    try { subs = JSON.parse(document.getElementById('d-subs').value); } catch { subs = []; }
+    const body = {
+      query: document.getElementById('d-query').value,
+      sub_questions: subs,
+      user_type: document.getElementById('d-user-type').value,
+      language: document.getElementById('d-lang').value,
+    };
+    const r = await fetch(API + '/delegate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await r.json();
+    stopTimer(out);
+    const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+    if (r.ok && data.answer) {
+      out.innerHTML = renderQueryResponse(data, elapsed);
+    } else {
+      out.innerHTML = renderJSON(data) + '<div class="timer">' + elapsed + 's</div>';
+    }
+  } catch (e) {
+    stopTimer(out);
+    out.innerHTML = '<pre style="color:var(--red)">' + escapeHtml(e.message) + '</pre>';
+  }
+  btn.disabled = false;
+});
+
+// GET /confidence
+document.getElementById('c-send').addEventListener('click', async () => {
+  const btn = document.getElementById('c-send');
+  const out = document.getElementById('c-response');
+  btn.disabled = true;
+  const id = document.getElementById('c-id').value.trim();
+  if (!id) { out.innerHTML = '<pre style="color:var(--red)">Enter a response ID</pre>'; btn.disabled = false; return; }
+  try {
+    const r = await fetch(API + '/confidence/' + encodeURIComponent(id));
+    const data = await r.json();
+    out.innerHTML = renderJSON(data);
+  } catch (e) {
+    out.innerHTML = '<pre style="color:var(--red)">' + escapeHtml(e.message) + '</pre>';
+  }
+  btn.disabled = false;
+});
+
+// GET /explain_decision
+document.getElementById('e-send').addEventListener('click', async () => {
+  const btn = document.getElementById('e-send');
+  const out = document.getElementById('e-response');
+  btn.disabled = true;
+  const id = document.getElementById('e-id').value.trim();
+  if (!id) { out.innerHTML = '<pre style="color:var(--red)">Enter a response ID</pre>'; btn.disabled = false; return; }
+  try {
+    const r = await fetch(API + '/explain_decision/' + encodeURIComponent(id));
+    const data = await r.json();
+    out.innerHTML = renderJSON(data);
+  } catch (e) {
+    out.innerHTML = '<pre style="color:var(--red)">' + escapeHtml(e.message) + '</pre>';
+  }
+  btn.disabled = false;
+});
+
+// GET /health
+document.getElementById('h-send').addEventListener('click', async () => {
+  const btn = document.getElementById('h-send');
+  const out = document.getElementById('h-response');
+  btn.disabled = true;
+  try {
+    const r = await fetch(API + '/health');
+    const data = await r.json();
+    out.innerHTML = renderJSON(data);
+    checkHealth();
+  } catch (e) {
+    out.innerHTML = '<pre style="color:var(--red)">' + escapeHtml(e.message) + '</pre>';
+  }
+  btn.disabled = false;
+});
+</script>
+</body>
+</html>

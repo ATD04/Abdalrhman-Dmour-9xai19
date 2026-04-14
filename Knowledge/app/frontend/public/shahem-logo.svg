@@ -1,0 +1,25 @@
+<svg width="256" height="256" viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">Shahem Logo</title>
+  <desc id="desc">Circular emblem logo for Shahem with Arabic letter sheen.</desc>
+  <defs>
+    <linearGradient id="bg" x1="24" y1="24" x2="232" y2="232" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0B1220"/>
+      <stop offset="1" stop-color="#1F2B3F"/>
+    </linearGradient>
+    <linearGradient id="gold" x1="70" y1="54" x2="186" y2="202" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F3D48C"/>
+      <stop offset="1" stop-color="#C79A45"/>
+    </linearGradient>
+  </defs>
+
+  <circle cx="128" cy="128" r="108" fill="url(#bg)" stroke="#344155" stroke-width="8"/>
+  <path d="M54 138C54 98 86 66 126 66H130C170 66 202 98 202 138" stroke="#0F172A" stroke-width="20" stroke-linecap="round"/>
+  <path d="M62 138C62 103 91 74 126 74H130C165 74 194 103 194 138" stroke="#2A364B" stroke-width="8" stroke-linecap="round"/>
+
+  <circle cx="128" cy="146" r="58" fill="#F8FAFC" stroke="#CBD5E1" stroke-width="6"/>
+
+  <text x="128" y="162" text-anchor="middle" font-size="64" font-weight="800" fill="url(#gold)" font-family="'IBM Plex Sans Arabic', 'Noto Sans Arabic', sans-serif">ش</text>
+
+  <rect x="44" y="120" width="24" height="52" rx="12" fill="#0F172A"/>
+  <rect x="188" y="120" width="24" height="52" rx="12" fill="#0F172A"/>
+</svg>
