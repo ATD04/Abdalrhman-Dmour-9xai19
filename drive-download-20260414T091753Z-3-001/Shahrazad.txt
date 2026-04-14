@@ -1,0 +1,22 @@
+Voice Input: limited to “live Recording” only to ensure authenticity.  Now we allow uploads voices. 
+•	Anti-impersonation & public figure protection: we implement a Acoustic Fingerprinting, Every uploaded or recorded voice is scanned against a global database of public figures, if a match is detected the generation request is automatically blocked. 
+•	Voice control for not live recorded (uploaded files): the user must select a specific category, before the upload button is activated, the user must check a box agreeing to a mandatory indemnification agreement: By uploading this file, I solemnly affirm that I possess the Legal Privilege and explicit consent to utilize this voice. I certify that this voice does not belong to a public figure, celebrity, or a non-consenting third party. I agree to indemnify and hold Shahrazad harmless against any legal claims arising from the unauthorized use of this audio data. Also if the person is death the family member should upload a prove of death document. 
+•	Free access: it was one time 30-60 sec trial for voice cloning -->  limited daily short attempts to encourage habit-forming usage. 
+•	Personal stories: “the scanner” focused primarily on digitizing physical books. User generated content (UGC) legal protection for personal stories, a “Limited AI-processing license” is signed by the user.  
+•	They purely B2C subscription: B2B scaling, by expanding model to include partnerships with schools such as Abdbinmaktoom, universities and publishers to create a stable, high-volume revenue stream. 
+•	Subscription plan: we change the model because of user retention problem. 
+* infinite storage --> a good chunk of storage for primum 
+* there is no caching to save where the user has stop in the book.
+* there is no existing MVP --> we implement an MVP and tested some features including sleep timer. 
+* there is an opportunity cost: so we add an B2B, and custom deals based on that we have changed the subscription modes to be free, primum and custom for businesses. 
+Free: 5 full-feature tries but limited (slow queue, no saving, lower quality/watermark, very short generation like 30–60 seconds) so it’s only a preview.
+
+Premium: Fast priority queue + high-quality voice with limited voice slots, clear monthly generation limit (hours/credits), limited save vault + offline downloads, and cheap extra features (sleep timer, bookmarks, resume, notes, Smart Reader).
+
+* The auto-scaling plan incorrectly assumes servers can sleep at 3:00 AM local time , completely ignoring the diverse time zones of the targeted expatriate market (e.g., Gulf, Europe, US). Furthermore, holding free users in a "slow queue" still drains API and database resources.--. solution: Switch auto-scaling triggers from time-based rules to pure queue-volume rules (terminating only after 15 minutes of zero traffic) , and completely block free users from the generation queue, restricting them to streaming the pre-processed public domain S3 library.
+
+* The viral TikTok strategy incorrectly assumes users will pay a $14.99/month premium for comedy voice filters, competing directly with free, native social media tools --> Abandon the comedy filter monetization strategy and build the entire premium paywall around "Legacy Preservation" (family voice slots) and exclusive "Shahrazad Originals".
+
+MVP:  
+•	Marketing scaling: - deals and events with publishing housing and book fairs, schools such as Abdbinmaktoom, special deals with universities. 
+•	Add additional features including timer, where we can put a sleep timer of time that the book can stop at.

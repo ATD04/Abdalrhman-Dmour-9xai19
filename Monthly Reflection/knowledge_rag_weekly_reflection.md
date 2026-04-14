@@ -1,0 +1,5 @@
+# Reflection For This Week
+
+This week, I worked on the Knowledge RAG project by focusing on both the system idea and the technical details. I analyzed the platform architecture and found important gaps, especially in privacy between ministries, ticket access, performance, and backend configuration. I also worked on the frontend direction by thinking about the main user roles, the dashboards, the pages, and the features the system should include for each type of user.
+
+I also prepared the project more for actual building. I worked on a strong frontend concept with a premium government style, and I prepared a detailed prompt for Antigravity to help generate that frontend. In addition, I thought deeply about how the system should handle laws, regulations, and document updates, especially how versioning should work when old legal documents are changed. I also explored how to collect official data by looking into scraping Jordanian legislation sources. Overall, this week helped me move the Knowledge RAG project from a general idea into a clearer and more structured platform.

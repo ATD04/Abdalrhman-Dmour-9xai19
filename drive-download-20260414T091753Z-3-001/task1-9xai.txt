@@ -1,0 +1,217 @@
+connections points 
+gaps I can fill
+strengths points
+
+mahdi:
+
+strengths : AI modeling 
+data cleanning 
+math 
+--------------
+gaps : 
+مقاطعة الناس ومذايقتهم 
+--------------
+connections :
+going to gym 
+
+_________________________
+
+karam:
+
+strangths : academic person 
+technical person
+--------------------
+connections: 
+developing himself
+---------------------
+gaps: not social person I think
+
+_____________________________
+
+nagham: 
+
+connections: intersting in soft skills and marketing 
+---------------
+strangths: creative in integration 
+-----------------
+gaps: not adaptable person I think 
+
+_______________________
+
+khaled saleh :
+
+strangths: creating AI chatbots
+-----------------------
+gap: doesn't have connections
+----------
+connections: developing himself
+________________________
+
+abdallah tamimi :
+strangths :
+
+connections :
+
+gaps: no gaps 
+
+____________
+
+nama: 
+
+strangths : app development 
+know to develop ideas to others 
+
+connections :
+
+gaps: 
+
+
+__________
+
+
+hamza:
+
+strangths : soft skills , problem solver 
+
+gaps: 
+
+connections : sales skills and soft skills , also social person, problem solver, not perfect in AI 
+
+
+__________________
+
+
+
+eman obedait: 
+
+strength: AI solutions
+
+connections: 
+
+gaps : not full stack person 
+
+
+__________
+
+
+
+nezar: 
+
+strengths: social
+
+gaps: 
+
+connections: medical feild, create connections with others
+
+_________
+
+
+qutyba:
+
+strengths: passion person, web & game development
+
+connections: 
+
+gaps: 
+
+
+_______
+
+
+
+ahmad:
+
+strength: football player , love to integration AI in his hobbies
+
+gaps: 
+
+connetions: stress
+
+
+____________________
+
+
+salsabeel :
+
+strangths : ML/ AI skills
+
+gaps: stress person
+
+connections: 
+
+_________
+
+
+ali :
+
+strengths: gaming person , visual scripting (c++) , find the perfect 
+
+gaps: bad in math 
+
+connections: hacking
+
+___________
+
+AHmad hassasneh:
+
+
+strengths : prompt engineering, python 
+
+gaps: 
+
+connections: helpful; person
+
+______________
+
+
+mahmood 
+
+strengths: قوي in cybe
+
+gaps: not social person 
+
+connections : ctf challenges , cybersecurity , ما بجتاز المقابلات
+_________
+
+
+
+sewar: 
+
+strengths : communiative person , AI skills, know how to deliver ideas in good way
+
+gaps: not tech person 
+
+connections: stress in the begining , sales skills
+
+__________
+
+
+shahed: 
+
+strengths: AI Skills Like NLP 
+
+gaps: SQL , database 
+
+connections : not good in backend
+
+___________
+
+
+Eman shahadeh:
+
+strengths: technical person in cybersecurity 
+
+gaps: very strict person
+
+connections: cybersecurity person , kali 
+
+_______
+
+
+izz:
+
+strength: AI Skills , creating chatbots, very technical person
+
+connections: 
+
+gaps: not social person 
