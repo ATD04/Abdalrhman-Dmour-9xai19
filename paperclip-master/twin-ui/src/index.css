@@ -1,0 +1,61 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body, #root { height: 100%; margin: 0; padding: 0; }
+  body {
+    background-color: #080808;
+    color: #F2F2F2;
+    font-family: 'Inter', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+  [dir="rtl"] body {
+    font-family: 'Noto Sans Arabic', 'Inter', sans-serif;
+    letter-spacing: 0;
+  }
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #2a2a2a; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3a3a3a; }
+}
+
+/* Logical property utilities for RTL/LTR support */
+@layer utilities {
+  .border-s-2 { border-inline-start-width: 2px; }
+  .border-s-4 { border-inline-start-width: 4px; }
+  .ps-3 { padding-inline-start: 0.75rem; }
+  .ps-4 { padding-inline-start: 1rem; }
+  .ps-5 { padding-inline-start: 1.25rem; }
+  .pe-3 { padding-inline-end: 0.75rem; }
+  .pe-4 { padding-inline-end: 1rem; }
+  .ms-auto { margin-inline-start: auto; }
+  .me-2 { margin-inline-end: 0.5rem; }
+  .me-3 { margin-inline-end: 0.75rem; }
+  .start-0 { inset-inline-start: 0; }
+  .end-4 { inset-inline-end: 1rem; }
+  .end-5 { inset-inline-end: 1.25rem; }
+  .text-end { text-align: end; }
+}
+
+
+@layer components {
+  .card {
+    @apply bg-twin-card border border-twin-border rounded-xl;
+  }
+  .card-hover {
+    @apply bg-twin-card border border-twin-border rounded-xl hover:bg-twin-hover transition-colors;
+  }
+  .btn-primary {
+    @apply bg-white hover:bg-zinc-100 text-black text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors inline-flex items-center gap-1.5 disabled:opacity-40;
+  }
+  .btn-ghost {
+    @apply border border-twin-border hover:border-twin-border-mid text-twin-text-2 hover:text-twin-text text-xs font-medium px-3 py-1.5 rounded-lg transition-colors inline-flex items-center gap-1.5;
+  }
+  .badge {
+    @apply text-xs px-2 py-0.5 rounded-full font-medium;
+  }
+}
+
