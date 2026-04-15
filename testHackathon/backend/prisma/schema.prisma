@@ -1,0 +1,749 @@
+// Prisma schema for Digital Twin of the Minister platform
+// PostgreSQL database with comprehensive data model
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ============================================
+// CORE ENTITIES
+// ============================================
+
+model Entity {
+  id          String   @id @default(cuid())
+  nameEn      String
+  nameAr      String
+  type        EntityType
+  parentId    String?
+  parent      Entity?  @relation("EntityHierarchy", fields: [parentId], references: [id])
+  children    Entity[] @relation("EntityHierarchy")
+  description String?
+  status      EntityStatus @default(ACTIVE)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  initiatives       Initiative[]
+  services          Service[]
+  readinessScores   ReadinessScore[]
+  feedbackItems     Feedback[]
+  dependenciesFrom  Dependency[] @relation("DependencyFrom")
+  dependenciesTo    Dependency[] @relation("DependencyTo")
+  meetings          MeetingParticipant[]
+  policies          Policy[]
+
+  @@map("entities")
+}
+
+enum EntityType {
+  MINISTRY
+  AGENCY
+  DEPARTMENT
+  MUNICIPALITY
+  CORPORATION
+}
+
+enum EntityStatus {
+  ACTIVE
+  INACTIVE
+  RESTRUCTURING
+}
+
+// ============================================
+// MODERNIZATION INITIATIVES
+// ============================================
+
+model Initiative {
+  id              String   @id @default(cuid())
+  titleEn         String
+  titleAr         String
+  descriptionEn   String?
+  descriptionAr   String?
+  entityId        String
+  entity          Entity   @relation(fields: [entityId], references: [id])
+  status          InitiativeStatus @default(PLANNING)
+  priority        Priority @default(MEDIUM)
+  progress        Int      @default(0) // 0-100
+  startDate       DateTime?
+  targetDate      DateTime?
+  actualEndDate   DateTime?
+  budget          Float?
+  spentBudget     Float?
+  riskLevel       RiskLevel @default(LOW)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  milestones     Milestone[]
+  risks          Risk[]
+  dependencies   Dependency[]
+  alerts         Alert[]
+
+  @@map("initiatives")
+}
+
+enum InitiativeStatus {
+  PLANNING
+  IN_PROGRESS
+  ON_TRACK
+  AT_RISK
+  DELAYED
+  COMPLETED
+  CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model Milestone {
+  id            String   @id @default(cuid())
+  initiativeId  String
+  initiative    Initiative @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  titleEn       String
+  titleAr       String
+  dueDate       DateTime
+  completedDate DateTime?
+  status        MilestoneStatus @default(PENDING)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("milestones")
+}
+
+enum MilestoneStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+}
+
+model Risk {
+  id            String   @id @default(cuid())
+  initiativeId  String
+  initiative    Initiative @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  titleEn       String
+  titleAr       String
+  descriptionEn String?
+  descriptionAr String?
+  likelihood    RiskLevel @default(MEDIUM)
+  impact        RiskLevel @default(MEDIUM)
+  status        RiskStatus @default(OPEN)
+  mitigationEn  String?
+  mitigationAr  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("risks")
+}
+
+enum RiskStatus {
+  OPEN
+  MITIGATED
+  ACCEPTED
+  CLOSED
+}
+
+// ============================================
+// PUBLIC SERVICES
+// ============================================
+
+model Service {
+  id              String   @id @default(cuid())
+  nameEn          String
+  nameAr          String
+  descriptionEn   String?
+  descriptionAr   String?
+  entityId        String
+  entity          Entity   @relation(fields: [entityId], references: [id])
+  category        ServiceCategory
+  digitalStatus   DigitalStatus @default(MANUAL)
+  avgProcessingDays Int     @default(0)
+  documentsRequired Int     @default(0)
+  stepsCount      Int      @default(0)
+  annualVolume    Int      @default(0)
+  frictionScore   Int      @default(0) // 0-100, higher = more friction
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  journeySteps       ServiceJourneyStep[]
+  frictionIncidents  FrictionIncident[]
+  feedbackItems      Feedback[]
+
+  @@map("services")
+}
+
+enum ServiceCategory {
+  CITIZEN_SERVICES
+  BUSINESS_SERVICES
+  GOVERNMENT_INTERNAL
+  LICENSING
+  REGISTRATION
+  PERMITS
+  CERTIFICATES
+  PAYMENTS
+  INQUIRIES
+}
+
+enum DigitalStatus {
+  MANUAL
+  PARTIALLY_DIGITAL
+  FULLY_DIGITAL
+  MOBILE_ENABLED
+}
+
+model ServiceJourneyStep {
+  id            String   @id @default(cuid())
+  serviceId     String
+  service       Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  stepNumber    Int
+  titleEn       String
+  titleAr       String
+  descriptionEn String?
+  descriptionAr String?
+  channelType   ChannelType
+  avgDuration   Int      @default(0) // in minutes
+  isDigital     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("service_journey_steps")
+}
+
+enum ChannelType {
+  IN_PERSON
+  ONLINE_PORTAL
+  MOBILE_APP
+  PHONE
+  EMAIL
+  KIOSK
+}
+
+model FrictionIncident {
+  id            String   @id @default(cuid())
+  serviceId     String
+  service       Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  titleEn       String
+  titleAr       String
+  descriptionEn String?
+  descriptionAr String?
+  frictionType  FrictionType
+  severity      Severity @default(MEDIUM)
+  rootCause     RootCause?
+  status        IncidentStatus @default(OPEN)
+  occurrences   Int      @default(1)
+  recommendationEn String?
+  recommendationAr String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("friction_incidents")
+}
+
+enum FrictionType {
+  LONG_WAIT
+  MULTIPLE_VISITS
+  UNCLEAR_REQUIREMENTS
+  EXCESSIVE_DOCUMENTS
+  POOR_HANDOFF
+  SYSTEM_ERROR
+  STAFF_ISSUE
+  POLICY_CONSTRAINT
+}
+
+enum Severity {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum RootCause {
+  POLICY
+  PROCESS
+  HANDOFF
+  DESIGN
+  TECHNICAL
+  TRAINING
+  RESOURCE
+}
+
+enum IncidentStatus {
+  OPEN
+  IN_REVIEW
+  BEING_ADDRESSED
+  RESOLVED
+  WONT_FIX
+}
+
+// ============================================
+// INSTITUTIONAL READINESS
+// ============================================
+
+model ReadinessScore {
+  id          String   @id @default(cuid())
+  entityId    String
+  entity      Entity   @relation(fields: [entityId], references: [id], onDelete: Cascade)
+  dimension   ReadinessDimension
+  score       Int      @default(0) // 0-100
+  assessmentDate DateTime @default(now())
+  assessorNotes String?
+  evidenceLink  String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([entityId, dimension, assessmentDate])
+  @@map("readiness_scores")
+}
+
+enum ReadinessDimension {
+  GOVERNANCE
+  CAPABILITIES
+  TECHNOLOGY
+  CULTURE
+  LEADERSHIP
+}
+
+// ============================================
+// POLICIES
+// ============================================
+
+model Policy {
+  id              String   @id @default(cuid())
+  titleEn         String
+  titleAr         String
+  descriptionEn   String?
+  descriptionAr   String?
+  entityId        String?
+  entity          Entity?  @relation(fields: [entityId], references: [id])
+  status          PolicyStatus @default(DRAFT)
+  type            PolicyType
+  priority        Priority @default(MEDIUM)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  options         PolicyOption[]
+  impactAssessments PolicyImpact[]
+
+  @@map("policies")
+}
+
+enum PolicyStatus {
+  DRAFT
+  UNDER_REVIEW
+  APPROVED
+  IMPLEMENTED
+  ARCHIVED
+}
+
+enum PolicyType {
+  LEGISLATION
+  REGULATION
+  DIRECTIVE
+  GUIDELINE
+  REFORM
+}
+
+model PolicyOption {
+  id              String   @id @default(cuid())
+  policyId        String
+  policy          Policy   @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  titleEn         String
+  titleAr         String
+  descriptionEn   String?
+  descriptionAr   String?
+  effectiveness   Int      @default(0) // 0-100
+  equity          Int      @default(0) // 0-100
+  cost            Int      @default(0) // 0-100 (100 = high cost)
+  speed           Int      @default(0) // 0-100
+  risk            Int      @default(0) // 0-100 (100 = high risk)
+  isRecommended   Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("policy_options")
+}
+
+model PolicyImpact {
+  id                String   @id @default(cuid())
+  policyId          String
+  policy            Policy   @relation(fields: [policyId], references: [id], onDelete: Cascade)
+  stakeholderGroup  String
+  impactType        ImpactType
+  impactLevel       ImpactLevel
+  descriptionEn     String?
+  descriptionAr     String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@map("policy_impacts")
+}
+
+enum ImpactType {
+  POSITIVE
+  NEGATIVE
+  NEUTRAL
+  MIXED
+}
+
+enum ImpactLevel {
+  MINIMAL
+  MODERATE
+  SIGNIFICANT
+  MAJOR
+}
+
+// ============================================
+// CROSS-ENTITY COORDINATION
+// ============================================
+
+model Dependency {
+  id              String   @id @default(cuid())
+  initiativeId    String?
+  initiative      Initiative? @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  fromEntityId    String
+  fromEntity      Entity   @relation("DependencyFrom", fields: [fromEntityId], references: [id])
+  toEntityId      String
+  toEntity        Entity   @relation("DependencyTo", fields: [toEntityId], references: [id])
+  titleEn         String
+  titleAr         String
+  descriptionEn   String?
+  descriptionAr   String?
+  type            DependencyType
+  status          DependencyStatus @default(PENDING)
+  dueDate         DateTime?
+  completedDate   DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  blockers        Blocker[]
+
+  @@map("dependencies")
+}
+
+enum DependencyType {
+  DATA_SHARING
+  APPROVAL
+  RESOURCE
+  TECHNICAL
+  POLICY
+  BUDGET
+}
+
+enum DependencyStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  BLOCKED
+  OVERDUE
+}
+
+model Blocker {
+  id              String   @id @default(cuid())
+  dependencyId    String
+  dependency      Dependency @relation(fields: [dependencyId], references: [id], onDelete: Cascade)
+  titleEn         String
+  titleAr         String
+  descriptionEn   String?
+  descriptionAr   String?
+  reportedDate    DateTime @default(now())
+  escalationLevel EscalationLevel @default(WORKING)
+  status          BlockerStatus @default(OPEN)
+  resolutionEn    String?
+  resolutionAr    String?
+  resolvedDate    DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("blockers")
+}
+
+enum EscalationLevel {
+  WORKING
+  DIRECTOR
+  SECRETARY_GENERAL
+  MINISTERIAL
+}
+
+enum BlockerStatus {
+  OPEN
+  IN_PROGRESS
+  ESCALATED
+  RESOLVED
+}
+
+// ============================================
+// CITIZEN FEEDBACK
+// ============================================
+
+model Feedback {
+  id            String   @id @default(cuid())
+  entityId      String?
+  entity        Entity?  @relation(fields: [entityId], references: [id])
+  serviceId     String?
+  service       Service? @relation(fields: [serviceId], references: [id])
+  source        FeedbackSource
+  channel       FeedbackChannel
+  contentEn     String?
+  contentAr     String?
+  sentiment     Sentiment
+  themes        String[] // Array of theme tags
+  priority      Priority @default(MEDIUM)
+  status        FeedbackStatus @default(NEW)
+  responseEn    String?
+  responseAr    String?
+  receivedAt    DateTime @default(now())
+  processedAt   DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@map("feedback")
+}
+
+enum FeedbackSource {
+  COMPLAINT
+  SUGGESTION
+  INQUIRY
+  APPRECIATION
+  SURVEY
+}
+
+enum FeedbackChannel {
+  ONLINE_PORTAL
+  MOBILE_APP
+  CALL_CENTER
+  SOCIAL_MEDIA
+  EMAIL
+  IN_PERSON
+  SMS
+}
+
+enum Sentiment {
+  POSITIVE
+  NEUTRAL
+  NEGATIVE
+}
+
+enum FeedbackStatus {
+  NEW
+  UNDER_REVIEW
+  RESPONDED
+  RESOLVED
+  CLOSED
+}
+
+// ============================================
+// MEETINGS & DECISIONS
+// ============================================
+
+model Meeting {
+  id              String   @id @default(cuid())
+  titleEn         String
+  titleAr         String
+  descriptionEn   String?
+  descriptionAr   String?
+  meetingType     MeetingType
+  scheduledAt     DateTime
+  duration        Int      @default(60) // in minutes
+  location        String?
+  status          MeetingStatus @default(SCHEDULED)
+  briefingNotesEn String?
+  briefingNotesAr String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  participants    MeetingParticipant[]
+  agendaItems     AgendaItem[]
+  decisions       Decision[]
+  followUps       FollowUp[]
+
+  @@map("meetings")
+}
+
+enum MeetingType {
+  STEERING_COMMITTEE
+  MINISTERIAL_REVIEW
+  WORKING_GROUP
+  BILATERAL
+  BRIEFING
+  CABINET
+}
+
+enum MeetingStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+  POSTPONED
+}
+
+model MeetingParticipant {
+  id          String   @id @default(cuid())
+  meetingId   String
+  meeting     Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  entityId    String?
+  entity      Entity?  @relation(fields: [entityId], references: [id])
+  name        String
+  role        String?
+  isRequired  Boolean  @default(true)
+  attendance  AttendanceStatus @default(PENDING)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("meeting_participants")
+}
+
+enum AttendanceStatus {
+  PENDING
+  CONFIRMED
+  ATTENDED
+  ABSENT
+  DELEGATED
+}
+
+model AgendaItem {
+  id              String   @id @default(cuid())
+  meetingId       String
+  meeting         Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  orderNumber     Int
+  titleEn         String
+  titleAr         String
+  descriptionEn   String?
+  descriptionAr   String?
+  presenter       String?
+  duration        Int?     // in minutes
+  status          AgendaItemStatus @default(PENDING)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("agenda_items")
+}
+
+enum AgendaItemStatus {
+  PENDING
+  DISCUSSED
+  DEFERRED
+  CANCELLED
+}
+
+model Decision {
+  id              String   @id @default(cuid())
+  meetingId       String
+  meeting         Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  titleEn         String
+  titleAr         String
+  descriptionEn   String?
+  descriptionAr   String?
+  decisionType    DecisionType
+  priority        Priority @default(MEDIUM)
+  owner           String?
+  deadline        DateTime?
+  status          DecisionStatus @default(PENDING)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("decisions")
+}
+
+enum DecisionType {
+  APPROVAL
+  DIRECTION
+  ESCALATION
+  DEFERRAL
+  REJECTION
+}
+
+enum DecisionStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+}
+
+model FollowUp {
+  id              String   @id @default(cuid())
+  meetingId       String
+  meeting         Meeting  @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  titleEn         String
+  titleAr         String
+  descriptionEn   String?
+  descriptionAr   String?
+  owner           String?
+  deadline        DateTime?
+  priority        Priority @default(MEDIUM)
+  status          FollowUpStatus @default(PENDING)
+  completedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("follow_ups")
+}
+
+enum FollowUpStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+  CANCELLED
+}
+
+// ============================================
+// ALERTS & BRIEFS
+// ============================================
+
+model Alert {
+  id              String   @id @default(cuid())
+  initiativeId    String?
+  initiative      Initiative? @relation(fields: [initiativeId], references: [id], onDelete: Cascade)
+  type            AlertType
+  severity        Severity
+  titleEn         String
+  titleAr         String
+  descriptionEn   String?
+  descriptionAr   String?
+  source          String?
+  status          AlertStatus @default(ACTIVE)
+  acknowledgedAt  DateTime?
+  resolvedAt      DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("alerts")
+}
+
+enum AlertType {
+  SLIPPAGE
+  RISK
+  BLOCKER
+  CITIZEN_SIGNAL
+  READINESS
+  POLICY
+  COORDINATION
+  DEADLINE
+}
+
+enum AlertStatus {
+  ACTIVE
+  ACKNOWLEDGED
+  IN_PROGRESS
+  RESOLVED
+  DISMISSED
+}
