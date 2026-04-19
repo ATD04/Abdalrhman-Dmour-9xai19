@@ -1,0 +1,115 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  
+  --shadow-subtle: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  --shadow-premium: 0 10px 40px -4px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04);
+}
+
+@layer base {
+  :root {
+    --background: #fdfdfd; /* Light neutral base */
+    --foreground: #0f172a; /* Slate 900 */
+    
+    --muted: #f1f5f9;      /* Slate 100 */
+    --muted-foreground: #64748b; /* Slate 500 */
+    
+    --primary: #4f46e5;    /* Indigo 600 - vibrant accent */
+    --primary-foreground: #ffffff;
+    
+    --secondary: #e2e8f0;  /* Slate 200 */
+    --secondary-foreground: #1e293b; /* Slate 800 */
+    
+    --accent: #e0e7ff;     /* Indigo 100 */
+    --accent-foreground: #3730a3; /* Indigo 800 */
+    
+    --destructive: #ef4444; /* Red 500 */
+    --destructive-foreground: #ffffff;
+    
+    --border: #e2e8f0;     /* Slate 200 */
+    --input: #e2e8f0;
+    --ring: #4f46e5;       /* Indigo 600 */
+    
+    --radius: 0.75rem;     /* 12px for beautiful rounded corners */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-indigo-100 selection:text-indigo-900;
+    font-family: var(--font-sans);
+  }
+}
+
+/* Custom Utilities for smooth transitions */
+@layer utilities {
+  .transition-spring {
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    transition-duration: 300ms;
+  }
+
+  /* Custom Print Styles */
+  @page {
+    margin: 1.5cm;
+    size: letter;
+  }
+  @media print {
+    body {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+      background: white !important;
+    }
+    .no-print {
+      display: none !important;
+    }
+    .print-only {
+      display: block !important;
+    }
+    .print-break-inside-avoid {
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    .print-page-break {
+      page-break-before: always;
+      break-before: page;
+    }
+    #dashboard-layout {
+      height: auto !important;
+      overflow: visible !important;
+      display: block !important;
+    }
+    #brief-content {
+      width: 100% !important;
+      max-width: none !important;
+      padding: 0 !important;
+      overflow: visible !important;
+    }
+  }
+}
