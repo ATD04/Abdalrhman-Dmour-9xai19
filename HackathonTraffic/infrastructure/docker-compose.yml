@@ -1,0 +1,21 @@
+version: "3.8"
+
+services:
+  # Database
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: traffic_db
+    ports:
+      - "5432:5432"
+
+  # Backend Placeholder
+  # backend:
+  #   build: ./backend
+  #   ports:
+  #     - "8000:8000"
+
+  # Kafka setup placeholder
+  # zookeeper / kafka

@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pydantic
+opencv-python-headless
+torch
+pandas
+numpy
+kafka-python
+psycopg2-binary
+sqlalchemy
