@@ -1,0 +1,24 @@
+{
+  "site_id": "AMM-WS-01",
+  "site_name": "Wadi Saqra Intersection",
+  "city": "Amman",
+  "country": "Jordan",
+  "gps_coordinates": {
+    "latitude": 31.9613,
+    "longitude": 35.9038
+  },
+  "camera_configuration": {
+    "camera_id": "CAM-01",
+    "mounting_height_meters": 8.5,
+    "tilt_angle_degrees": 45,
+    "field_of_view_description": "Overlooking the intersection core from the North-West corner",
+    "resolution": "1920x1080",
+    "frame_rate_fps": 15
+  },
+  "approaches": [
+    {"id": "A1", "label": "Prince Shaker St (North)"},
+    {"id": "A2", "label": "Arar St (South)"},
+    {"id": "A3", "label": "Zahran St (East)"},
+    {"id": "A4", "label": "Wadi Saqra St (West)"}
+  ]
+}

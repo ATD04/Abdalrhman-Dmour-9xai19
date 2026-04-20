@@ -1,1 +1,81 @@
-*/__init__.py
+# ========================
+# Hackathon Traffic Custom
+# ========================
+# Ignore heavy datasets in the sandbox to prevent enormous git commits
+HackathonTraffic/data_sandbox/video/*
+!HackathonTraffic/data_sandbox/video/.gitkeep
+HackathonTraffic/data_sandbox/detector/*
+!HackathonTraffic/data_sandbox/detector/.gitkeep
+HackathonTraffic/data_sandbox/signals/*
+!HackathonTraffic/data_sandbox/signals/.gitkeep
+HackathonTraffic/data_sandbox/annotations/*
+!HackathonTraffic/data_sandbox/annotations/.gitkeep
+HackathonTraffic/backend/ai/weights/
+
+# Ignore sensitive database/broker configs locally
+HackathonTraffic/.env
+HackathonTraffic/infrastructure/kafka/data/
+HackathonTraffic/infrastructure/monitoring/data/
+
+# ========================
+# Python / Backend
+# ========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# ========================
+# Node / Frontend (React)
+# ========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Vite production builds
+HackathonTraffic/frontend/dist/
+HackathonTraffic/frontend/build/
+
+# ========================
+# IDEs & OS
+# ========================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
