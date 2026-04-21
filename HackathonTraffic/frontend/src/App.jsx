@@ -162,10 +162,10 @@ const App = () => {
             <ShieldCheck className="text-blue-400 w-6 h-6" />
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight uppercase">Traffic Intelligence Dashboard</h1>
+            <h1 className="text-xl font-bold tracking-tight uppercase">Traffic Intelligence Sandbox Monitor</h1>
             <div className="flex items-center gap-2 text-xs text-slate-400 font-mono">
               <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
-              WADI SAQRA (AMM-WS-01) | LIVE_STREAM: ACTIVE
+              NODE: AMM-WS-01 (WADI SAQRA) | SANDBOX_PREVIEW_MODE: ACTIVE
             </div>
           </div>
         </div>

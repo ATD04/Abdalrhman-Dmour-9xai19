@@ -1,0 +1,5 @@
+timestamp,detector_id,vehicle_count
+2026-04-21 14:00:00,det_N_0,25
+2026-04-21 14:15:00,det_N_0,INVALID_COUNT_STRING
+2026-04-21 14:30:00,---CORRUPTED_ID---,-999
+2026-04-21 14:45:00,det_N_0,

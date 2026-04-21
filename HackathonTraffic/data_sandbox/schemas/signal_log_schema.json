@@ -1,0 +1,12 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Signal Event Log Schema",
+  "type": "object",
+  "properties": {
+    "timestamp": { "type": "string", "format": "date-time" },
+    "phase_id": { "type": "string" },
+    "state": { "enum": ["RED_ON", "YELLOW_ON", "GREEN_ON"] },
+    "duration_until_next_change": { "type": "number", "minimum": 0 }
+  },
+  "required": ["timestamp", "phase_id", "state"]
+}

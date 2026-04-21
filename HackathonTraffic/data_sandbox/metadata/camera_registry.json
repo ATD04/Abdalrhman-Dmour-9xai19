@@ -1,0 +1,27 @@
+{
+  "site_id": "AMM-WS-01",
+  "cameras": [
+    {
+      "camera_id": "CAM-01-N",
+      "orientation": "North",
+      "model": "Representative_1080p",
+      "mounting_height_m": 6.5,
+      "tilt_degrees": 45,
+      "resolution": [1920, 1080],
+      "gps": [31.96105, 35.89705],
+      "intended_use": "Northbound_Monitoring",
+      "status": "SIMULATED"
+    },
+    {
+      "camera_id": "CAM-02-S",
+      "orientation": "South",
+      "model": "Representative_1080p",
+      "mounting_height_m": 6.5,
+      "tilt_degrees": 45,
+      "resolution": [1920, 1080],
+      "gps": [31.96100, 35.89700],
+      "intended_use": "Southbound_Monitoring",
+      "status": "SIMULATED"
+    }
+  ]
+}

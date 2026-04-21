@@ -1,0 +1,10 @@
+{
+  "site_id": "AMM-WS-01",
+  "stop_lines": [
+    {"lane_id": "N_0", "y_px": 850, "x_range": [0, 400]},
+    {"lane_id": "N_1", "y_px": 850, "x_range": [400, 800]},
+    {"lane_id": "S_0", "y_px": 200, "x_range": [0, 1920]},
+    {"lane_id": "E_0", "y_px": 500, "x_range": [1500, 1920]}
+  ],
+  "note": "Coordinates are representative for the simulated view."
+}

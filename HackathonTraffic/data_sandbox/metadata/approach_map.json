@@ -1,0 +1,25 @@
+{
+  "site_id": "AMM-WS-01",
+  "approaches": {
+    "North": {
+      "road_name": "Arar Street",
+      "lane_ids": ["N_0", "N_1", "N_2"],
+      "detector_ids": ["det_N_0", "det_N_1", "det_N_2"]
+    },
+    "South": {
+      "road_name": "Arar Street",
+      "lane_ids": ["S_0", "S_1", "S_2"],
+      "detector_ids": ["det_S_0", "det_S_1", "det_S_2"]
+    },
+    "East": {
+      "road_name": "Zahran Street",
+      "lane_ids": ["E_0", "E_1", "E_2", "E_3"],
+      "detector_ids": ["det_E_0", "det_E_1", "det_E_2", "det_E_3"]
+    },
+    "West": {
+      "road_name": "Zahran Street",
+      "lane_ids": ["W_0", "W_1", "W_2", "W_3"],
+      "detector_ids": ["det_W_0", "det_W_1", "det_W_2", "det_W_3"]
+    }
+  }
+}

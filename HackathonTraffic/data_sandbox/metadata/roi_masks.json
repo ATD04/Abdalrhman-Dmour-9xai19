@@ -1,0 +1,17 @@
+{
+  "site_id": "AMM-WS-01",
+  "roi_masks": [
+    {
+      "roi_id": "ROI-01-ROAD",
+      "camera_id": "CAM-01-N",
+      "points": [[0, 350], [1920, 350], [1920, 1080], [0, 1080]],
+      "purpose": "Primary_Detection_Zone"
+    },
+    {
+      "roi_id": "ROI-02-QUEUING",
+      "camera_id": "CAM-01-N",
+      "points": [[400, 400], [1400, 400], [1600, 900], [200, 900]],
+      "purpose": "Queue_Spillback_Analysis"
+    }
+  ]
+}

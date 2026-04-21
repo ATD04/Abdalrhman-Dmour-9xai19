@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Forecast Output Schema",
+  "description": "Contractual output format from the Phase 2 traffic demand forecasting module.",
+  "type": "object",
+  "properties": {
+    "generated_at": { "type": "string", "format": "date-time" },
+    "site_id": { "type": "string" },
+    "horizon_minutes": { "type": "integer", "enum": [15, 30, 60] },
+    "predictions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "target_timestamp": { "type": "string", "format": "date-time" },
+          "detector_id": { "type": "string", "description": "Must match approach_map.json" },
+          "approach": { "type": "string", "enum": ["North", "South", "East", "West"] },
+          "predicted_volume": { "type": "integer", "minimum": 0 },
+          "confidence_interval_low": { "type": "number" },
+          "confidence_interval_high": { "type": "number" },
+          "model_used": { "type": "string" }
+        },
+        "required": ["target_timestamp", "detector_id", "predicted_volume"]
+      }
+    }
+  },
+  "required": ["generated_at", "site_id", "horizon_minutes", "predictions"]
+}

@@ -1,0 +1,45 @@
+{
+  "site_id": "AMM-WS-01",
+  "cycle_assumptions": "Representative 4-phase pre-timed cycle. Assumptions based on standard urban intersection design. Not sourced from municipal configuration files.",
+  "default_cycle_length_s": 120,
+  "phases": {
+    "1": {
+      "movements": ["North_Straight", "South_Straight"],
+      "min_green_s": 15,
+      "max_green_s": 60,
+      "typical_green_s": 35,
+      "amber_s": 4,
+      "all_red_clearance_s": 2
+    },
+    "2": {
+      "movements": ["East_Straight", "West_Straight"],
+      "min_green_s": 15,
+      "max_green_s": 60,
+      "typical_green_s": 40,
+      "amber_s": 4,
+      "all_red_clearance_s": 2
+    },
+    "3": {
+      "movements": ["North_Left", "South_Left"],
+      "min_green_s": 10,
+      "max_green_s": 40,
+      "typical_green_s": 20,
+      "amber_s": 3,
+      "all_red_clearance_s": 2
+    },
+    "4": {
+      "movements": ["East_Left", "West_Left"],
+      "min_green_s": 10,
+      "max_green_s": 40,
+      "typical_green_s": 20,
+      "amber_s": 3,
+      "all_red_clearance_s": 2
+    }
+  },
+  "optimization_levers": {
+    "extension_increment_s": 5,
+    "reduction_increment_s": 5,
+    "max_extension_per_cycle": 20,
+    "note": "Recommendation layer (Phase 2) must stay strictly within min/max green bounds. All outputs are for decision support only."
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "fault_id": "FLT-VID-01",
+  "source_video": "raw/video1.mp4",
+  "fault_type": "dropped_frames",
+  "affected_windows": [
+    {"start": "00:05:00", "end": "00:05:05", "frame_loss_pct": 100},
+    {"start": "00:12:30", "end": "00:12:32", "frame_loss_pct": 50}
+  ],
+  "intended_use": "Validation of ingestion stability and stream reconnection logic."
+}
