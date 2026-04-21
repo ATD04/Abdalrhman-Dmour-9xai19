@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<net version="1.16" junctionCornerDetail="5" limitTurnSpeed="5.50" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/net_file.xsd">
+    <location netOffset="0.00,0.00" convBoundary="-500.00,-500.00,500.00,500.00" origBoundary="35.90,31.96,35.91,31.97" projParameter="!"/>
+    
+    <!-- Nodes -->
+    <junction id="center" type="traffic_light" x="0.00" y="0.00" incLanes="N2C_0 N2C_1 N2C_2 N2C_3 N2C_4 N2C_5 S2C_0 S2C_1 S2C_2 S2C_3 S2C_4 S2C_5 E2C_0 E2C_1 E2C_2 E2C_3 E2C_4 E2C_5 W2C_0 W2C_1 W2C_2 W2C_3 W2C_4 W2C_5" intLanes="" shape="-15,-20 15,-20 15,20 -15,20"/>
+    <junction id="north" type="priority" x="0.00" y="500.00" incLanes="C2N_0 C2N_1 C2N_2 C2N_3 C2N_4 C2N_5" intLanes="" shape="0,500"/>
+    <junction id="south" type="priority" x="0.00" y="-500.00" incLanes="C2S_0 C2S_1 C2S_2 C2S_3 C2S_4 C2S_5" intLanes="" shape="0,-500"/>
+    <junction id="east" type="priority" x="500.00" y="0.00" incLanes="C2E_0 C2E_1 C2E_2 C2E_3 C2E_4 C2E_5" intLanes="" shape="500,0"/>
+    <junction id="west" type="priority" x="-500.00" y="0.00" incLanes="C2W_0 C2W_1 C2W_2 C2W_3 C2W_4 C2W_5" intLanes="" shape="-500,0"/>
+
+    <!-- Edges (Lanes: 3 Through, 2 Left, 1 Right) -->
+    <edge id="N2C" from="north" to="center" priority="1" numLanes="6" speed="13.89"/>
+    <edge id="C2N" from="center" to="north" priority="1" numLanes="6" speed="13.89"/>
+    <edge id="S2C" from="south" to="center" priority="1" numLanes="6" speed="13.89"/>
+    <edge id="C2S" from="center" to="south" priority="1" numLanes="6" speed="13.89"/>
+    <edge id="E2C" from="east" to="center" priority="1" numLanes="6" speed="13.89"/>
+    <edge id="C2E" from="center" to="east" priority="1" numLanes="6" speed="13.89"/>
+    <edge id="W2C" from="west" to="center" priority="1" numLanes="6" speed="13.89"/>
+    <edge id="C2W" from="center" to="west" priority="1" numLanes="6" speed="13.89"/>
+
+    <!-- Traffic Light Logic -->
+    <tlLogic id="center" type="static" programID="0" offset="0">
+        <phase duration="31" state="GGGGggrrrrrrGGGGggrrrrrr"/> <!-- N/S Through -->
+        <phase duration="6"  state="yyyyyyrrrrrryyyyyyrrrrrr"/>
+        <phase duration="31" state="rrrrrrGGGGggrrrrrrGGGGgg"/> <!-- E/W Through -->
+        <phase duration="6"  state="rrrrrryyyyyyrrrrrryyyyyy"/>
+    </tlLogic>
+</net>

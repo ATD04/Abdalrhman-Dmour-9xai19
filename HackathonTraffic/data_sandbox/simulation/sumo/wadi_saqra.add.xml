@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<additional xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/additional_file.xsd">
+    <!-- Induction Loops for OSM Approaches -->
+    <inductionLoop id="L1-T1" lane="-50656054#0_0" pos="-20" freq="900" file="detector_output_xml.xml"/>
+    <inductionLoop id="L2-T1" lane="-50656063#3_0" pos="-20" freq="900" file="detector_output_xml.xml"/>
+    <inductionLoop id="L3-T1" lane="-50839924_0" pos="-20" freq="900" file="detector_output_xml.xml"/>
+    <inductionLoop id="L4-T1" lane="50656063#1_0" pos="-20" freq="900" file="detector_output_xml.xml"/>
+</additional>
