@@ -16,9 +16,9 @@ We utilized **Eclipse SUMO v1.26.0** to generate an 8-hour representative micros
 
 ### 3. Normalization and Synchronization
 A centralized normalization pipeline ensures all sandbox layers share a common reference:
-- SUMO phase IDs (e.g., `gs1`) mapped to standardized Phase Numbers (1–4).
-- All timestamps standardized to `YYYY-MM-DD HH:MM:SS` (UTC).
-- Detector naming re-indexed to match the cardinal approach map (North, South, East, West) per `naming_conventions.md`.
+- Map SUMO phase IDs (e.g., `gs1`) to standardized Phase Numbers (1–4).
+- Standardize all timestamps to `2026-04-21 HH:MM:SS` (UTC) to ensure multi-modal alignment.
+- Re-index detector naming to match the cardinal approach map (North, South, East, West) per `naming_conventions.md`.
 
 ### 4. Forecasting-Ready Dataset
 A 24-hour cycle was extrapolated from the 8-hour simulation using demand factor profiles for AM peak, midday, PM peak, and overnight. The dataset maintains lane-based structure and adds forecasting-ready feature fields. See `detector/forecasting_ready/feature_definitions.json` for the full feature contract.

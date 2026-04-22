@@ -20,7 +20,7 @@ Raw 1-minute vehicle counts from the SUMO simulation.
 
 | Field | Type | Description |
 |---|---|---|
-| `timestamp` | DATETIME | End of 15-min window (YYYY-MM-DD HH:MM:SS) |
+| `timestamp` | DATETIME | End of 15-min window (2026-04-21 HH:MM:SS) |
 | `date` | DATE | Calendar date |
 | `time_of_day` | STRING | HH:MM — useful for periodic feature encoding |
 | `detector_id` | STRING | Maps to `approach_map.json` |
@@ -40,7 +40,7 @@ Event-based log of traffic signal phase transitions.
 
 | Field | Type | Description |
 |---|---|---|
-| `timestamp` | DATETIME | Precise event time (YYYY-MM-DD HH:MM:SS.mmm) |
+| `timestamp` | DATETIME | Precise event time (2026-04-21 HH:MM:SS.mmm) |
 | `intersection_id` | STRING | Always `AMM-WS-01` |
 | `phase_number` | INTEGER | Phase 1–4 (maps to `phase_movement_map.json`) |
 | `signal_state` | STRING | `GREEN_ON`, `YELLOW_ON`, or `RED_ON` |

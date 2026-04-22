@@ -20,6 +20,7 @@ const App = () => {
   const [currentVideo, setCurrentVideo] = useState(null);
   const [activeIncident, setActiveIncident] = useState(null);
   const [activeTab, setActiveTab] = useState('live');
+  const [currentVideoData, setCurrentVideoData] = useState(null);
   const videoRef = useRef(null);
   const requestRef = useRef();
 
@@ -52,7 +53,9 @@ const App = () => {
         setStreamIntel(streamData);
         
         if (clipList.clips && clipList.clips.length > 0) {
-          setCurrentVideo(`http://localhost:8000/video/${clipList.clips[0].source_file}`);
+          const firstClip = clipList.clips[0];
+          setCurrentVideo(`http://localhost:8000/video/${firstClip.source_video}`);
+          setCurrentVideoData(firstClip);
         }
         
         setLoading(false);
@@ -78,25 +81,37 @@ const App = () => {
       }
 
       // 2. Simulation Sync (HH:MM:SS)
-      const h = Math.floor(currentTime_sec / 3600);
-      const m = Math.floor((currentTime_sec % 3600) / 60);
-      const s = Math.floor(currentTime_sec % 60);
+      let offset_sec = 0;
+      if (currentVideoData?.start_time) {
+        offset_sec = parseTimestamp(currentVideoData.start_time);
+      }
+      
+      const total_sec = offset_sec + currentTime_sec;
+      const h = Math.floor(total_sec / 3600) % 24;
+      const m = Math.floor((total_sec % 3600) / 60);
+      const s = Math.floor(total_sec % 60);
       const timeStr = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+      const shortTimeStr = `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}`;
 
       // Signals
-      const relevantLogs = signalLogs.filter(log => log.time <= timeStr);
+      const relevantLogs = signalLogs.filter(log => {
+        const logTime = log.timestamp.split(' ')[1]; 
+        return logTime <= timeStr;
+      });
+      
       if (relevantLogs.length > 0) {
         const latestState = {};
         relevantLogs.forEach(log => {
-          latestState[String(log.phase)] = log.state.split(' ')[0];
+          latestState[String(log.phase_number)] = log.signal_state.split(' ')[0];
         });
         setCurrentSignals(prev => ({...prev, ...latestState}));
       }
 
       // Lane Grid
-      const trafficEntry = trafficData.find(d => d.time.startsWith(timeStr.substring(0, 5)));
-      if (trafficEntry?.lanes) {
-        setCurrentLanes(trafficEntry.lanes);
+      const trafficEntry = trafficData.find(d => d.time === shortTimeStr);
+      if (trafficEntry) {
+        // If trafficEntry has lane data, set it
+        if (trafficEntry.lanes) setCurrentLanes(trafficEntry.lanes);
       }
     }
     requestRef.current = requestAnimationFrame(syncDetections);
@@ -117,7 +132,10 @@ const App = () => {
   const handleIncidentClick = (incident) => {
     setActiveTab('live');
     setActiveIncident(incident);
-    const videoUrl = `http://localhost:8000/video/${incident.video_file}`;
+    setCurrentVideoData(incident);
+    const videoUrl = incident.video_file.startsWith('raw/') 
+      ? `http://localhost:8000/video/${incident.video_file}`
+      : `http://localhost:8000/video/raw/${incident.video_file}`;
 
     if (currentVideo !== videoUrl) {
       setCurrentVideo(videoUrl);
@@ -203,6 +221,9 @@ const App = () => {
                   ref={videoRef}
                   src={currentVideo}
                   controls
+                  muted
+                  autoPlay
+                  crossOrigin="anonymous"
                   className="w-full h-full object-contain"
                 />
 
