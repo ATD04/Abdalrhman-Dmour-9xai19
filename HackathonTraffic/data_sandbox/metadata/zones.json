@@ -1,34 +1,15 @@
 {
+  "site_id": "AMM-WS-01",
   "zones": [
     {
-      "id": "Z1-QUE",
-      "approach": "A1",
-      "type": "Spillback_Monitor",
-      "description": "Monitors queue reaching the upstream signal for North approach"
+      "zone_id": "Z-ENTRY-WEST",
+      "type": "counting_line",
+      "line": [[0.05, 0.5], [0.05, 0.75]]
     },
     {
-      "id": "Z1-CNT",
-      "approach": "A1",
-      "type": "Counting_Stopline",
-      "description": "Counting line at the stop line for North approach"
-    },
-    {
-      "id": "Z2-QUE",
-      "approach": "A2",
-      "type": "Spillback_Monitor",
-      "description": "Monitors queue reaching the upstream signal for South approach"
-    },
-    {
-      "id": "Z3-QUE",
-      "approach": "A3",
-      "type": "Spillback_Monitor",
-      "description": "Monitors queue reaching the upstream signal for East approach"
-    },
-    {
-      "id": "Z4-QUE",
-      "approach": "A4",
-      "type": "Spillback_Monitor",
-      "description": "Monitors queue reaching the upstream signal for West approach"
+      "zone_id": "Z-EXIT-NORTH",
+      "type": "counting_line",
+      "line": [[0.4, 0.15], [0.6, 0.15]]
     }
   ]
 }

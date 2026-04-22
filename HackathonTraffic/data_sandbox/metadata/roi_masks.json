@@ -1,17 +1,23 @@
 {
   "site_id": "AMM-WS-01",
-  "roi_masks": [
+  "rois": [
     {
-      "roi_id": "ROI-01-ROAD",
-      "camera_id": "CAM-01-N",
-      "points": [[0, 350], [1920, 350], [1920, 1080], [0, 1080]],
-      "purpose": "Primary_Detection_Zone"
+      "roi_id": "ROI-WEST-APPROACH",
+      "description": "Curved inbound from West",
+      "polygon": [[0.0, 0.5], [0.15, 0.52], [0.35, 0.58], [0.4, 0.75], [0.2, 0.82], [0.0, 0.85]],
+      "active": true
     },
     {
-      "roi_id": "ROI-02-QUEUING",
-      "camera_id": "CAM-01-N",
-      "points": [[400, 400], [1400, 400], [1600, 900], [200, 900]],
-      "purpose": "Queue_Spillback_Analysis"
+      "roi_id": "ROI-SOUTH-APPROACH",
+      "description": "Main flow from South",
+      "polygon": [[0.35, 0.98], [0.55, 0.98], [0.52, 0.65], [0.45, 0.55], [0.38, 0.65]],
+      "active": true
+    },
+    {
+      "roi_id": "ROI-INTERSECTION-CORE",
+      "description": "Central circulating area",
+      "polygon": [[0.25, 0.5], [0.75, 0.5], [0.85, 0.75], [0.15, 0.75]],
+      "active": true
     }
   ]
 }

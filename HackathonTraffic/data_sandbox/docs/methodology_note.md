@@ -1,6 +1,6 @@
 # Methodology: AMM-WS-01 Traffic Intelligence Sandbox
 
-> **Transparency notice**: All traffic data in this sandbox is synthetic and generated using simulation. The visual source is representative, not a live feed from the actual Wadi Saqra site. Labels such as "representative", "simulated", and "synthetic but structured" are used deliberately throughout. See `docs/limitations_note.md` and `docs/source_assumptions.md` for full detail.
+> **Transparency notice**: All traffic data in this sandbox is synthetic and generated using simulation. The visual source is **VideoPrimary.mov**, a high-resolution representative feed of the Wadi Saqra site. Detections and counts are generated using a tuned YOLOv8m + ByteTrack pipeline optimized for this specific camera perspective. See `docs/limitations_note.md` and `docs/source_assumptions.md` for full detail.
 
 ---
 

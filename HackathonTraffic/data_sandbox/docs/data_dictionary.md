@@ -116,3 +116,17 @@ Logical index of video clips organized by traffic condition and intended use (tr
 |---|---|
 | `fault_samples/corrupted_detector_logs/sample_corrupted_log.csv` | Invalid IDs, negative counts, missing values |
 | `fault_samples/video_missing_frames/fault_manifest.json` | Simulated frame dropout windows |
+
+---
+
+## 8. Dashboard Viewer Features (Phase 1)
+
+The sandbox includes an optional FastAPI + React viewer to visualize the data alignment.
+
+| Feature | Description |
+|---|---|
+| **Live Intelligence HUD** | Real-time overlay showing **Active Count** (current tracks) and **Cumulative Count** (total unique IDs). |
+| **Digital Twin Signal HUD** | Real-time visualization of traffic signal phase transitions synced with the video. |
+| **Traffic Flow Volume** | Time-series charts comparing historical averages to simulation telemetry. |
+| **Incident Navigation** | Clickable log that jumps the video to specific validated incident moments. |
+| **ROI / Zone Overlays** | Visual representation of monitoring polygons defined in `metadata/`. |
