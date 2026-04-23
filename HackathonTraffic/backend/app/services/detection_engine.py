@@ -5,7 +5,7 @@ import os
 import numpy as np
 
 class TrafficDetectionEngine:
-    def __init__(self, model_variant="yolov8n.pt"):
+    def __init__(self, model_variant="yolo26m.pt"):
         # Load the model (will download if not present)
         self.model = YOLO(model_variant)
         # Class IDs for COCO: car=2, motorcycle=3, bus=5, truck=7
