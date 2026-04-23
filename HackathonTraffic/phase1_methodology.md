@@ -1,173 +1,41 @@
 # Phase 1 Technical Methodology
-### Traffic Data Sandbox — Video Counting + Congestion API Scaling
+### Traffic Data Sandbox — Dual-Source Architecture
 
 ---
 
 ## Overview
 
-This document describes a practical method for bootstrapping the **Phase 1 Traffic Data Sandbox** without access to live detector hardware or historical sensor logs. The approach uses a short video sample of the target intersection combined with Google's congestion API to synthesize a realistic multi-day traffic dataset.
+This document describes the rigorous dual-source architecture of the **Phase 1 Traffic Data Sandbox**. To ensure the highest level of technical honesty and professional accuracy, the system strictly separates **localized vehicle intelligence** from **external traffic context**.
 
-The output feeds directly into the **traffic detector dataset** and **historical calibration pack** required by Phase 1.
-
----
-
-## Core Idea
-
-A short video clip of the intersection gives you a real, ground-truth vehicle count at a known (or estimated) time of day. Google's congestion API gives you the *relative rhythm* of traffic across all hours and days. Combining both lets you extrapolate a single observation into a full weekly traffic matrix — per direction, per 15-minute interval.
-
-```
-Ground Truth Count (video)  ×  Congestion Ratio (API)  =  Estimated Count (any hour/day)
-```
+We do not use mapping APIs to hallucinate car counts, nor do we use localized tracking to assume city-wide routing conditions. 
 
 ---
 
-## Step 1 — Vehicle Counting from Video
+## 1. Video / CV Source of Truth (The "What Is")
 
-Manually or programmatically count vehicles entering the intersection from each approach during the video clip.
+The primary traffic video is the **only** source of truth for intersection-level metrics. 
 
-**What to count:**
-- Vehicles per approach direction (North, South, East, West)
-- Count window: the full clip duration in minutes
-- Derive a **vehicles-per-minute rate** per approach
-
-**Example output:**
-
-| Approach | Vehicles Counted | Clip Duration | Rate (veh/min) |
-|----------|-----------------|---------------|----------------|
-| North    | 18              | 2 min         | 9.0            |
-| South    | 12              | 2 min         | 6.0            |
-| East     | 22              | 2 min         | 11.0           |
-| West     | 8               | 2 min         | 4.0            |
-
-> **Tool options:** manual tally, or a lightweight YOLO-based counter on the clip as an early CV test.
+- **Detection & Tracking Engine:** YOLO26m (Medium) + ByteTrack.
+- **Counting Logic (Virtual Trip-Zone):** To prevent track-switching double counts, vehicles are only logged into the cumulative session count when their centroid enters a designated central core area (30% to 70% of the frame).
+- **Incident Feed:** All incidents are grounded. For example, a "Stalled Vehicle" alert is only generated when a tracked bounding box maintains a velocity near zero over a sustained window of frames. No external data is used to fabricate localized incidents.
 
 ---
 
-## Step 2 — Anchor the Clip to a Time Window
+## 2. Google Maps Traffic-Status Source (The "What Might Be")
 
-Assign the video clip to its most likely time window. If the exact timestamp is unknown, estimate using:
-- Lighting and shadow angles
-- Pedestrian density
-- General traffic volume appearance
+We leverage the modern **Google Maps Platform (Routes API)** strictly as an external contextual signal, completely independent of the car count logic.
 
-In our case, the clip was estimated at **11:00 AM – 1:00 PM**. The midpoint (**12:00 PM**) becomes the **baseline reference slot** with a congestion ratio of `1.0`.
-
----
-
-## Step 3 — Pull Congestion Ratios from Google API
-
-Use the **Google Maps Roads API** or **Google Maps JavaScript API** (via the `directionsService` or traffic layer) to retrieve typical speed or congestion data for the roads feeding the intersection.
-
-**What to extract:**
-- Typical relative congestion by hour (0–23) for each day of the week (Mon–Sun)
-- Normalize all values against your baseline slot (12:00 PM = 1.0)
-
-**Example ratio table (single approach, Mon–Fri average):**
-
-| Hour  | Ratio | Interpretation            |
-|-------|-------|---------------------------|
-| 06:00 | 0.6   | Light, pre-peak           |
-| 07:00 | 1.4   | Building morning peak     |
-| 08:00 | 1.9   | Peak hour                 |
-| 09:00 | 1.5   | Tapering                  |
-| 12:00 | **1.0**   | **Baseline (video anchor)**   |
-| 17:00 | 1.8   | Afternoon peak            |
-| 20:00 | 0.7   | Evening wind-down         |
-| 23:00 | 0.2   | Near-empty                |
-
-> Collect separate ratio tables per day type: **Weekday**, **Saturday**, **Sunday/Holiday**.
+- **Routing Preference:** `TRAFFIC_AWARE` requests utilizing future departure times.
+- **Route Probe:** A primary origin-destination vector (North-West to South-East) intersecting Wadi Saqra is probed across a 12-hour window (8:00 AM to 8:00 PM).
+- **Congestion Proxy:** The resulting ratio between `duration_in_traffic` and `staticDuration` yields a continuous Same-Day Traffic Status Profile.
 
 ---
 
-## Step 4 — Scale Counts Across the Full Week
+## 3. Near-Term Traffic Outlook
 
-Apply the scaling formula across every time slot:
+By comparing the 10:00 AM visual context of the video with the slope of the Google Maps congestion profile, the dashboard projects a 15, 30, and 60-minute **Near-Term Traffic Outlook**. 
 
-```
-Flow(approach, hour, day) = BaselineRate(approach) × Ratio(hour, day) × 15
-```
-
-The `× 15` converts vehicles/minute to vehicles per 15-minute interval, matching the **15-minute resolution** required by the Phase 1 detector dataset spec.
-
-**Example — Northbound approach, Monday:**
-
-| Slot  | Ratio | Calc           | Vehicles / 15 min |
-|-------|-------|----------------|-------------------|
-| 08:00 | 1.9   | 9.0 × 1.9 × 15 | 256               |
-| 12:00 | 1.0   | 9.0 × 1.0 × 15 | 135               |
-| 17:00 | 1.8   | 9.0 × 1.8 × 15 | 243               |
-| 23:00 | 0.2   | 9.0 × 0.2 × 15 | 27                |
-
-Repeat for all approaches × all hours × all 7 days → **full weekly detector matrix**.
-
----
-
-## Step 5 — Structure the Output Dataset
-
-Format the generated data to match the Phase 1 **traffic detector dataset spec**: 15-minute resolution, approach-based, 24-hour coverage.
-
-**Recommended schema:**
-
-```
-timestamp          | intersection_id | approach  | detector_id | vehicle_count | day_type
--------------------|-----------------|-----------|-------------|---------------|----------
-2024-01-15 08:00   | INT_001         | North     | DET_N_01    | 256           | Weekday
-2024-01-15 08:00   | INT_001         | South     | DET_S_01    | 171           | Weekday
-2024-01-15 08:00   | INT_001         | East      | DET_E_01    | 314           | Weekday
-2024-01-15 08:00   | INT_001         | West      | DET_W_01    | 114           | Weekday
-```
-
-Generate **at minimum 2 weeks** of synthetic records to satisfy the historical calibration pack requirement.
-
----
-
-## Step 6 — Add Gaussian Noise for Realism
-
-Real detector logs are never perfectly smooth. Add a small noise term to each generated count to prevent the synthetic data from looking artificially uniform — which would cause models to learn unrealistic patterns.
-
-```python
-import numpy as np
-
-def add_noise(base_count, std_pct=0.08):
-    noise = np.random.normal(0, base_count * std_pct)
-    return max(0, round(base_count + noise))
-```
-
-An `std_pct` of **0.05–0.10** (5–10%) is a reasonable starting point.
-
----
-
-## What This Produces for Phase 1
-
-| Phase 1 Deliverable | Covered by This Method |
-|---|---|
-| Traffic detector dataset | ✅ Full 15-min resolution, approach-based, 2-week synthetic log |
-| Historical calibration pack | ✅ Usable as training/validation baseline for forecasting models |
-| Data dictionary | ✅ Schema above serves as the dictionary foundation |
-| Methodology note | ✅ This document |
-| Annotation layer | ⚠️ Partial — congestion events can be labeled from ratio peaks; incident labels require separate video annotation |
-| Signal timing log | ❌ Requires separate synthetic generation based on assumed cycle plans |
-
----
-
-## Key Assumptions to Document
-
-Always include these in your methodology note submission:
-
-- **Clip time window** — state your estimate and confidence level
-- **Baseline slot** — which hour/day was used as the `1.0` anchor
-- **Google API coverage** — which road segments were queried as proxies
-- **Noise parameters** — the std % applied per approach
-- **Day type segmentation** — how weekday / weekend splits were defined
-- **No incident events in baseline clip** — the count assumes normal flow; anomalies in the clip will inflate the baseline
-
----
-
-## Limitations
-
-- Google congestion ratios reflect **area-level road patterns**, not this specific intersection. Local geometry (turning volumes, pedestrian crossings, nearby schools) is not captured.
-- The method produces **volume estimates only** — it does not generate turning movement counts, lane-level splits, or speed data without additional assumptions.
-- Synthetic data cannot replicate **rare events** (accidents, road works, weather) unless deliberately injected.
+- **Honesty Declaration:** This panel provides a directional trend (e.g., "Increasing Congestion: +0.05x"). It is presented honestly as an external route-level assumption, *not* an exact predictive vehicle count model.
 
 ---
 

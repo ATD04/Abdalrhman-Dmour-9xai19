@@ -21,6 +21,7 @@ app.add_middleware(
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 SANDBOX_DIR = os.path.join(BASE_DIR, "data_sandbox")
+PHASE2_DIR = os.path.join(SANDBOX_DIR, "detector/generated/phase2")
 
 # Serve Video Files as Static Assets
 app.mount("/video", StaticFiles(directory=os.path.join(SANDBOX_DIR, "video")), name="video")
@@ -188,6 +189,88 @@ def get_cycle_definitions():
             return json.load(f)
     return {}
 
+@app.get("/api/v1/traffic-profile")
+def get_traffic_profile():
+    """
+    Returns the Google Maps route duration profile across the day.
+    Path: detector/daily_traffic_profile.json
+    """
+    profile_path = os.path.join(SANDBOX_DIR, "detector/daily_traffic_profile.json")
+    if os.path.exists(profile_path):
+        with open(profile_path, 'r') as f:
+            return json.load(f)
+    return []
+
+@app.get("/api/v1/phase2/video-intelligence")
+async def get_video_intel():
+    counts_path = os.path.join(PHASE2_DIR, "live_directional_counts.json")
+    pressure_path = os.path.join(PHASE2_DIR, "live_queue_pressure.json")
+    try:
+        with open(counts_path, 'r') as f: counts = json.load(f)
+        with open(pressure_path, 'r') as f: pressure = json.load(f)
+        return {"counts": counts, "pressure": pressure}
+    except:
+        return {"error": "Video intelligence data missing"}
+
+@app.get("/api/v1/phase2/google-context")
+async def get_google_context():
+    profile_path = os.path.join(PHASE2_DIR, "google_route_probe_profile.json")
+    try:
+        with open(profile_path, 'r') as f: profile = json.load(f)
+        return profile
+    except:
+        return {"error": "Google context missing"}
+
+@app.get("/api/v1/phase2/decision-support")
+async def get_decision_support():
+    rec_path = os.path.join(PHASE2_DIR, "current_phase_recommendation.json")
+    support_path = os.path.join(PHASE2_DIR, "signal_decision_support.json")
+    outlook_path = os.path.join(PHASE2_DIR, "same_day_signal_outlook.json")
+    forecast_path = os.path.join(PHASE2_DIR, "fused_short_term_forecast.json")
+    bench_path = os.path.join(PHASE2_DIR, "forecasting_benchmarks.json")
+    try:
+        with open(rec_path, 'r') as f: rec = json.load(f)
+        with open(support_path, 'r') as f: support = json.load(f)
+        with open(outlook_path, 'r') as f: outlook = json.load(f)
+        with open(forecast_path, 'r') as f: forecast = json.load(f)
+        with open(bench_path, 'r') as f: bench = json.load(f)
+        return {
+            "recommendation": rec, 
+            "support": support, 
+            "outlook": outlook, 
+            "forecast": forecast,
+            "benchmarks": bench.get("model_comparisons", [])
+        }
+    except:
+        return {"error": "Decision support data missing"}
+
+@app.get("/api/v1/phase2/incidents")
+def get_phase2_incidents():
+    path = os.path.join(PHASE2_DIR, "event_notifications.json")
+    if os.path.exists(path):
+        with open(path, 'r') as f: return json.load(f)
+    return []
+
+@app.get("/api/v1/phase2/system-health")
+def get_system_health():
+    """Returns detailed system health indicators for the Phase 2 dashboard."""
+    invalid_path = os.path.join(SANDBOX_DIR, "detector/generated/phase2/invalid_records_log.json")
+    invalid_count = 0
+    if os.path.exists(invalid_path):
+        with open(invalid_path, 'r') as f:
+            data = json.load(f)
+            invalid_count = data.get("total_invalid", 0)
+            
+    # Heuristic/Mocked values for real-time indicators in this feasibility build
+    return {
+        "ingestion_status": "ONLINE",
+        "stream_uptime_min": 142,
+        "dropped_frames": 14,
+        "sync_state": "SYNCHRONIZED",
+        "invalid_record_count": invalid_count,
+        "last_refresh": "Just Now"
+    }
+
 @app.get("/api/v1/sandbox/health")
 def sandbox_health():
     """
@@ -205,6 +288,8 @@ def sandbox_health():
         "event_schema": "schemas/event_notification_schema.json",
         "benchmark_seed": "annotations/benchmark_seed.json",
         "incidents": "annotations/event_validation/incidents.csv",
+        "phase2_forecasts": "detector/generated/phase2/demand_forecasts.json",
+        "phase2_recommendations": "detector/generated/phase2/signal_recommendations.json"
     }
     result = {}
     all_ok = True

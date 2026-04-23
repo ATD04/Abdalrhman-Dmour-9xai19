@@ -1,0 +1,10 @@
+{
+  "clip_anchor": {
+    "estimated_time_window": "11:00 - 13:00",
+    "timestamp_precision": "estimated based on shadow angles and volume",
+    "baseline_reference_slot": "12:00",
+    "baseline_ratio": 1.0,
+    "timezone": "Asia/Amman",
+    "note": "This anchor sets the 12:00 PM slot as the 1.0 ratio baseline against which all other congestion ratios scale the extracted video counts."
+  }
+}

@@ -1,132 +1,54 @@
-# Data Dictionary — AMM-WS-01 Traffic Data Sandbox v2.0
+# Traffic Data Sandbox — Data Dictionary
 
-This document is the single authoritative reference for all datasets, schemas, and outputs in the sandbox package.
+This document defines the schema and data provenance for the synthetic Phase 1 Traffic Sandbox datasets. 
 
----
+## 1. Traffic Detector Dataset (`detector/generated/traffic_detector_dataset.csv`)
 
-## 1. Detector Data
+This dataset represents a synthetic 2-week history of 15-minute vehicle counts at the Wadi Saqra intersection.
 
-### `detector/raw_sumo_output.csv`
-Raw 1-minute vehicle counts from the SUMO simulation.
+**Provenance / Generation Methodology:**
+- **Baseline Observation:** Vehicle count rates (veh/min) were extracted programmatically using YOLO26m multi-object tracking on the primary drone video (`video1.mov`).
+- **Scaling Mechanism:** Relative congestion ratios (derived from standard urban weekday/weekend curves) were applied to scale the baseline count across all hours of a 2-week period.
+- **Realism Noise:** A Gaussian noise function (std dev = 8%) was applied to all calculated counts to prevent artificial uniformity.
 
-| Field | Type | Description |
-|---|---|---|
-| `timestamp` | DATETIME | End of 1-minute window (YYYY-MM-DD HH:MM:SS) |
-| `detector_id` | STRING | Maps to `approach_map.json` |
-| `vehicle_count` | INTEGER | Total vehicles in the window |
-
-### `detector/forecasting_ready/demand_forecast_source.csv`
-**Official forecasting-ready dataset. Primary input for Phase 2 demand forecasting models.**
+### Schema:
 
 | Field | Type | Description |
-|---|---|---|
-| `timestamp` | DATETIME | End of 15-min window (2026-04-21 HH:MM:SS) |
-| `date` | DATE | Calendar date |
-| `time_of_day` | STRING | HH:MM — useful for periodic feature encoding |
-| `detector_id` | STRING | Maps to `approach_map.json` |
-| `vehicle_count` | INTEGER | **Target variable** — vehicles in the 15-min window |
-| `is_weekday` | BINARY | 1 = weekday, 0 = weekend |
-| `is_holiday` | BINARY | 1 = public holiday |
-| `peak_hour_flag` | BINARY | 1 = within AM peak (07–09) or PM peak (16–19) |
-
-See `detector/forecasting_ready/feature_definitions.json` for recommended derived features.
+|-------|------|-------------|
+| `timestamp` | String (YYYY-MM-DD HH:MM) | The start time of the 15-minute aggregation interval. |
+| `intersection_id` | String | Unique identifier for the intersection (`INT_001`). |
+| `approach` | String | The compass direction the traffic is coming from (North, South, East, West). |
+| `detector_id` | String | The unique ID of the virtual detector loop (e.g., `DET_N_01`). |
+| `vehicle_count` | Integer | Total number of vehicles detected entering the intersection from this approach during the 15-minute interval. |
+| `day_type` | String | Classifies the day profile (`Weekday`, `Saturday`, `Sunday_holiday`). |
 
 ---
 
-## 2. Signal Timing Data
+## 2. Signal Timing Log (`signals/logs/signal_timing_log.csv`)
 
-### `signals/logs/signal_timing_log.csv`
-Event-based log of traffic signal phase transitions.
+This is a synthetic supporting artifact defining the assumed traffic light phase changes over time. It is generated independently of the detector methodology based on standard pre-timed cycle assumptions.
+
+### Schema:
 
 | Field | Type | Description |
-|---|---|---|
-| `timestamp` | DATETIME | Precise event time (2026-04-21 HH:MM:SS.mmm) |
-| `intersection_id` | STRING | Always `AMM-WS-01` |
-| `phase_number` | INTEGER | Phase 1–4 (maps to `phase_movement_map.json`) |
-| `signal_state` | STRING | `GREEN_ON`, `YELLOW_ON`, or `RED_ON` |
-
-See `metadata/cycle_definitions.json` for phase timing assumptions and `metadata/phase_movement_map.json` for lane mappings.
+|-------|------|-------------|
+| `timestamp` | String (YYYY-MM-DD HH:MM:SS) | Exact time of the signal state change. |
+| `intersection_id` | String | Unique identifier for the intersection (`INT_001`). |
+| `phase_number` | Integer | The active movement phase (e.g., Phase 1 = N/S Through). |
+| `signal_state` | String | State of the signal (`Green`, `Yellow`, `Red`). |
 
 ---
 
-## 3. Video & Stream Data
+## 3. Incident Annotations (`annotations/event_validation/incidents.csv`)
 
-### `video/manifests/stream_source_manifest.json`
-Formal registration of all simulated stream sources. Ingestion modules must reference this file for camera IDs, FPS, and source paths.
+A separate manual annotation layer highlighting specific anomalous events within the video or the historical logs for validation testing.
 
-### `video/manifests/clip_manifest.json`
-Logical index of video clips organized by traffic condition and intended use (training / validation / demo).
+### Schema:
 
 | Field | Type | Description |
-|---|---|---|
-| `clip_id` | STRING | Unique ID (e.g., `CLB-001`) |
-| `label` | STRING | Scenario label (e.g., `peak_am_01`) |
-| `source_video` | STRING | Path relative to `video/` |
-| `start_time` / `end_time` | STRING | HH:MM:SS window |
-| `traffic_condition` | STRING | Condition type |
-| `expected_events` | ARRAY | Events the detector should flag |
-| `intended_use` | STRING | `training`, `validation`, or `demo` |
-
----
-
-## 4. Metadata Pack
-
-| File | Purpose |
-|---|---|
-| `intersection_metadata.json` | GPS, camera specs, general site profile |
-| `lane_map.json` | Lane-level type definitions (Through, Turn) |
-| `approach_map.json` | Cardinal approaches → lane IDs → detector IDs |
-| `camera_registry.json` | Camera IDs, mounting heights, orientations |
-| `roi_masks.json` | AI monitoring zones (pixel polygons) |
-| `stop_lines.json` | Pixel coordinates of stop lines per lane |
-| `phase_movement_map.json` | Phase numbers → movements → lanes |
-| `cycle_definitions.json` | Green/amber durations, optimization bounds |
-| `zones.json` | Queue spillback assessment zones |
-
----
-
-## 5. Annotations
-
-| File | Purpose |
-|---|---|
-| `ground_truth_detection/vehicle_labels_sample.json` | Vehicle-level bounding box subset for detection validation |
-| `event_validation/incidents.csv` | Labeled traffic incidents with timestamps |
-| `event_validation/event_windows.csv` | Validation windows for precision/recall benchmarking |
-| `event_validation/queue_spillback_events.csv` | Queue spillback event labels |
-| `spatial_annotations.json` | Persistent tracking bounding boxes from YOLO batch run |
-| `benchmark_seed.json` | Target thresholds for Phase 2 benchmarking |
-
----
-
-## 6. Schema Contracts
-
-| File | Covers |
-|---|---|
-| `schemas/detector_log_schema.json` | Detector ingestion input |
-| `schemas/signal_log_schema.json` | Signal timing ingestion input |
-| `schemas/detection_output_schema.json` | Phase 2 detection module output |
-| `schemas/forecast_output_schema.json` | Phase 2 forecasting module output |
-| `schemas/event_notification_schema.json` | Incident alert format (storage-ready) |
-
----
-
-## 7. Fault Samples
-
-| File | Fault Type |
-|---|---|
-| `fault_samples/corrupted_detector_logs/sample_corrupted_log.csv` | Invalid IDs, negative counts, missing values |
-| `fault_samples/video_missing_frames/fault_manifest.json` | Simulated frame dropout windows |
-
----
-
-## 8. Dashboard Viewer Features (Phase 1)
-
-The sandbox includes an optional FastAPI + React viewer to visualize the data alignment.
-
-| Feature | Description |
-|---|---|
-| **Live Intelligence HUD** | Real-time overlay showing **Active Count** (current tracks) and **Cumulative Count** (total unique IDs). |
-| **Digital Twin Signal HUD** | Real-time visualization of traffic signal phase transitions synced with the video. |
-| **Traffic Flow Volume** | Time-series charts comparing historical averages to simulation telemetry. |
-| **Incident Navigation** | Clickable log that jumps the video to specific validated incident moments. |
-| **ROI / Zone Overlays** | Visual representation of monitoring polygons defined in `metadata/`. |
+|-------|------|-------------|
+| `event_id` | String | Unique identifier for the incident. |
+| `event_type` | String | Type of incident (e.g., `Congestion`, `Stalled Vehicle`). |
+| `start_time` | String (HH:MM:SS) | Relative start time of the incident in the video or log. |
+| `end_time` | String (HH:MM:SS) | Relative end time of the incident. |
+| `notes` | String | Contextual notes about the event. |
