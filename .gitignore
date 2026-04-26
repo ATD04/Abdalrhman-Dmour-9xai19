@@ -88,3 +88,8 @@ venv/
 .env
 # Large data folders
 Intelligent-Traffic-Light/Traffic_Project_Simulation/app/data/video_tracking/
+Intelligent-Traffic-Light/Traffic_Project_Simulation/app/media/video_previews/
+Intelligent-Traffic-Light/Traffic_Project_Simulation/sumo_scenarios/fcd.xml
+HackathonTraffic/data_sandbox/simulation/sumo/fcd_output.xml
+Intelligent-Traffic-Light/Traffic_Project_Simulation/app/data/video_tracking/
+Intelligent-Traffic-Light/Traffic_Data_Sandbox/live_stream/
