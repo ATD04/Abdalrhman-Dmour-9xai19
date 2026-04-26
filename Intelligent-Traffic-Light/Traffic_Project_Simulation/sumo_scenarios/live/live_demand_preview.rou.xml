@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+    <vType id="passenger" accel="2.2" decel="4.5" sigma="0.5" length="5.0" minGap="2.5" maxSpeed="18.0" guiShape="passenger"/>
+    <vType id="bus" accel="1.5" decel="4.0" sigma="0.5" length="12.0" minGap="3.0" maxSpeed="14.0" guiShape="bus"/>
+    <vType id="truck" accel="1.4" decel="4.0" sigma="0.5" length="8.0" minGap="3.0" maxSpeed="15.0" guiShape="truck"/>
+    <vType id="motorcycle" accel="2.8" decel="4.8" sigma="0.4" length="2.2" minGap="1.4" maxSpeed="18.0" guiShape="motorcycle"/>
+    <route id="route_northbound" edges="150999182#0 150999182#1"/>
+    <flow id="flow_northbound" route="route_northbound" begin="0" end="300" vehsPerHour="1757.28" type="passenger"/>
+    <route id="route_southbound" edges="150999181-AddedOnRampEdge 150999181 150999181-AddedOffRampEdge 1376463188#0 1376463187#1"/>
+    <flow id="flow_southbound" route="route_southbound" begin="0" end="300" vehsPerHour="1800.00" type="passenger"/>
+    <route id="route_eastbound" edges="1473593772#0 150999182#0 150999182#1 150999182#2 150999182#3 688983278 688515257#0"/>
+    <flow id="flow_eastbound" route="route_eastbound" begin="0" end="300" vehsPerHour="1800.00" type="passenger"/>
+    <route id="route_westbound" edges="51270303#9 150999182#2 150999182#3 688983278 688515257#0 688515257#1 688514650 688515256#0 688515256#1 688511663#0-AddedOnRampEdge 688511663#0 688511663#1 688511662#0 688507122#1 688507122#2 688507121#0 688507121#1 688507121#2 688507121#3 688507121#4 688507121#5 688507119#0 688507119#1 688514653 1389972216 1389972214 688515255#0 688515255#1 150999181-AddedOnRampEdge 150999181 150999181-AddedOffRampEdge 1376463188#0 1489299013#1"/>
+    <flow id="flow_westbound" route="route_westbound" begin="0" end="300" vehsPerHour="1800.00" type="passenger"/>
+</routes>

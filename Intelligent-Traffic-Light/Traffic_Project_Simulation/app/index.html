@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wadi Saqra Live Digital Twin</title>
+  <link rel="stylesheet" href="/app/index.css" />
+  <link rel="stylesheet" href="/app/video-analytics.css" />
+</head>
+
+<body>
+  <div class="shell">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Live Mode</p>
+        <h1>Wadi Saqra Traffic Digital Twin</h1>
+        <p id="hero-copy" class="hero-copy">
+          Live Google Routes traffic is fused with a lane-level SUMO digital twin so the user can read corridor delay,
+          per-lane movement, queue build-up, and signal pressure in one clear operational view.
+        </p>
+      </div>
+      <div class="hero-side">
+        <div class="badge-row">
+          <span id="source-badge" class="badge badge-live">Source: booting</span>
+          <span id="center-badge" class="badge">Center: --</span>
+        </div>
+        <div class="badge-row">
+          <button id="adaptive-toggle" class="adaptive-button">Adaptive: --</button>
+          <span id="refresh-badge" class="badge">Snapshot: --</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- ── Main Tab Bar ─────────────────────────────────────── -->
+    <div class="main-tab-bar">
+      <button class="main-tab-btn active" data-tab="live-tab">
+        <span class="tab-icon">📡</span> Live Digital Twin
+      </button>
+      <button class="main-tab-btn" data-tab="va-tab">
+        <span class="tab-icon">🎬</span> Video Analytics
+      </button>
+    </div>
+
+    <!-- ═══ TAB 1: Live Digital Twin (existing) ═══ -->
+    <div id="live-tab" class="tab-content active">
+
+      <div id="data-source-banner" class="data-source-banner">
+        <span id="data-source-icon" class="banner-icon">●</span>
+        <div class="banner-text">
+          <strong id="data-source-label">Connecting to data source…</strong>
+          <span id="data-source-detail">Starting up — please wait</span>
+        </div>
+      </div>
+
+      <main class="grid">
+        <section class="panel map-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Map Layer</p>
+              <h2>Google Traffic Overlay + SUMO Vehicles</h2>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+              <span id="vehicle-count-chip" class="badge">Vehicles: --</span>
+              <div class="map-mode-toggle">
+                <button id="map-mode-sumo" class="map-mode-btn active">📡 SUMO Digital Twin</button>
+                <button id="map-mode-satellite" class="map-mode-btn">🗺 Satellite View</button>
+              </div>
+            </div>
+          </div>
+          <div class="map-layer-wrap">
+            <canvas id="network-map" width="1200" height="700"></canvas>
+            <iframe
+              id="satellite-iframe"
+              class="satellite-iframe"
+              src="about:blank"
+              data-src="https://maps.google.com/maps?q=31.964932,35.884545&z=17&output=embed&t=k"
+              title="Wadi Saqra satellite view"
+              allowfullscreen
+              style="display:none;"
+            ></iframe>
+          </div>
+          <div class="map-controls">
+            <button id="map-zoom-in" class="map-ctrl-btn" title="Zoom in">＋ Zoom In</button>
+            <button id="map-zoom-out" class="map-ctrl-btn" title="Zoom out">－ Zoom Out</button>
+            <button id="map-reset" class="map-ctrl-btn" title="Reset view">⌂ Reset View</button>
+            <span id="map-coords" class="map-coords">Hover over the map to see coordinates</span>
+          </div>
+          <div id="map-story" class="map-story">Loading lane-level traffic view…</div>
+          <div class="map-legend">
+            <span><i class="dot dot-road"></i> Base road network</span>
+            <span><i class="dot dot-lane"></i> Monitored lanes</span>
+            <span><i class="dot dot-normal"></i> Google live segment</span>
+            <span><i class="dot dot-slow"></i> Slow / queued lane</span>
+            <span><i class="dot dot-jam"></i> Red stop-bar / heavy delay</span>
+            <span><i class="dot dot-vehicle"></i> Simulated vehicles</span>
+          </div>
+        </section>
+
+        <aside class="panel summary-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Operations</p>
+              <h2>Live Situation</h2>
+            </div>
+          </div>
+          <div class="kpi-grid">
+            <article class="kpi-card">
+              <span>Network Queue</span>
+              <strong id="kpi-queue">--</strong>
+              <small>meters in monitored approaches</small>
+            </article>
+            <article class="kpi-card">
+              <span>Avg Speed</span>
+              <strong id="kpi-speed">--</strong>
+              <small>km/h across live approaches</small>
+            </article>
+            <article class="kpi-card">
+              <span>Dominant Queue</span>
+              <strong id="kpi-dominant">--</strong>
+              <small>approach currently under stress</small>
+            </article>
+            <article class="kpi-card">
+              <span>Google Delay</span>
+              <strong id="kpi-google">--</strong>
+              <small>largest live travel-time delta</small>
+            </article>
+          </div>
+
+          <div class="section-block">
+            <div class="mini-head">
+              <h3>Traffic Signals at Junction</h3>
+              <span id="tls-id" class="badge badge-muted">Loading…</span>
+            </div>
+            <div id="signal-phase-summary" class="phase-summary">Loading signal plan…</div>
+            <p class="signal-explainer">
+              Each section below shows one approach. Every row is one incoming lane, with its current signal color,
+              queue,
+              moving vehicles, and speed so the operator can read the junction lane by lane.
+            </p>
+            <div id="signal-list" class="signal-list"></div>
+          </div>
+
+          <!-- Webster Signal Timing Optimizer -->
+          <div class="section-block">
+            <div class="mini-head">
+              <p class="eyebrow" style="margin:0;">Signal Plan · Current vs Webster</p>
+              <span id="webster-mode-badge" class="badge badge-muted">Computing…</span>
+            </div>
+            <div id="webster-panel" class="webster-panel">
+              <div class="webster-loading">Computing optimal timing…</div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <div class="mini-head">
+              <h3>Decision Support</h3>
+              <span id="google-error-chip" class="badge badge-muted">Google OK</span>
+            </div>
+            <div id="recommendation" class="recommendation">--</div>
+            <div id="alert-list" class="alert-list"></div>
+          </div>
+        </aside>
+
+        <section class="panel table-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Approach Layer</p>
+              <h2>Google vs SUMO by Direction</h2>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Direction</th>
+                  <th>Google Corridor</th>
+                  <th>Google Speed</th>
+                  <th>Live Demand</th>
+                  <th>Simulated Flow</th>
+                  <th>Queue Length</th>
+                  <th>Sim Speed</th>
+                  <th>Lane Status</th>
+                </tr>
+              </thead>
+              <tbody id="approach-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section class="panel history-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Recent Buffer</p>
+              <h2>Last 10 Minutes</h2>
+            </div>
+            <span class="badge badge-muted">1 Hz rolling history</span>
+          </div>
+          <canvas id="history-chart" width="1200" height="260"></canvas>
+        </section>
+
+        <section class="panel notes-panel">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow">Read This</p>
+              <h2>How To Read The Numbers</h2>
+            </div>
+          </div>
+          <div id="notes-grid" class="notes-grid"></div>
+        </section>
+      </main>
+
+    </div><!-- /live-tab -->
+
+    <!-- ═══ TAB 2: Video Analytics ═══ -->
+    <div id="va-tab" class="tab-content">
+      <div id="va-root">
+
+        <!-- Incident alerts (crash workflow) -->
+        <div id="va-incidents"></div>
+
+        <!-- Summary KPIs -->
+        <div class="va-section">
+          <div class="va-section-head">
+            <p class="eyebrow">Analytics Overview</p>
+            <h2>Video Processing Summary</h2>
+          </div>
+          <div id="va-kpi-strip" class="va-kpi-strip">
+            <div class="va-loading">
+              <div class="spinner"></div><br>Loading analytics data…
+            </div>
+          </div>
+        </div>
+
+        <!-- Video gallery -->
+        <div class="va-section">
+          <div class="va-section-head">
+            <p class="eyebrow">Field Recordings</p>
+            <h2>Wadi Saqra Video Gallery</h2>
+          </div>
+          <div id="va-gallery" class="va-gallery"></div>
+        </div>
+
+        <!-- Player + Events -->
+        <div id="va-player-section" class="va-player-section" style="display:none;">
+          <div>
+            <div class="va-section">
+              <div class="va-section-head">
+                <p class="eyebrow">Object Detection + Tracking</p>
+                <h2>Video Player with YOLO Overlay</h2>
+              </div>
+              <div id="va-player-wrap" class="va-player-wrap">
+                <video id="va-player-video" class="va-player-video" muted playsinline></video>
+                <canvas id="va-player-canvas" class="va-player-canvas"></canvas>
+                <div class="va-player-overlay">
+                  <span id="va-overlay-info">--</span>
+                  <span id="va-overlay-time">0:00</span>
+                </div>
+                <div class="va-player-hud">
+                  <span id="va-hud-left">--</span>
+                  <span id="va-hud-right">--</span>
+                </div>
+              </div>
+              <div class="va-player-controls">
+                <button id="va-play-btn">▶ Play</button>
+                <input id="va-seek" class="va-seek" type="range" min="0" value="0" step="1" />
+                <span id="va-time-label" class="va-player-time">0:00 / 0:00</span>
+              </div>
+            </div>
+
+            <!-- Timeline mini chart -->
+            <div class="va-section" style="margin-top:16px;">
+              <div class="va-section-head">
+                <p class="eyebrow">Temporal Analysis</p>
+                <h2>Traffic Density Timeline</h2>
+              </div>
+              <canvas id="va-timeline-canvas" class="va-timeline-canvas"></canvas>
+            </div>
+          </div>
+
+          <!-- Events sidebar -->
+          <div class="va-section">
+            <div class="va-section-head">
+              <p class="eyebrow">Event Log</p>
+              <h2>Detected Events</h2>
+            </div>
+            <div id="va-events-panel" class="va-events-sidebar"></div>
+          </div>
+        </div>
+
+        <!-- Use case evidence -->
+        <div class="va-section">
+          <div class="va-section-head">
+            <p class="eyebrow">Capability Demonstration</p>
+            <h2>Proven Use Cases</h2>
+          </div>
+          <div id="va-use-cases" class="va-use-cases-grid"></div>
+        </div>
+
+      </div>
+    </div><!-- /va-tab -->
+
+  </div>
+
+  <script src="/app/index.js?v=2" defer></script>
+  <script src="/app/video-analytics.js?v=2" defer></script>
+</body>
+
+</html>

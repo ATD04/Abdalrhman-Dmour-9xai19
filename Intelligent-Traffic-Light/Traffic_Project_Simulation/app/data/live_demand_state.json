@@ -1,0 +1,58 @@
+{
+  "timestamp": "2026-04-26T17:00:43+03:00",
+  "source": "google_routes",
+  "demand": {
+    "northbound": {
+      "google_capacity_veh_h": 450.0,
+      "target_veh_h": 736.29,
+      "pressure_index": 0.215,
+      "speed_ratio": 0.785,
+      "delay_ratio": 0.274,
+      "google_avg_speed_kmh": 20.9,
+      "google_free_flow_speed_kmh": 26.6,
+      "jam_share": 0.0,
+      "slow_share": 0.174,
+      "congestion_level": "light",
+      "source": "google_routes"
+    },
+    "southbound": {
+      "google_capacity_veh_h": 450.0,
+      "target_veh_h": 1323.2,
+      "pressure_index": 0.472,
+      "speed_ratio": 0.528,
+      "delay_ratio": 0.895,
+      "google_avg_speed_kmh": 13.0,
+      "google_free_flow_speed_kmh": 24.6,
+      "jam_share": 0.213,
+      "slow_share": 0.277,
+      "congestion_level": "heavy",
+      "source": "google_routes"
+    },
+    "eastbound": {
+      "google_capacity_veh_h": 450.0,
+      "target_veh_h": 1021.64,
+      "pressure_index": 0.326,
+      "speed_ratio": 0.674,
+      "delay_ratio": 0.483,
+      "google_avg_speed_kmh": 16.5,
+      "google_free_flow_speed_kmh": 24.5,
+      "jam_share": 0.0,
+      "slow_share": 0.571,
+      "congestion_level": "moderate",
+      "source": "google_routes"
+    },
+    "westbound": {
+      "google_capacity_veh_h": 450.0,
+      "target_veh_h": 1275.27,
+      "pressure_index": 0.482,
+      "speed_ratio": 0.518,
+      "delay_ratio": 0.932,
+      "google_avg_speed_kmh": 17.6,
+      "google_free_flow_speed_kmh": 34.0,
+      "jam_share": 0.099,
+      "slow_share": 0.42,
+      "congestion_level": "heavy",
+      "source": "google_routes"
+    }
+  }
+}
