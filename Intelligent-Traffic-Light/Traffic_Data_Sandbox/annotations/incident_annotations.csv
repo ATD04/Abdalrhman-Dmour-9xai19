@@ -1,8 +1,0 @@
-incident_id,start_timestamp,end_timestamp,incident_type,approach_id,detector_ids,severity,validation_status,description
-INC_001,2023-12-31 08:15:00,2023-12-31 08:45:00,abnormal_stopping,7,7;17,medium,analyst_reviewed,Short-lived stop-and-go behavior near eastbound stop line.
-INC_002,2024-01-01 16:30:00,2024-01-01 17:30:00,queue_spillback,12,12;18,high,analyst_reviewed,Queue extended beyond monitoring zone QSB_WB_01 during PM build-up.
-INC_003,2024-01-02 10:15:00,2024-01-02 10:45:00,stalled_vehicle,5,5;16,high,pending_video_verification,Suspected stalled vehicle causing reduced discharge rate.
-INC_004,2024-01-03 18:00:00,2024-01-03 18:45:00,queue_spillback,1,1;2;15,high,analyst_reviewed,Northbound queue reached upstream segment in evening peak.
-INC_005,2024-01-04 14:45:00,2024-01-04 15:30:00,abnormal_stopping,9,9;21,medium,pending_video_verification,Repeated abrupt braking pattern across two consecutive intervals.
-INC_006,2024-01-05 20:00:00,2024-01-05 21:00:00,queue_spillback,11,11;22,medium,analyst_reviewed,Westbound queue saturation under heavy evening inflow.
-INC_007,2024-01-06 22:00:00,2024-01-06 22:30:00,signal_noncompliance_risk,4,4;19,low,pending_video_verification,Late-evening turning conflicts suggest high red-light pressure.
