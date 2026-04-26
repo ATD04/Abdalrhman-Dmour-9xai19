@@ -1,5 +1,0 @@
-{
-  "google": {
-    "service_account_file": "config/google_service_account.local.json"
-  }
-}
