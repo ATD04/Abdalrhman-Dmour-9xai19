@@ -64,7 +64,7 @@ pnpm-debug.log*
 # Vite production builds
 HackathonTraffic/frontend/dist/
 HackathonTraffic/frontend/build/
-
+*.mp4
 # ========================
 # IDEs & OS
 # ========================
@@ -80,3 +80,11 @@ Thumbs.db
 *.swp
 *.swo
 HackathonTraffic/Screen Recording 2026-04-23 at 4.20.40 PM.mov
+*.pt
+*.xml
+*.mov
+node_modules/
+venv/
+.env
+# Large data folders
+Intelligent-Traffic-Light/Traffic_Project_Simulation/app/data/video_tracking/
