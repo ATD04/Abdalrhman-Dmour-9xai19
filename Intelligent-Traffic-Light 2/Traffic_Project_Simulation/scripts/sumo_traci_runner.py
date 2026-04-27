@@ -169,21 +169,12 @@ class LiveSimulationEngine:
         self._current_state_json: str | None = None
         self._state_changed_event: threading.Event = threading.Event()
 
-        # Phase 3 modules (optional)
-        self.phase3_db = None
-        self.event_manager = None
-        self.health_monitor = None
+        # Phase 3 Storage Manager
         try:
-            from phase3_database import Phase3Database
-            from phase3_event_manager import EventManager
-            from phase3_system_health import SystemHealthMonitor
-
-            self.phase3_db = Phase3Database(config["paths"]["app_data"] / "phase3.db")
-            self.event_manager = EventManager(self.phase3_db)
-            self.health_monitor = SystemHealthMonitor(self.phase3_db)
-            logger.info("Phase 3 modules initialized (database, event manager, health monitor)")
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("Phase 3 modules unavailable: %s", exc)
+            from storage_manager import storage
+            self.storage = storage
+        except ImportError:
+            self.storage = None
 
     def refresh_inputs(self) -> None:
         snapshot: dict[str, Any] | None = None
@@ -608,8 +599,9 @@ class LiveSimulationEngine:
         return numerator / max(1.0 - x, 0.001)
 
     def _webster_recommendation(
-        self, metrics: dict[str, Any], demand_state: dict[str, Any]
+        self, metrics: dict[str, Any], demand_state: dict[str, Any], forecast: dict[str, Any] | None = None
     ) -> dict[str, Any]:
+        """Webster's signal timing optimizer (Advisory Support)."""
         lost_time = self._N_PHASES * (self._YELLOW_S + self._ALL_RED_S)  # = 15 s
         capacity = self._SATURATION_VEH_MIN_LANE * self._LANE_COUNT      # = 60 veh/min
         ud = self._uniform_delay  # shorthand
@@ -619,6 +611,9 @@ class LiveSimulationEngine:
         cur_e = self._applied_greens.get("eastbound", 35.0)
         cur_w = self._applied_greens.get("westbound", 35.0)
         cur_cycle = self._applied_cycle_s
+        
+        # Advisory Header
+        advisory_note = "ADVISORY - HUMAN DECISION SUPPORT ONLY. This system is isolated from control infrastructure."
 
         def arrival_rate(direction: str) -> float:
             m = metrics[direction]
@@ -635,60 +630,65 @@ class LiveSimulationEngine:
         y_w = flow_ratio("westbound")
         Y = y_ns + y_e + y_w
 
-        # Current plan delays — always computed (used in all return paths)
+        # Current plan delays
         d_ns_cur = ud(cur_cycle, cur_ns, y_ns)
         d_e_cur  = ud(cur_cycle, cur_e, y_e)
         d_w_cur  = ud(cur_cycle, cur_w, y_w)
         current_delay_avg = round((d_ns_cur + d_e_cur + d_w_cur) / 3.0, 2)
 
+        # Anticipated Congestion Logic
+        anticipated_congestion = []
+        if forecast:
+            for direction, points in forecast.get("directions", {}).items():
+                for p in points:
+                    if p["veh_per_hour"] > capacity * 60.0 * 0.85:
+                        anticipated_congestion.append({
+                            "direction": direction,
+                            "horizon_minutes": p["horizon_minutes"],
+                            "severity": "high" if p["veh_per_hour"] > capacity * 60.0 else "medium"
+                        })
+
         def _base_phases(g_ns: float, g_e: float, g_w: float) -> list[dict[str, Any]]:
             def imp(cur: float, rec: float) -> float:
                 return round((rec - cur) / max(cur, 1.0) * 100.0, 1)
-            return [
-                {"label": "North + South", "directions": ["northbound", "southbound"],
-                 "current_green_s": round(cur_ns, 1), "recommended_green_s": round(g_ns, 1),
-                 "flow_ratio": round(y_ns, 3), "improvement_pct": imp(cur_ns, g_ns)},
-                {"label": "East", "directions": ["eastbound"],
-                 "current_green_s": round(cur_e, 1), "recommended_green_s": round(g_e, 1),
-                 "flow_ratio": round(y_e, 3), "improvement_pct": imp(cur_e, g_e)},
-                {"label": "West", "directions": ["westbound"],
-                 "current_green_s": round(cur_w, 1), "recommended_green_s": round(g_w, 1),
-                 "flow_ratio": round(y_w, 3), "improvement_pct": imp(cur_w, g_w)},
-            ]
+            
+            # Extension/Reduction flags
+            res = []
+            for label, directions, cur, rec, y in [
+                ("North + South", ["northbound", "southbound"], cur_ns, g_ns, y_ns),
+                ("East", ["eastbound"], cur_e, g_e, y_e),
+                ("West", ["westbound"], cur_w, g_w, y_w)
+            ]:
+                action = "HOLD"
+                if rec > cur + 5: action = "EXTENSION"
+                elif rec < cur - 5: action = "REDUCTION"
+                
+                res.append({
+                    "label": label, 
+                    "directions": directions,
+                    "current_green_s": round(cur, 1), 
+                    "recommended_green_s": round(rec, 1),
+                    "action": action,
+                    "flow_ratio": round(y, 3), 
+                    "improvement_pct": imp(cur, rec)
+                })
+            return res
 
-        # Over-capacity guard (Y > 0.95) — Webster delay model becomes unstable
-        if Y >= 0.95:
-            return {
-                "mode": "over_capacity",
-                "cycle_s": round(cur_cycle, 1),
-                "lost_time_s": round(lost_time, 1),
-                "flow_ratio_total": round(Y, 3),
-                "y_ns": round(y_ns, 3), "y_e": round(y_e, 3), "y_w": round(y_w, 3),
-                "Y_saturated": True,
-                "delay_reduction_pct": 0.0,
-                "current_delay_s_veh": current_delay_avg,
-                "recommended_delay_s_veh": current_delay_avg,
-                "phases": _base_phases(cur_ns, cur_e, cur_w),
-                "saturation_warning": (
-                    f"Demand exceeds capacity (Y={Y:.2f} ≥ 0.95). Webster optimization is not applicable; "
-                    "consider demand-management or upstream metering."
-                ),
-            }
-
-        # Near-saturation guard
+        # Saturated or near-saturated handling
         if Y >= 0.85:
+            # Recommend cycle increase for saturation
+            rec_cycle = min(180.0, cur_cycle + 20.0)
             return {
+                "advisory": advisory_note,
                 "mode": "saturated",
                 "cycle_s": round(cur_cycle, 1),
-                "lost_time_s": round(lost_time, 1),
+                "recommended_cycle_s": round(rec_cycle, 1),
+                "cycle_action": "INCREASE" if rec_cycle > cur_cycle else "HOLD",
                 "flow_ratio_total": round(Y, 3),
-                "y_ns": round(y_ns, 3), "y_e": round(y_e, 3), "y_w": round(y_w, 3),
-                "Y_saturated": True,
-                "delay_reduction_pct": 0.0,
+                "anticipated_congestion": anticipated_congestion,
                 "current_delay_s_veh": current_delay_avg,
-                "recommended_delay_s_veh": current_delay_avg,
                 "phases": _base_phases(cur_ns, cur_e, cur_w),
-                "saturation_warning": "Intersection is near or above capacity. Maintaining current plan.",
+                "saturation_warning": "Intersection near capacity. Recommend cycle length increase to reduce lost-time share.",
             }
 
         # Optimal Webster cycle
@@ -699,52 +699,21 @@ class LiveSimulationEngine:
         g_ns = clamp((y_ns / Y) * g_eff, self._MIN_GREEN_S, self._MAX_GREEN_S)
         g_e  = clamp((y_e  / Y) * g_eff, self._MIN_GREEN_S, self._MAX_GREEN_S)
         g_w  = clamp((y_w  / Y) * g_eff, self._MIN_GREEN_S, self._MAX_GREEN_S)
-        total_g = g_ns + g_e + g_w
-        if total_g > 0:
-            scale = g_eff / total_g
-            g_ns = clamp(g_ns * scale, self._MIN_GREEN_S, self._MAX_GREEN_S)
-            g_e  = clamp(g_e  * scale, self._MIN_GREEN_S, self._MAX_GREEN_S)
-            g_w  = clamp(g_w  * scale, self._MIN_GREEN_S, self._MAX_GREEN_S)
 
-        # Recommended delays
-        d_ns_rec = ud(C_o, g_ns, y_ns)
-        d_e_rec  = ud(C_o, g_e,  y_e)
-        d_w_rec  = ud(C_o, g_w,  y_w)
-        recommended_delay_avg = round((d_ns_rec + d_e_rec + d_w_rec) / 3.0, 2)
-        d_cur = d_ns_cur + d_e_cur + d_w_cur
-        d_rec = d_ns_rec + d_e_rec + d_w_rec
-
-        # Guard #2: recommendation worse than current
-        if d_rec >= d_cur:
-            return {
-                "mode": "field_plan_optimal",
-                "cycle_s": round(cur_cycle, 1),
-                "lost_time_s": round(lost_time, 1),
-                "flow_ratio_total": round(Y, 3),
-                "y_ns": round(y_ns, 3), "y_e": round(y_e, 3), "y_w": round(y_w, 3),
-                "Y_saturated": False,
-                "delay_reduction_pct": 0.0,
-                "current_delay_s_veh": current_delay_avg,
-                "recommended_delay_s_veh": current_delay_avg,
-                "phases": _base_phases(cur_ns, cur_e, cur_w),
-                "saturation_warning": None,
-            }
-
-        delay_reduction_pct = round(100.0 * (d_cur - d_rec) / max(d_cur, 1.0), 1)
-
+        # Final Payload
         return {
+            "advisory": advisory_note,
             "mode": "three_phase",
-            "cycle_s": round(C_o, 1),
-            "lost_time_s": round(lost_time, 1),
+            "cycle_s": round(cur_cycle, 1),
+            "recommended_cycle_s": round(C_o, 1),
+            "cycle_action": "INCREASE" if C_o > cur_cycle + 10 else "REDUCE" if C_o < cur_cycle - 10 else "HOLD",
             "flow_ratio_total": round(Y, 3),
-            "y_ns": round(y_ns, 3), "y_e": round(y_e, 3), "y_w": round(y_w, 3),
-            "Y_saturated": False,
-            "delay_reduction_pct": delay_reduction_pct,
+            "anticipated_congestion": anticipated_congestion,
             "current_delay_s_veh": current_delay_avg,
-            "recommended_delay_s_veh": recommended_delay_avg,
+            "recommended_delay_s_veh": round((ud(C_o, g_ns, y_ns) + ud(C_o, g_e, y_e) + ud(C_o, g_w, y_w)) / 3.0, 2),
             "phases": _base_phases(g_ns, g_e, g_w),
-            "saturation_warning": None,
         }
+
 
     def _insights(self, metrics: dict[str, Any], sim_time: float, vehicle_ids: list[str] | None = None) -> dict[str, Any]:
         dominant_direction = max(DIRECTIONS, key=lambda direction: metrics[direction]["queue_m"])
@@ -775,6 +744,7 @@ class LiveSimulationEngine:
             metric = metrics[direction]
 
             # ── 1. Queue Spillback ─────────────────────────────────
+            # Detected if queue exceeds designated monitoring zones (threshold in config)
             if metric["queue_vehicles"] >= self.queue_threshold:
                 if self._spillback_since[direction] == 0.0:
                     self._spillback_since[direction] = sim_time
@@ -784,11 +754,14 @@ class LiveSimulationEngine:
                     self._spillback_fired[direction] = True
                     q_m = metric["queue_m"]
                     events.append({
-                        "type": "spillback",
+                        "type": "queue_spillback",
                         "severity": "critical",
                         "direction": direction,
+                        "location_label": f"{direction.capitalize()} Approach Corridor",
+                        "confidence": 0.95,
+                        "queue_indicator": q_m,
                         "message": f"Queue spillback detected on the {direction.replace('bound', '')} approach — {metric['queue_vehicles']} vehicles backed up ({round(q_m)} m).",
-                        "tip": "Consider extending the green phase for this approach or checking for downstream blockage.",
+                        "recommendation": "Consider extending the green phase for this approach or checking for downstream blockage.",
                     })
             else:
                 self._spillback_since[direction] = 0.0
@@ -799,11 +772,13 @@ class LiveSimulationEngine:
             curr_delay = float(google.get("delay_s", 0.0))
             if curr_delay - prev_delay > 30.0 and curr_delay > 60.0:
                 events.append({
-                    "type": "congestion_surge",
+                    "type": "sudden_congestion",
                     "severity": "warning",
                     "direction": direction,
-                    "message": f"Google detected a sudden congestion surge on the {direction.replace('bound', '')} corridor — delay jumped +{round(curr_delay - prev_delay)}s.",
-                    "tip": "Monitor this approach for queue spill-over into the junction. Avoid green extension here until upstream clears.",
+                    "location_label": f"Google Corridor: {direction.capitalize()}",
+                    "confidence": 0.88,
+                    "message": f"Sudden congestion surge detected on the {direction.replace('bound', '')} corridor — delay jumped +{round(curr_delay - prev_delay)}s.",
+                    "recommendation": "Monitor this approach for queue spill-over into the junction. Avoid green extension here until upstream clears.",
                 })
             self._prev_google_delays[direction] = curr_delay
 
@@ -813,74 +788,92 @@ class LiveSimulationEngine:
                     "type": "heavy_congestion",
                     "severity": "high" if google["congestion_level"] == "severe" else "medium",
                     "direction": direction,
+                    "location_label": f"Inbound {direction.capitalize()}",
+                    "confidence": 0.90,
                     "message": f"Google reports {google['congestion_level']} inbound conditions from the {direction.replace('bound', '')} side (+{round(curr_delay)}s delay).",
-                    "tip": "Increase demand estimate for this approach and consider pre-emptive green time allocation.",
+                    "recommendation": "Increase demand estimate for this approach and consider pre-emptive green time allocation.",
                 })
 
-        # ── 4. Abnormal Stop Detection (SUMO vehicles) ─────────────
-        # Only flag vehicles stopped during a *green* phase for *their own* direction —
-        # this excludes vehicles legitimately stopped at red lights.
+        # ── 4. Abnormal Stop & Stalled Vehicle Detection ─────────────
         try:
-            if traci.isLoaded() and green_directions:
+            if traci.isLoaded():
                 ids_iter = vehicle_ids if vehicle_ids is not None else list(traci.vehicle.getIDList())
                 for vid in ids_iter:
                     try:
                         route_id = traci.vehicle.getRouteID(vid)
                         direction = next((d for d in DIRECTIONS if route_id == f"route_{d}"), None)
-                        if direction is None or direction not in green_directions:
-                            # Reset tracker because the vehicle isn't expected to move (red phase)
-                            if vid in self._stop_tracker:
-                                del self._stop_tracker[vid]
+                        if direction is None:
                             continue
+                            
                         speed_ms = traci.vehicle.getSpeed(vid)
+                        is_green = direction in green_directions
+                        
                         if speed_ms < 0.3:
-                            entry = self._stop_tracker.setdefault(vid, {"stopped_since": sim_time, "fired": False})
+                            entry = self._stop_tracker.setdefault(vid, {"stopped_since": sim_time, "fired": False, "stalled_fired": False})
                             stopped_s = sim_time - entry["stopped_since"]
-                            if stopped_s >= 8.0 and not entry["fired"]:
+                            
+                            # Abnormal Stopping: Stopped during GREEN
+                            if is_green and stopped_s >= 8.0 and not entry["fired"]:
                                 entry["fired"] = True
                                 events.append({
-                                    "type": "abnormal_stop",
+                                    "type": "abnormal_stopping",
                                     "severity": "warning",
                                     "direction": direction,
-                                    "message": (
-                                        f"Abnormal stop: track {vid.split('_')[0].upper()} remained stationary "
-                                        f"in the {format_direction_short(direction)} approach during a green phase."
-                                    ),
-                                    "tip": "Inspect the stationary vehicle and verify whether it is blocking discharge from the junction.",
+                                    "location_label": f"{direction.capitalize()} Junction Entrance",
+                                    "confidence": 0.92,
+                                    "message": f"Abnormal stop: Vehicle stationary in {direction} during green phase.",
+                                    "recommendation": "Inspect for vehicle failure or obstacle in junction entrance.",
+                                })
+                            
+                            # Stalled Vehicle: Stopped > 30s in non-signal zone (or just long time anywhere)
+                            if stopped_s >= 30.0 and not entry["stalled_fired"]:
+                                entry["stalled_fired"] = True
+                                events.append({
+                                    "type": "stalled_vehicle",
+                                    "severity": "high",
+                                    "direction": direction,
+                                    "location_label": f"{direction.capitalize()} Lane Segment",
+                                    "confidence": 0.96,
+                                    "message": f"Stalled vehicle: Vehicle stationary for >30s on {direction} approach.",
+                                    "recommendation": "Dispatch recovery team or monitor for secondary congestion.",
                                 })
                         else:
                             if vid in self._stop_tracker:
                                 del self._stop_tracker[vid]
-                    except traci.TraCIException as exc:
-                        logger.debug("Vehicle %s telemetry failed: %s", vid, exc)
-                        continue
-                # Prune stale IDs (use cached list if provided to avoid extra TraCI roundtrip)
-                if vehicle_ids is not None:
-                    active_ids = set(vehicle_ids)
-                else:
-                    active_ids = set(traci.vehicle.getIDList())
-                self._stop_tracker = {k: v for k, v in self._stop_tracker.items() if k in active_ids}
-        except Exception as exc:  # noqa: BLE001
-            logger.debug("Abnormal-stop detection error: %s", exc)
+                                
+                        # ── 5. Wrong-Way / Unexpected Trajectory ─────────────
+                        angle = traci.vehicle.getAngle(vid)
+                        expected_bearing = DIRECTION_BEARINGS.get(direction, 0)
+                        # Bearings are 0=N, 90=E, 180=S, 270=W in SUMO? No, wait.
+                        # live_support says: "northbound": 180.0, "southbound": 0.0, "eastbound": 270.0, "westbound": 90.0
+                        # Check difference
+                        diff = abs(angle - expected_bearing)
+                        if diff > 180: diff = 360 - diff
+                        if diff > 120: # Moving in roughly opposite direction
+                            events.append({
+                                "type": "wrong_way",
+                                "severity": "critical",
+                                "direction": direction,
+                                "location_label": f"{direction.capitalize()} Corridor",
+                                "confidence": 0.85,
+                                "message": f"Unexpected trajectory: Vehicle moving against traffic on {direction}.",
+                                "recommendation": "ALERT: Wrong-way vehicle detected. Trigger emergency safety protocols.",
+                            })
 
-        # Build primary recommendation text from the most severe event or defaults
-        if any(e["type"] == "spillback" for e in events):
-            spill_dir = next(e["direction"] for e in events if e["type"] == "spillback")
-            recommendation = (
-                f"PRIORITY: Extend green on the {spill_dir.replace('bound', '')} approach immediately — "
-                f"queue spillback is active and blocking junction discharge."
-            )
-        elif any(e["type"] == "abnormal_stop" for e in events):
-            stop_dir = next(e["direction"] for e in events if e["type"] == "abnormal_stop")
-            recommendation = (
-                f"Investigate stationary vehicle on the {stop_dir.replace('bound', '')} approach — "
-                f"it may be blocking signal discharge during the green phase."
-            )
+                    except traci.TraCIException:
+                        continue
+        except Exception as exc:
+            logger.debug("Incident detection error: %s", exc)
+
+        # Build primary recommendation text
+        if any(e["type"] == "wrong_way" for e in events):
+            recommendation = "🚨 CRITICAL: Wrong-way vehicle detected. Use emergency signals for all approaches."
+        elif any(e["type"] == "queue_spillback" for e in events):
+            recommendation = "⚠️ PRIORITY: Extend green time for approaches with active spillback."
+        elif any(e["type"] == "stalled_vehicle" for e in events):
+            recommendation = "🚧 Advisory: Stalled vehicle detected. Potential lane blockage."
         else:
-            recommendation = (
-                f"Prioritize the {dominant_direction.replace('bound', '')} approach: it has the longest simulated queue, "
-                f"while Google shows the strongest travel-time penalty on the {google_direction.replace('bound', '')} corridor."
-            )
+            recommendation = f"Advisory: Prioritize {dominant_direction} (Longest Queue) and {google_direction} (High Latency)."
 
         return {
             "dominant_queue_direction": dominant_direction,
@@ -890,6 +883,7 @@ class LiveSimulationEngine:
             "events": events,
             "recommendation": recommendation,
         }
+
 
     def _controller_signal_plan(
         self,
@@ -1224,9 +1218,44 @@ class LiveSimulationEngine:
             logger.debug("Failed to fetch vehicle ID list: %s", exc)
             vehicle_ids = []
         vehicles = self._vehicles(vehicle_ids)
+
+        # Context for forecasting
+        state_partial_for_forecast = {
+            "metrics": metrics,
+            "demand": self.demand_state["demand"],
+            "google_snapshot": self.traffic_snapshot.get("approaches", {})
+        }
+
+        # Phase 3 Forecasting
+        forecast_payload = None
+        if self.forecaster is not None:
+            try:
+                forecast_payload = self.forecaster.predict_all(horizons=(15, 30, 60), live_state=state_partial_for_forecast)
+            except Exception as exc:
+                logger.debug("Forecasting failed: %s", exc)
+
         insights = self._insights(metrics, sim_time, vehicle_ids=vehicle_ids)
-        signal_recommendation = self._webster_recommendation(metrics, self.demand_state)
+        signal_recommendation = self._webster_recommendation(metrics, self.demand_state, forecast=forecast_payload)
+        
+        # Log to Storage Manager (Relational + JSONL)
+        if self.storage:
+            for event in insights.get("events", []):
+                self.storage.log_event({**event, "sim_time": sim_time})
+            if forecast_payload:
+                self.storage.log_forecast(forecast_payload)
+            
+            # Health metrics
+            if self.video_processor:
+                v_stats = self.video_processor.get_monitoring_stats()
+                self.storage.log_health({
+                    "ingestion_rate_fps": v_stats.get("fps", 0.0),
+                    "dropped_frames": v_stats.get("dropped_frames", 0),
+                    "uptime_s": v_stats.get("uptime_s", 0.0),
+                    "error_count": 1 if self._latest_google_error else 0
+                })
+
         emissions = self._emissions_summary(vehicle_ids)
+
         # Anomaly detection — throttled by min_inference_interval
         anomaly_payload: dict[str, Any] | None = None
         if self.anomaly_detector is not None:
@@ -1281,11 +1310,13 @@ class LiveSimulationEngine:
             "demand": self.demand_state["demand"],
             "google_snapshot": google_summary,
             "insights": insights,
+            "forecast": forecast_payload,
             "signal_recommendation": signal_recommendation,
             "adaptive_active": self.adaptive_active,
             "emissions": emissions,
             "anomaly": anomaly_payload,
             "google_error": self._latest_google_error,
+            "storage_stats": self.storage.db_path.exists() if self.storage else False,
             "data_provenance": {
                 "google_delay_s": "Live Google Routes travel-time delta versus free flow.",
                 "google_speed_kmh": "Live Google Routes corridor speed derived from route distance and travel time.",

@@ -1,435 +1,11 @@
 {
   "generated_at": null,
-  "source_root": "/Users/atd04/Documents/GitHub/Abdalrhman-Dmour-9xai19/Intelligent-Traffic-Light 2/Traffic_Data_Sandbox/live_stream",
+  "source_root": "/Users/ahmadhasasneh/Desktop/Intelligent-Traffic-Light/Traffic_Data_Sandbox/live_stream",
   "model_name": "yolo26x.pt",
   "inference_fps": 10.0,
   "preview_fps": null,
   "preview_width": 1280,
   "videos": [
-    {
-      "id": "ytdown-com-youtube-media-52ao3wsinbo-001-1080p",
-      "label": "YTDown.com_YouTube_Media_52ao3WsInBo_001_1080p",
-      "filename": "YTDown.com_YouTube_Media_52ao3WsInBo_001_1080p.mp4",
-      "source_path": "/Users/atd04/Documents/GitHub/Abdalrhman-Dmour-9xai19/Intelligent-Traffic-Light 2/Traffic_Data_Sandbox/live_stream/YTDown.com_YouTube_Media_52ao3WsInBo_001_1080p.mp4",
-      "preview_path": "/app/media/video_previews/ytdown-com-youtube-media-52ao3wsinbo-001-1080p.mp4",
-      "thumbnail_path": "/app/media/video_thumbs/ytdown-com-youtube-media-52ao3wsinbo-001-1080p.jpg",
-      "tracking_path": "/app/data/video_tracking/ytdown-com-youtube-media-52ao3wsinbo-001-1080p.json",
-      "duration_s": 143.0,
-      "source_fps": 30.0,
-      "preview_fps": 30.0,
-      "inference_fps": 10.0,
-      "processed_fps": 30.0,
-      "source_resolution": {
-        "width": 1920,
-        "height": 1080
-      },
-      "preview_resolution": {
-        "width": 1280,
-        "height": 720
-      },
-      "total_unique_tracks": 610,
-      "track_class_counts": {
-        "car": 489,
-        "person": 16,
-        "truck": 97,
-        "bus": 8
-      },
-      "peak_visible_vehicles": 39,
-      "average_visible_vehicles": 24.42,
-      "frames_with_pedestrians": 247,
-      "events": [
-        {
-          "event_id": "ytdown-com-youtube-media-52ao3wsinbo-001-1080p-stop-1",
-          "event_type": "abnormal_stopping",
-          "severity": "medium",
-          "start_ms": 15400,
-          "end_ms": 30600,
-          "start_s": 15.4,
-          "end_s": 30.6,
-          "zone": "east_approach",
-          "zone_label": "eastbound approach",
-          "confidence": 0.71,
-          "description": "Track car-392 remained stationary in the eastbound approach.",
-          "recommendation": "Inspect for lane blockage or stalled vehicle.",
-          "source_video_id": "ytdown-com-youtube-media-52ao3wsinbo-001-1080p"
-        },
-        {
-          "event_id": "ytdown-com-youtube-media-52ao3wsinbo-001-1080p-stop-2",
-          "event_type": "abnormal_stopping",
-          "severity": "medium",
-          "start_ms": 66200,
-          "end_ms": 90500,
-          "start_s": 66.2,
-          "end_s": 90.5,
-          "zone": "west_approach",
-          "zone_label": "westbound approach",
-          "confidence": 0.71,
-          "description": "Track truck-1265 remained stationary in the westbound approach.",
-          "recommendation": "Inspect for lane blockage or stalled vehicle.",
-          "source_video_id": "ytdown-com-youtube-media-52ao3wsinbo-001-1080p"
-        },
-        {
-          "event_id": "ytdown-com-youtube-media-52ao3wsinbo-001-1080p-stop-3",
-          "event_type": "abnormal_stopping",
-          "severity": "medium",
-          "start_ms": 72200,
-          "end_ms": 102800,
-          "start_s": 72.2,
-          "end_s": 102.8,
-          "zone": "junction_core",
-          "zone_label": "junction core",
-          "confidence": 0.71,
-          "description": "Track car-1275 remained stationary in the junction core.",
-          "recommendation": "Inspect for lane blockage or stalled vehicle.",
-          "source_video_id": "ytdown-com-youtube-media-52ao3wsinbo-001-1080p"
-        }
-      ],
-      "summary": "610 unique objects tracked.  Peak 39 vehicles visible; avg 24.4/frame.",
-      "default_event_id": "ytdown-com-youtube-media-52ao3wsinbo-001-1080p-stop-1"
-    },
-    {
-      "id": "video1",
-      "label": "video1",
-      "filename": "video1.mp4",
-      "source_path": "/Users/atd04/Documents/GitHub/Abdalrhman-Dmour-9xai19/Intelligent-Traffic-Light 2/Traffic_Data_Sandbox/live_stream/video1.mp4",
-      "preview_path": "/app/media/video_previews/video1.mp4",
-      "thumbnail_path": "/app/media/video_thumbs/video1.jpg",
-      "tracking_path": "/app/data/video_tracking/video1.json",
-      "duration_s": 143.0,
-      "source_fps": 30.0,
-      "preview_fps": 30.0,
-      "inference_fps": 10.0,
-      "processed_fps": 30.0,
-      "source_resolution": {
-        "width": 848,
-        "height": 480
-      },
-      "preview_resolution": {
-        "width": 1280,
-        "height": 725
-      },
-      "total_unique_tracks": 633,
-      "track_class_counts": {
-        "car": 510,
-        "person": 30,
-        "truck": 86,
-        "bus": 7
-      },
-      "peak_visible_vehicles": 33,
-      "average_visible_vehicles": 21.05,
-      "frames_with_pedestrians": 205,
-      "events": [
-        {
-          "event_id": "video1-stop-1",
-          "event_type": "abnormal_stopping",
-          "severity": "medium",
-          "start_ms": 11100,
-          "end_ms": 29400,
-          "start_s": 11.1,
-          "end_s": 29.4,
-          "zone": "east_approach",
-          "zone_label": "eastbound approach",
-          "confidence": 0.71,
-          "description": "Track car-318 remained stationary in the eastbound approach.",
-          "recommendation": "Inspect for lane blockage or stalled vehicle.",
-          "source_video_id": "video1"
-        },
-        {
-          "event_id": "video1-stop-2",
-          "event_type": "abnormal_stopping",
-          "severity": "medium",
-          "start_ms": 12800,
-          "end_ms": 35400,
-          "start_s": 12.8,
-          "end_s": 35.4,
-          "zone": "east_approach",
-          "zone_label": "eastbound approach",
-          "confidence": 0.71,
-          "description": "Track car-344 remained stationary in the eastbound approach.",
-          "recommendation": "Inspect for lane blockage or stalled vehicle.",
-          "source_video_id": "video1"
-        },
-        {
-          "event_id": "video1-stop-3",
-          "event_type": "abnormal_stopping",
-          "severity": "medium",
-          "start_ms": 13200,
-          "end_ms": 24900,
-          "start_s": 13.2,
-          "end_s": 24.9,
-          "zone": "junction_core",
-          "zone_label": "junction core",
-          "confidence": 0.71,
-          "description": "Track car-348 remained stationary in the junction core.",
-          "recommendation": "Inspect for lane blockage or stalled vehicle.",
-          "source_video_id": "video1"
-        }
-      ],
-      "summary": "633 unique objects tracked.  Peak 33 vehicles visible; avg 21.0/frame.",
-      "default_event_id": "video1-stop-1"
-    },
-    {
-      "id": "video2",
-      "label": "video2",
-      "filename": "video2.mp4",
-      "source_path": "/Users/atd04/Documents/GitHub/Abdalrhman-Dmour-9xai19/Intelligent-Traffic-Light 2/Traffic_Data_Sandbox/live_stream/video2.mp4",
-      "preview_path": "/app/media/video_previews/video2.mp4",
-      "thumbnail_path": "/app/media/video_thumbs/video2.jpg",
-      "tracking_path": "/app/data/video_tracking/video2.json",
-      "duration_s": 328.8,
-      "source_fps": 59.94,
-      "preview_fps": 59.94,
-      "inference_fps": 9.99,
-      "processed_fps": 59.94,
-      "source_resolution": {
-        "width": 832,
-        "height": 464
-      },
-      "preview_resolution": {
-        "width": 1280,
-        "height": 714
-      },
-      "total_unique_tracks": 1712,
-      "track_class_counts": {
-        "bus": 78,
-        "car": 1182,
-        "truck": 244,
-        "person": 207,
-        "motorcycle": 1
-      },
-      "peak_visible_vehicles": 34,
-      "average_visible_vehicles": 14.22,
-      "frames_with_pedestrians": 1102,
-      "events": [
-        {
-          "event_id": "video2-ped-1",
-          "event_type": "pedestrian_presence",
-          "severity": "medium",
-          "start_ms": 24024,
-          "end_ms": 27427,
-          "start_s": 24.0,
-          "end_s": 27.4,
-          "zone": "junction_core",
-          "zone_label": "junction core",
-          "confidence": 0.78,
-          "description": "Pedestrian activity near junction core.",
-          "recommendation": "Confirm pedestrian protection timing in the next signal cycle.",
-          "source_video_id": "video2"
-        },
-        {
-          "event_id": "video2-ped-2",
-          "event_type": "pedestrian_presence",
-          "severity": "medium",
-          "start_ms": 29029,
-          "end_ms": 31832,
-          "start_s": 29.0,
-          "end_s": 31.8,
-          "zone": "junction_core",
-          "zone_label": "junction core",
-          "confidence": 0.78,
-          "description": "Pedestrian activity near junction core.",
-          "recommendation": "Confirm pedestrian protection timing in the next signal cycle.",
-          "source_video_id": "video2"
-        },
-        {
-          "event_id": "video2-ped-3",
-          "event_type": "pedestrian_presence",
-          "severity": "medium",
-          "start_ms": 62362,
-          "end_ms": 72773,
-          "start_s": 62.4,
-          "end_s": 72.8,
-          "zone": "junction_core",
-          "zone_label": "junction core",
-          "confidence": 0.78,
-          "description": "Pedestrian activity near junction core.",
-          "recommendation": "Confirm pedestrian protection timing in the next signal cycle.",
-          "source_video_id": "video2"
-        },
-        {
-          "event_id": "video2-ped-4",
-          "event_type": "pedestrian_presence",
-          "severity": "medium",
-          "start_ms": 73273,
-          "end_ms": 95996,
-          "start_s": 73.3,
-          "end_s": 96.0,
-          "zone": "junction_core",
-          "zone_label": "junction core",
-          "confidence": 0.78,
-          "description": "Pedestrian activity near junction core.",
-          "recommendation": "Confirm pedestrian protection timing in the next signal cycle.",
-          "source_video_id": "video2"
-        },
-        {
-          "event_id": "video2-ped-5",
-          "event_type": "pedestrian_presence",
-          "severity": "medium",
-          "start_ms": 97197,
-          "end_ms": 104004,
-          "start_s": 97.2,
-          "end_s": 104.0,
-          "zone": "junction_core",
-          "zone_label": "junction core",
-          "confidence": 0.78,
-          "description": "Pedestrian activity near junction core.",
-          "recommendation": "Confirm pedestrian protection timing in the next signal cycle.",
-          "source_video_id": "video2"
-        },
-        {
-          "event_id": "video2-ped-6",
-          "event_type": "pedestrian_presence",
-          "severity": "medium",
-          "start_ms": 196496,
-          "end_ms": 200801,
-          "start_s": 196.5,
-          "end_s": 200.8,
-          "zone": "junction_core",
-          "zone_label": "junction core",
-          "confidence": 0.78,
-          "description": "Pedestrian activity near junction core.",
-          "recommendation": "Confirm pedestrian protection timing in the next signal cycle.",
-          "source_video_id": "video2"
-        },
-        {
-          "event_id": "video2-ped-7",
-          "event_type": "pedestrian_presence",
-          "severity": "medium",
-          "start_ms": 251851,
-          "end_ms": 255455,
-          "start_s": 251.9,
-          "end_s": 255.5,
-          "zone": "junction_core",
-          "zone_label": "junction core",
-          "confidence": 0.78,
-          "description": "Pedestrian activity near junction core.",
-          "recommendation": "Confirm pedestrian protection timing in the next signal cycle.",
-          "source_video_id": "video2"
-        },
-        {
-          "event_id": "video2-ped-8",
-          "event_type": "pedestrian_presence",
-          "severity": "medium",
-          "start_ms": 258358,
-          "end_ms": 265165,
-          "start_s": 258.4,
-          "end_s": 265.2,
-          "zone": "junction_core",
-          "zone_label": "junction core",
-          "confidence": 0.78,
-          "description": "Pedestrian activity near junction core.",
-          "recommendation": "Confirm pedestrian protection timing in the next signal cycle.",
-          "source_video_id": "video2"
-        },
-        {
-          "event_id": "video2-ped-9",
-          "event_type": "pedestrian_presence",
-          "severity": "medium",
-          "start_ms": 265365,
-          "end_ms": 267867,
-          "start_s": 265.4,
-          "end_s": 267.9,
-          "zone": "junction_core",
-          "zone_label": "junction core",
-          "confidence": 0.78,
-          "description": "Pedestrian activity near junction core.",
-          "recommendation": "Confirm pedestrian protection timing in the next signal cycle.",
-          "source_video_id": "video2"
-        },
-        {
-          "event_id": "video2-ped-10",
-          "event_type": "pedestrian_presence",
-          "severity": "medium",
-          "start_ms": 293593,
-          "end_ms": 296696,
-          "start_s": 293.6,
-          "end_s": 296.7,
-          "zone": "junction_core",
-          "zone_label": "junction core",
-          "confidence": 0.78,
-          "description": "Pedestrian activity near junction core.",
-          "recommendation": "Confirm pedestrian protection timing in the next signal cycle.",
-          "source_video_id": "video2"
-        },
-        {
-          "event_id": "video2-stop-1",
-          "event_type": "abnormal_stopping",
-          "severity": "medium",
-          "start_ms": 0,
-          "end_ms": 285385,
-          "start_s": 0.0,
-          "end_s": 285.4,
-          "zone": "west_approach",
-          "zone_label": "westbound approach",
-          "confidence": 0.71,
-          "description": "Track car-2 remained stationary in the westbound approach.",
-          "recommendation": "Inspect for lane blockage or stalled vehicle.",
-          "source_video_id": "video2"
-        },
-        {
-          "event_id": "video2-stop-2",
-          "event_type": "abnormal_stopping",
-          "severity": "medium",
-          "start_ms": 0,
-          "end_ms": 285385,
-          "start_s": 0.0,
-          "end_s": 285.4,
-          "zone": "west_approach",
-          "zone_label": "westbound approach",
-          "confidence": 0.71,
-          "description": "Track car-3 remained stationary in the westbound approach.",
-          "recommendation": "Inspect for lane blockage or stalled vehicle.",
-          "source_video_id": "video2"
-        },
-        {
-          "event_id": "video2-stop-3",
-          "event_type": "abnormal_stopping",
-          "severity": "medium",
-          "start_ms": 0,
-          "end_ms": 285385,
-          "start_s": 0.0,
-          "end_s": 285.4,
-          "zone": "west_approach",
-          "zone_label": "westbound approach",
-          "confidence": 0.71,
-          "description": "Track car-4 remained stationary in the westbound approach.",
-          "recommendation": "Inspect for lane blockage or stalled vehicle.",
-          "source_video_id": "video2"
-        }
-      ],
-      "summary": "1712 unique objects tracked.  Peak 34 vehicles visible; avg 14.2/frame.",
-      "default_event_id": "video2-ped-1"
-    },
-    {
-      "id": "video-1",
-      "label": "video 1",
-      "filename": "video 1.mov",
-      "source_path": "/Users/atd04/Documents/GitHub/Abdalrhman-Dmour-9xai19/Intelligent-Traffic-Light 2/Traffic_Data_Sandbox/live_stream/video 1.mov",
-      "preview_path": "/app/media/video_previews/video-1.mp4",
-      "thumbnail_path": "/app/media/video_thumbs/video-1.jpg",
-      "tracking_path": "/app/data/video_tracking/video-1.json",
-      "duration_s": 509.7,
-      "source_fps": 31.26,
-      "preview_fps": 31.26,
-      "inference_fps": 10.42,
-      "processed_fps": 31.26,
-      "source_resolution": {
-        "width": 3452,
-        "height": 2064
-      },
-      "preview_resolution": {
-        "width": 1280,
-        "height": 765
-      },
-      "total_unique_tracks": 0,
-      "track_class_counts": {},
-      "peak_visible_vehicles": 0,
-      "average_visible_vehicles": 0.0,
-      "frames_with_pedestrians": 0,
-      "events": [],
-      "summary": "0 unique objects tracked.  Peak 0 vehicles visible; avg 0.0/frame.",
-      "default_event_id": null
-    },
     {
       "id": "img-5204",
       "label": "IMG_5204",
@@ -1418,14 +994,13 @@
       "status": "proven",
       "evidence_video_ids": [
         "ytdown-com-youtube-media-52ao3wsinbo-001-1080p",
-        "video1",
-        "video2",
         "img-5204",
         "img-5205",
         "img-5206",
         "img-5208",
         "img-5209",
-        "img-5210"
+        "img-5210",
+        "scene-builder-i-need-a-generated-video-from-this-image-this-video-contains-a-car-crash-from-t"
       ]
     },
     {
@@ -1443,12 +1018,13 @@
       "description": "Pedestrian activity near the junction core and conflict zones is flagged.",
       "status": "proven",
       "evidence_video_ids": [
-        "video2",
+        "ytdown-com-youtube-media-52ao3wsinbo-001-1080p",
         "img-5204",
         "img-5205",
         "img-5206",
         "img-5209",
-        "img-5210"
+        "img-5210",
+        "scene-builder-i-need-a-generated-video-from-this-image-this-video-contains-a-car-crash-from-t"
       ]
     },
     {
@@ -1458,8 +1034,6 @@
       "status": "proven",
       "evidence_video_ids": [
         "ytdown-com-youtube-media-52ao3wsinbo-001-1080p",
-        "video1",
-        "video2",
         "img-5204",
         "img-5205",
         "img-5206",
@@ -1472,8 +1046,10 @@
       "id": "incident_workflow",
       "title": "Incident / Crash Workflow",
       "description": "Confirmed crash clip escalates into alerts and recommendations in the GUI.",
-      "status": "supported",
-      "evidence_video_ids": []
+      "status": "proven",
+      "evidence_video_ids": [
+        "scene-builder-i-need-a-generated-video-from-this-image-this-video-contains-a-car-crash-from-t"
+      ]
     },
     {
       "id": "heavy_vehicle_awareness",
@@ -1482,22 +1058,21 @@
       "status": "proven",
       "evidence_video_ids": [
         "ytdown-com-youtube-media-52ao3wsinbo-001-1080p",
-        "video1",
-        "video2",
         "img-5204",
         "img-5205",
         "img-5206",
         "img-5208",
         "img-5209",
-        "img-5210"
+        "img-5210",
+        "scene-builder-i-need-a-generated-video-from-this-image-this-video-contains-a-car-crash-from-t"
       ]
     }
   ],
   "summary": {
-    "video_count": 11,
-    "total_duration_s": 2108.6,
-    "total_events": 68,
+    "video_count": 7,
+    "total_duration_s": 984.1,
+    "total_events": 49,
     "high_severity_events": 2,
-    "tracked_objects": 16861
+    "tracked_objects": 13906
   }
 }

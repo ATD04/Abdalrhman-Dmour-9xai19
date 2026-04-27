@@ -11,6 +11,8 @@ const state = {
   pendingRender: false,
   lastRenderTs: 0,
   theme: "dark",
+  lang: "en", // "en" | "ar"
+  operatorMode: false,
 };
 
 const SSE_RECONNECT_BASE_MS = 1500;
@@ -49,19 +51,22 @@ const els = {
   websterModeBadge: document.getElementById("webster-mode-badge"),
   mapStory: document.getElementById("map-story"),
   historyCanvas: document.getElementById("history-chart"),
-  // Phase 3 elements
-  systemHealthPanel: document.getElementById("system-health-panel"),
-  healthStatusBadge: document.getElementById("health-status-badge"),
-  phase3EventsPanel: document.getElementById("phase3-events-panel"),
-  eventsCountBadge: document.getElementById("events-count-badge"),
 };
 
 const directions = ["northbound", "southbound", "eastbound", "westbound"];
 const DIRECTION_LABELS = {
-  northbound: "North",
-  southbound: "South",
-  eastbound: "East",
-  westbound: "West",
+  en: {
+    northbound: "North",
+    southbound: "South",
+    eastbound: "East",
+    westbound: "West",
+  },
+  ar: {
+    northbound: "شمال",
+    southbound: "جنوب",
+    eastbound: "شرق",
+    westbound: "غرب",
+  }
 };
 const DIRECTION_ARROWS = {
   northbound: "↑",
@@ -70,17 +75,34 @@ const DIRECTION_ARROWS = {
   westbound: "←",
 };
 const CONGESTION_LABELS = {
-  free: "Free flow",
-  light: "Light traffic",
-  moderate: "Moderate delay",
-  heavy: "Heavy delay",
-  severe: "Severe jam",
+  en: {
+    free: "Free flow",
+    light: "Light traffic",
+    moderate: "Moderate delay",
+    heavy: "Heavy delay",
+    severe: "Severe jam",
+  },
+  ar: {
+    free: "حركة حرة",
+    light: "حركة خفيفة",
+    moderate: "تأخير متوسط",
+    heavy: "تأخير ثقيل",
+    severe: "ازدحام شديد",
+  }
 };
 const SIGNAL_STATE_LABELS = {
-  green: "Moving",
-  yellow: "Clearing",
-  red: "Stopped",
-  unknown: "No signal data",
+  en: {
+    green: "Moving",
+    yellow: "Clearing",
+    red: "Stopped",
+    unknown: "No signal data",
+  },
+  ar: {
+    green: "متحرك",
+    yellow: "إخلاء",
+    red: "متوقف",
+    unknown: "لا توجد بيانات",
+  }
 };
 const GOOGLE_SEGMENT_COLORS = {
   NORMAL: "#45d5a0",
@@ -130,11 +152,12 @@ function queueDescription(queueM) {
 
 function directionLabel(direction) {
   if (!direction) return "Unmapped";
-  return `${DIRECTION_LABELS[direction] || direction} ${DIRECTION_ARROWS[direction] || ""}`.trim();
+  const label = DIRECTION_LABELS[state.lang][direction] || direction;
+  return `${label} ${DIRECTION_ARROWS[direction] || ""}`.trim();
 }
 
 function signalBadge(stateName) {
-  const label = SIGNAL_STATE_LABELS[stateName] || SIGNAL_STATE_LABELS.unknown;
+  const label = SIGNAL_STATE_LABELS[state.lang][stateName] || SIGNAL_STATE_LABELS[state.lang].unknown;
   return `<span class="signal-state-pill signal-${stateName || "unknown"}">${label}</span>`;
 }
 
@@ -239,7 +262,43 @@ function setAdaptiveBadge() {
   els.adaptiveToggle.textContent = `Adaptive: ${active ? "ON" : "OFF"}`;
 }
 
+function toggleLanguage() {
+  state.lang = state.lang === "en" ? "ar" : "en";
+  document.documentElement.dir = state.lang === "ar" ? "rtl" : "ltr";
+  document.documentElement.lang = state.lang;
+  
+  // Update all elements with data attributes
+  document.querySelectorAll("[data-en]").forEach(el => {
+    el.textContent = el.getAttribute(`data-${state.lang}`);
+  });
+  
+  showToast(state.lang === "en" ? "Language set to English" : "تم تغيير اللغة إلى العربية", "info", 2000);
+  scheduleRender();
+}
+
+function toggleOperatorMode() {
+  state.operatorMode = !state.operatorMode;
+  document.body.classList.toggle("operator-mode", state.operatorMode);
+  const btn = document.getElementById("operator-toggle");
+  if (btn) {
+    btn.textContent = state.lang === "en" 
+      ? `Operator Mode: ${state.operatorMode ? "ON" : "OFF"}`
+      : `وضع المشغل: ${state.operatorMode ? "مفعل" : "معطل"}`;
+    btn.className = `badge ${state.operatorMode ? "badge-warn" : "badge-muted"}`;
+  }
+  
+  showToast(
+    state.operatorMode 
+      ? (state.lang === "en" ? "Operator Mode Authorized" : "تم تفويض وضع المشغل") 
+      : (state.lang === "en" ? "Operator Mode Deactivated" : "تم إلغاء تفعيل وضع المشغل"),
+    state.operatorMode ? "warning" : "info"
+  );
+}
+
 function bindEvents() {
+  document.getElementById("lang-toggle")?.addEventListener("click", toggleLanguage);
+  document.getElementById("operator-toggle")?.addEventListener("click", toggleOperatorMode);
+
   els.adaptiveToggle.addEventListener("click", async () => {
     if (!state.liveState) return;
     const nextState = !state.liveState.adaptive_active;
@@ -270,25 +329,6 @@ function bindEvents() {
   const themeBtn = document.getElementById("theme-toggle");
   if (themeBtn) {
     themeBtn.addEventListener("click", toggleTheme);
-  }
-
-  // ── Language toggle ─────────────────────────────────────────
-  const langBtn = document.getElementById("language-toggle");
-  if (langBtn && typeof i18n !== 'undefined') {
-    const updateLangButton = () => {
-      const toggle = i18n.getToggleLanguage();
-      langBtn.textContent = toggle.nextCode.toUpperCase();
-      langBtn.title = toggle.nextLabel;
-    };
-    updateLangButton();
-    langBtn.addEventListener("click", () => {
-      const toggle = i18n.getToggleLanguage();
-      i18n.setLanguage(toggle.next);
-      updateLangButton();
-      updateAllI18nText();
-      scheduleRender();
-    });
-    window.addEventListener("i18n-changed", updateLangButton);
   }
 
   // ── Keyboard shortcuts ───────────────────────────────────────
@@ -442,15 +482,25 @@ function renderKpis(live) {
     }
   }
 
-  // Forecast (cached fetch — refreshed periodically)
-  if (els.kpiForecast && state.forecast) {
+  // Phase 3 Forecasts
+  if (live.forecast) {
     const dom = insights.dominant_queue_direction || "northbound";
-    const dirForecasts = state.forecast.directions?.[dom] || [];
-    const fc15 = dirForecasts.find((p) => p.horizon_minutes === 15) || dirForecasts[0];
-    if (fc15) {
-      setText(els.kpiForecast, `${Math.round(fc15.veh_per_hour)} veh/h`);
-      setText(els.kpiForecastDetail, `${directionLabel(dom)} · ${state.forecast.mode} · conf ${(fc15.confidence * 100).toFixed(0)}%`);
-    }
+    const dirForecasts = live.forecast.directions?.[dom] || [];
+    [15, 30, 60].forEach(h => {
+      const fc = dirForecasts.find(p => p.horizon_minutes === h);
+      const el = document.getElementById(`forecast-${h}`);
+      if (el) setText(el, fc ? Math.round(fc.veh_per_hour) : "--");
+    });
+  }
+
+  // Phase 3 System Health
+  const healthEl = document.getElementById("kpi-health");
+  if (healthEl) {
+    const isGoogleOK = live.source === "google_routes";
+    const hasStorage = !!live.storage_stats;
+    const status = (isGoogleOK && hasStorage) ? "EXCELLENT" : "NOMINAL";
+    setText(healthEl, status);
+    setClass(healthEl, status === "EXCELLENT" ? "text-teal" : "text-amber");
   }
 }
 
@@ -487,7 +537,6 @@ async function refreshForecast() {
 }
 
 function renderAlerts(events, anomaly) {
-  // Compose final list: rule-based events + AI anomaly callouts
   const aiEvents = [];
   if (anomaly && anomaly.directions) {
     Object.entries(anomaly.directions).forEach(([direction, info]) => {
@@ -497,7 +546,7 @@ function renderAlerts(events, anomaly) {
           severity: info.score >= 0.85 ? "critical" : "warning",
           direction,
           message: info.reason || "AI model flagged this approach as anomalous.",
-          tip: `AI score ${(info.score * 100).toFixed(0)}%. Verify with field cameras and consider escalation.`,
+          tip: `AI score ${(info.score * 100).toFixed(0)}%. Verify with field cameras.`,
         });
       }
     });
@@ -508,24 +557,25 @@ function renderAlerts(events, anomaly) {
   if (!allEvents.length) {
     const quiet = document.createElement("article");
     quiet.className = "alert-card";
-    quiet.innerHTML = `
-      <strong>Stable</strong>
-      <p>No high-priority alert is active right now.</p>
-      ${anomaly?.mode ? `<small style="color:var(--muted);">AI monitor mode: ${anomaly.mode}</small>` : ""}
-    `;
+    const label = state.lang === "en" ? "Stable Conditions" : "حالة مستقرة";
+    const msg = state.lang === "en" ? "No high-priority incidents detected." : "لم يتم رصد أي حوادث عالية الأهمية حالياً.";
+    quiet.innerHTML = `<strong>${label}</strong><p>${msg}</p>`;
     els.alertList.appendChild(quiet);
     return;
   }
 
   const EVENT_ICONS = {
-    spillback: "🚨",
-    abnormal_stop: "⚠️",
-    congestion_surge: "📈",
+    queue_spillback: "🚨",
+    abnormal_stopping: "⚠️",
+    stalled_vehicle: "🚧",
+    wrong_way: "⛔",
+    sudden_congestion: "📈",
     heavy_congestion: "🟠",
     ai_anomaly: "🧠",
   };
+
   const SEVERITY_CLASS = {
-    critical: "high",
+    critical: "high critical",
     high: "high",
     warning: "medium",
     medium: "medium",
@@ -537,17 +587,19 @@ function renderAlerts(events, anomaly) {
     const sevClass = SEVERITY_CLASS[event.severity] || "";
     card.className = `alert-card event-card ${sevClass}`;
     const icon = EVENT_ICONS[event.type] || "ℹ️";
-    const dirLabel = event.direction ? ` · ${directionLabel(event.direction)}` : "";
-    const titleLabel = event.type === "ai_anomaly"
-      ? `AI Anomaly Detected${dirLabel}`
-      : `${event.type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}${dirLabel}`;
+    
+    // Translation logic for event types (demo purpose, can be expanded)
+    const typeLabel = event.type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+    const locLabel = event.location_label || directionLabel(event.direction);
+    
     card.innerHTML = `
       <div class="event-card-header">
         <span class="event-icon">${icon}</span>
-        <strong>${titleLabel}</strong>
+        <strong>${typeLabel}</strong>
       </div>
+      <div class="event-location">${locLabel}</div>
       <p>${event.message}</p>
-      ${event.tip ? `<p class="event-tip">💡 ${event.tip}</p>` : ""}
+      ${event.recommendation ? `<p class="event-tip">💡 ${event.recommendation}</p>` : ""}
     `;
     els.alertList.appendChild(card);
   });
@@ -745,10 +797,11 @@ function renderApproachTable(metrics, googleDirections, demand) {
     const metric = metrics[direction] || {};
     const demandState = demand[direction] || {};
     const row = document.createElement("tr");
+    const congestionLabel = CONGESTION_LABELS[state.lang][google.congestion_level] || "—";
     row.innerHTML = `
       <td><strong>${directionLabel(direction)}</strong></td>
       <td>
-        <span class="status-pill status-${google.congestion_level || "free"}">${CONGESTION_LABELS[google.congestion_level] || "—"}</span>
+        <span class="status-pill status-${google.congestion_level || "free"}">${congestionLabel}</span>
         <div class="table-sub">${formatDelay(google.delay_s)}</div>
       </td>
       <td>${(google.avg_speed_kmh || 0).toFixed(1)} km/h<div class="table-sub">free flow ${(google.free_flow_speed_kmh || 0).toFixed(1)}</div></td>
@@ -1385,7 +1438,6 @@ async function init() {
   state.liveState = liveState;
   state.history = Array.isArray(history) ? history : [];
   bindEvents();
-  initI18n();
   setupMapInteraction();
   invalidateMapCache();
   connectEventSource();
@@ -1394,11 +1446,6 @@ async function init() {
   // Forecast refresh every 60s (independent of SSE)
   refreshForecast();
   setInterval(refreshForecast, 60_000);
-  // Phase 3: System health & events refresh every 5s
-  updateSystemHealth();
-  updatePhase3Events();
-  setInterval(updateSystemHealth, 5000);
-  setInterval(updatePhase3Events, 5000);
   scheduleRender();
 }
 
@@ -1409,75 +1456,3 @@ init().catch((error) => {
   // Soft fail: keep the page so users can retry
   setTimeout(() => init().catch(() => {/* still failing */}), 5000);
 });
-
-async function updateSystemHealth() {
-  const panel = document.getElementById("system-health-panel");
-  if (!panel) return;
-  
-  try {
-    const health = await fetchJSON("/api/system-health", { retries: 1, timeoutMs: 3000 });
-    if (!health) return;
-
-    const uptime = health.uptime_seconds || 0;
-    const upStr = uptime > 3600 ? `${(uptime/3600).toFixed(1)}h` : `${Math.round(uptime)}s`;
-    
-    const googleOK = health.google_api?.available ? "✓" : "✗";
-    const detectOK = health.detector_data ? "✓" : "✗";
-    const dbOK = health.database ? "✓" : "✗";
-    
-    panel.innerHTML = `
-      <div style="display:grid;gap:6px;font-size:12px;">
-        <div><strong>Uptime:</strong> ${upStr}</div>
-        <div>${googleOK} Google API</div>
-        <div>${detectOK} Detector Data</div>
-        <div>${dbOK} Database</div>
-      </div>
-    `;
-  } catch (err) {
-    panel.innerHTML = `<small style="color:var(--danger);">Error loading health</small>`;
-  }
-}
-
-async function updatePhase3Events() {
-  const panel = document.getElementById("phase3-events-panel");
-  const badge = document.getElementById("events-count-badge");
-  if (!panel) return;
-  
-  try {
-    const data = await fetchJSON("/api/events", { retries: 1, timeoutMs: 3000 });
-    if (!data) return;
-
-    const total = data.total_active || 0;
-    if (badge) badge.textContent = total > 0 ? `${total} active` : "0";
-    
-    if (total === 0) {
-      panel.innerHTML = `<small style="color:var(--muted);">No active incidents</small>`;
-    } else if (data.events && data.events.length > 0) {
-      panel.innerHTML = data.events.slice(0, 3).map(e => `
-        <div style="padding:8px;margin-bottom:6px;background:var(--panel-strong);border-radius:8px;border-left:3px solid var(--danger);font-size:11px;">
-          <strong>${e.event_type || 'Event'}</strong><br/>
-          <small style="color:var(--muted);">${e.approach || 'Unknown'} · ${e.severity || 'low'}</small>
-        </div>
-      `).join("");
-    }
-  } catch (err) {
-    panel.innerHTML = `<small style="color:var(--danger);">Error loading events</small>`;
-  }
-}
-
-function updateAllI18nText() {
-  document.querySelectorAll("[class*='i18n-key-']").forEach(el => {
-    const classes = el.className.split(/\s+/);
-    const keyClass = classes.find(c => c.startsWith('i18n-key-'));
-    if (keyClass && typeof i18n !== 'undefined') {
-      const key = keyClass.replace('i18n-key-', '');
-      el.textContent = i18n.t(key);
-    }
-  });
-}
-
-function initI18n() {
-  if (typeof i18n === 'undefined') return;
-  updateAllI18nText();
-  window.addEventListener('i18n-changed', updateAllI18nText);
-}

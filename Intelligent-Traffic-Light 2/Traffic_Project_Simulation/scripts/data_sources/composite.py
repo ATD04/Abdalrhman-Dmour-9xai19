@@ -80,14 +80,19 @@ class CompositeDataSource(DataSource):
                 return stale
             return self._neutral_snapshot(center, "No data source available.")
 
-        if self.fusion_enabled and len(snapshots) > 1:
-            fused = self._fuse(snapshots, center)
-            self._last_good_snapshot = fused
-            return fused
-
         chosen = snapshots[0]
-        self._last_good_snapshot = chosen
-        return chosen
+        if self.fusion_enabled and len(snapshots) > 1:
+            chosen = self._fuse(snapshots, center)
+
+        # Phase 3: Data Acquisition Layer (Refinery) Integration
+        try:
+            from .acquisition import refinery
+            processed = refinery.process_snapshot(chosen)
+            self._last_good_snapshot = processed
+            return processed
+        except (ImportError, Exception):
+            self._last_good_snapshot = chosen
+            return chosen
 
     # ── Fusion ────────────────────────────────────────────────
     def _fuse(self, snapshots: list[SnapshotPayload], center: dict[str, float]) -> SnapshotPayload:

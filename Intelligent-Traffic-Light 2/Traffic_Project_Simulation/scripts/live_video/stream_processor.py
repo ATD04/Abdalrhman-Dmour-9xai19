@@ -52,6 +52,11 @@ class LiveVideoStreamProcessor:
         self._thread: threading.Thread | None = None
         self._model = None
         self._running = False
+        self._frames_read = 0
+        self._frames_decoded = 0
+        self._start_time = 0.0
+        self._reconnect_count = 0
+        self._last_error = None
 
         # Per-track motion buffer for stopped/moving classification
         self._track_motion: dict[int, Deque[tuple[float, float]]] = defaultdict(lambda: deque(maxlen=12))
@@ -60,11 +65,25 @@ class LiveVideoStreamProcessor:
     def is_running(self) -> bool:
         return self._running and self._thread is not None and self._thread.is_alive()
 
+    def get_stats(self) -> dict[str, Any]:
+        """Return real-time ingestion monitoring metrics."""
+        uptime = time.time() - self._start_time if self._start_time > 0 else 0
+        fps = self._frames_decoded / uptime if uptime > 0 else 0
+        dropped = self._frames_read - self._frames_decoded
+        return {
+            "uptime_s": round(uptime, 1),
+            "ingestion_rate_fps": round(fps, 2),
+            "dropped_frames": max(0, dropped),
+            "reconnect_count": self._reconnect_count,
+            "last_error": self._last_error,
+        }
+
     def get_per_direction_stats(self) -> dict[str, dict[str, Any]]:
         with self._lock:
             return {direction: dict(self._latest.get(direction, {})) for direction in DIRECTIONS}
 
     def describe(self) -> dict[str, Any]:
+        stats = self.get_stats()
         return {
             "enabled": self.enabled,
             "running": self.is_running(),
@@ -72,6 +91,7 @@ class LiveVideoStreamProcessor:
             "weights": str(self.weights) if self.weights else None,
             "device": self.device,
             "sample_fps": self.sample_fps,
+            **stats,
         }
 
     def start(self) -> None:
@@ -86,6 +106,9 @@ class LiveVideoStreamProcessor:
         if not self._load_model():
             return
         self._stop_event.clear()
+        self._start_time = time.time()
+        self._frames_read = 0
+        self._frames_decoded = 0
         self._thread = threading.Thread(target=self._run, daemon=True, name="live-video")
         self._running = True
         self._thread.start()
@@ -145,31 +168,54 @@ class LiveVideoStreamProcessor:
             self._running = False
             return
 
-        cap = cv2.VideoCapture(str(self.source))
-        if not cap.isOpened():
-            logger.warning("Cannot open video source %s", self.source)
-            self._running = False
-            return
+        backoff = 1.0
+        while not self._stop_event.is_set():
+            cap = cv2.VideoCapture(str(self.source))
+            if not cap.isOpened():
+                self._reconnect_count += 1
+                self._last_error = f"Cannot open video source {self.source}"
+                logger.warning("%s. Retrying in %.1fs...", self._last_error, backoff)
+                time.sleep(min(backoff, 10.0))
+                backoff = min(backoff * 1.5, 10.0)
+                continue
 
-        source_fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
-        frame_step = max(1, int(round(source_fps / max(self.sample_fps, 0.5))))
-        frame_idx = 0
-        try:
-            while not self._stop_event.is_set():
-                ok, frame = cap.read()
-                if not ok:
-                    # Loop file-based sources to keep simulation alive
-                    cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
-                    continue
-                frame_idx += 1
-                if frame_idx % frame_step != 0:
-                    continue
-                self._process_frame(frame)
-        except Exception as exc:  # noqa: BLE001
-            logger.warning("Live video loop crashed: %s", exc)
-        finally:
-            cap.release()
-            self._running = False
+            # Successful connection
+            backoff = 1.0
+            self._last_error = None
+            source_fps = cap.get(cv2.CAP_PROP_FPS) or 30.0
+            frame_step = max(1, int(round(source_fps / max(self.sample_fps, 0.5))))
+            frame_idx = 0
+
+            try:
+                while not self._stop_event.is_set():
+                    ok, frame = cap.read()
+                    if not ok:
+                        # If file-based, loop. If stream, break to reconnect.
+                        if isinstance(self.source, Path) or (isinstance(self.source, str) and not self.source.startswith(("rtsp://", "http://"))):
+                            cap.set(cv2.CAP_PROP_POS_FRAMES, 0)
+                            continue
+                        logger.warning("Stream read failed. Attempting reconnection...")
+                        break
+                    
+                    self._frames_read += 1
+                    frame_idx += 1
+                    if frame_idx % frame_step != 0:
+                        continue
+                    
+                    self._process_frame(frame)
+                    self._frames_decoded += 1
+            except Exception as exc:  # noqa: BLE001
+                self._last_error = f"Live video loop error: {exc}"
+                logger.warning(self._last_error)
+            finally:
+                cap.release()
+            
+            if self._stop_event.is_set():
+                break
+            
+            self._reconnect_count += 1
+            time.sleep(2.0)  # Short pause before reconnecting
+
 
     def _process_frame(self, frame: Any) -> None:
         try:

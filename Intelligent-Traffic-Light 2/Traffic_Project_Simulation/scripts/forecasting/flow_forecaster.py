@@ -149,18 +149,29 @@ class FlowForecaster:
         target = when + timedelta(minutes=horizon_minutes)
         slot = (target.weekday(), target.hour * 4 + target.minute // 15)
 
+        # Calendar context: Peak periods (7:30-9:30, 16:30-19:00)
+        hour_val = target.hour + target.minute / 60.0
+        is_peak = (7.5 <= hour_val <= 9.5) or (16.5 <= hour_val <= 19.0)
+        is_weekend = target.weekday() >= 4 # Fri/Sat in Jordan? 
+        # For Wadi Saqra, Fri/Sat are weekends.
+        
         slot_values = self._slot_index.get(direction, {}).get(slot, [])
-        # Average of last week + last 2 weeks gives a stable baseline
         if slot_values:
             base = sum(slot_values) / len(slot_values)
             confidence = min(0.92, 0.55 + 0.05 * len(slot_values))
         else:
-            # Fallback: overall mean for the direction
             all_vals = [v for ts_list in self._slot_index.get(direction, {}).values() for v in ts_list]
             base = sum(all_vals) / len(all_vals) if all_vals else 200.0
             confidence = 0.4
 
-        # Live adjustment — boost prediction by current pressure if provided
+        # Peak adjustment
+        if is_peak:
+            base *= 1.15
+            confidence *= 0.95 # Slightly more uncertain
+        if is_weekend:
+            base *= 0.75
+
+        # Live adjustment
         if live_context:
             pressure = float(live_context.get("pressure_index", 0.0))
             current_demand = float(live_context.get("target_veh_h", base))
@@ -175,9 +186,10 @@ class FlowForecaster:
 
     def predict_all(
         self,
-        horizons: Sequence[int] = (5, 15, 30),
+        horizons: Sequence[int] = (15, 30, 60),
         live_state: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
+
         now = datetime.now(UTC).replace(tzinfo=None)
         result: dict[str, Any] = {
             "generated_at": datetime.now(UTC).isoformat(timespec="seconds"),

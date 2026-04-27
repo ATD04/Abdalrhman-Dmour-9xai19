@@ -20,15 +20,6 @@ from urllib.parse import parse_qs, urlparse
 from live_support import SIM_ROOT, load_live_config, setup_logging
 from sumo_traci_runner import LiveSimulationEngine
 
-# Phase 3 modules
-try:
-    from phase3_database import Phase3Database
-    from phase3_event_manager import EventManager
-    from phase3_system_health import SystemHealthMonitor
-    PHASE3_AVAILABLE = True
-except ImportError:
-    PHASE3_AVAILABLE = False
-
 logger = logging.getLogger("its.server")
 
 # Endpoints whose responses are static enough to benefit from a long Cache-Control header.
@@ -99,7 +90,7 @@ class LiveHandler(SimpleHTTPRequestHandler):
                 self.send_error(HTTPStatus.SERVICE_UNAVAILABLE, "Signal recommendation not yet computed.")
             return
 
-        if route == "/api/flow-forecast" or route == "/api/forecast":
+        if route == "/api/flow-forecast":
             params = parse_qs(parsed.query)
             try:
                 horizon = int(params.get("horizon", ["15"])[0])
@@ -174,34 +165,6 @@ class LiveHandler(SimpleHTTPRequestHandler):
         if route.startswith("/app/media/"):
             self._serve_media_file(head_only=False)
             return
-
-        # ── Phase 3 API Endpoints ─────────────────────────────────
-        if PHASE3_AVAILABLE:
-            if route == "/api/system-health":
-                health_monitor = getattr(self.engine, "health_monitor", None)
-                if health_monitor is not None:
-                    self.respond_json(health_monitor.get_full_health_report())
-                else:
-                    self.send_error(HTTPStatus.SERVICE_UNAVAILABLE, "System health monitor not initialized.")
-                return
-
-            if route == "/api/events":
-                event_manager = getattr(self.engine, "event_manager", None)
-                if event_manager is not None:
-                    self.respond_json(event_manager.get_event_dashboard_format())
-                else:
-                    self.send_error(HTTPStatus.SERVICE_UNAVAILABLE, "Event manager not initialized.")
-                return
-
-            if route == "/api/events/active":
-                event_manager = getattr(self.engine, "event_manager", None)
-                if event_manager is not None:
-                    events = event_manager.get_active_events()
-                    formatted = [EventManager.format_event_for_api(e) for e in events]
-                    self.respond_json({"events": formatted})
-                else:
-                    self.send_error(HTTPStatus.SERVICE_UNAVAILABLE, "Event manager not initialized.")
-                return
 
         if route == "/":
             self.path = "/app/index.html"
@@ -295,12 +258,9 @@ class LiveHandler(SimpleHTTPRequestHandler):
                     self.send_header("Accept-Ranges", "bytes")
                     self.end_headers()
                     if not head_only:
-                        try:
-                            with file_path.open("rb") as fh:
-                                fh.seek(start)
-                                self.wfile.write(fh.read(length))
-                        except (BrokenPipeError, ConnectionResetError):
-                            pass
+                        with file_path.open("rb") as fh:
+                            fh.seek(start)
+                            self.wfile.write(fh.read(length))
                     return
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", content_type)
@@ -308,11 +268,8 @@ class LiveHandler(SimpleHTTPRequestHandler):
         self.send_header("Accept-Ranges", "bytes")
         self.end_headers()
         if not head_only:
-            try:
-                with file_path.open("rb") as fh:
-                    self.copyfile(fh, self.wfile)
-            except (BrokenPipeError, ConnectionResetError):
-                pass
+            with file_path.open("rb") as fh:
+                self.copyfile(fh, self.wfile)
 
     def stream_events(self) -> None:
         self.send_response(HTTPStatus.OK)

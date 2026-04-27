@@ -343,7 +343,6 @@ def load_live_config(config_path: str | None = None) -> dict[str, Any]:
         "history": APP_DATA_ROOT / "live_history.json",
         "network_geometry": APP_DATA_ROOT / "live_network_geometry.json",
         "demand_state": APP_DATA_ROOT / "live_demand_state.json",
-        "app_data": APP_DATA_ROOT,
         "google_service_account": resolve_path(base.get("google", {}).get("service_account_file")),
     }
     return base

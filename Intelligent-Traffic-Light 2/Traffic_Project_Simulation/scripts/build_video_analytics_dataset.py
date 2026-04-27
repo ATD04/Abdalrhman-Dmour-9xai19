@@ -11,9 +11,8 @@ Key design decisions
 
 * **Detection accuracy.**
   Default model: YOLO26x (209 GFLOPs, auto-downloaded on first run).
-  Confidence threshold: 0.35 (minimizes false positives while retaining high vehicle recall).
+  Confidence threshold: 0.20 (maximises vehicle recall while avoiding gross FPs).
   NMS IOU: 0.45.  imgsz: 1280 for 1920-wide source.
-  Minimum Box Area: 0.0008 (filters out tiny distant noise).
 
 * **Tracking JSON format.**
   `fps` == source_fps  (for correct currentTime → ms mapping in the JS)
@@ -144,9 +143,7 @@ def draw_detections_on_frame(
     frame_w: int,
     frame_h: int,
 ) -> np.ndarray:
-    """Draw refined bounding-box overlay with semi-transparent elements."""
-    overlay = frame.copy()
-    
+    """Draw bounding-box overlay on a BGR frame in-place and return it."""
     for det in detections:
         b = det["bbox_norm"]
         x1 = int(b["x"] * frame_w)
@@ -156,37 +153,36 @@ def draw_detections_on_frame(
 
         class_name  = det["class_name"]
         motion      = det["motion_state"]
-        track_id    = det["track_id"].split("-")[-1]
+        track_id    = det["track_id"]
         conf        = det["confidence"]
 
         color = COLOR_PERSON if class_name == "person" else _motion_color(motion)
 
-        # Sleek bounding box (1px border with subtle glow)
-        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 1, cv2.LINE_AA)
-        
-        # Semi-transparent label background
-        label = f"{class_name.upper()} {track_id} | {conf:.0%}"
+        # Bounding box — thicker outer border for visibility
+        cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 0, 0), 4)
+        cv2.rectangle(frame, (x1, y1), (x2, y2), color, 2)
+
+        # Label background
+        label = f"{class_name} {track_id.split('-')[-1]}  {conf:.0%}"
         font       = cv2.FONT_HERSHEY_SIMPLEX
-        font_scale = 0.38
+        font_scale = 0.52
         thickness  = 1
         (tw, th), baseline = cv2.getTextSize(label, font, font_scale, thickness)
-        
-        lx1, ly1 = x1, max(0, y1 - th - 10)
-        lx2, ly2 = x1 + tw + 8, y1
-        
-        cv2.rectangle(overlay, (lx1, ly1), (lx2, ly2), color, cv2.FILLED)
+        lx1, ly1 = x1, max(0, y1 - th - baseline - 4)
+        lx2, ly2 = x1 + tw + 6, y1
+
+        cv2.rectangle(frame, (lx1, ly1), (lx2, ly2), color, cv2.FILLED)
         cv2.putText(
             frame, label,
-            (lx1 + 4, ly2 - 6),
-            font, font_scale, (255, 255, 255), thickness, cv2.LINE_AA,
+            (lx1 + 3, ly2 - baseline - 1),
+            font, font_scale, (0, 0, 0), thickness, cv2.LINE_AA,
         )
 
-        # Small tracking dot at centre
-        cx, cy = (x1 + x2) // 2, (y1 + y2) // 2
-        cv2.circle(frame, (cx, cy), 2, color, -1, cv2.LINE_AA)
+        # Motion indicator dot at bottom-centre
+        cx = (x1 + x2) // 2
+        cv2.circle(frame, (cx, y2), 5, color, -1)
+        cv2.circle(frame, (cx, y2), 5, (0, 0, 0), 1)
 
-    # Apply transparency to labels
-    cv2.addWeighted(overlay, 0.65, frame, 0.35, 0, frame)
     return frame
 
 
@@ -473,7 +469,7 @@ def process_video(
                 tracker="botsort.yaml",
                 classes=sorted(ALLOWED_CLASSES),
                 imgsz=preview_width,
-                conf=0.35,
+                conf=0.20,
                 iou=0.45,
                 device="mps",
             )
@@ -498,11 +494,6 @@ def process_video(
 
                     wn = max(0.0, x2n - x1n)
                     hn = max(0.0, y2n - y1n)
-                    
-                    # Filtering out tiny detections (noise in background)
-                    if wn * hn < 0.0008:
-                        continue
-
                     cx = x1n + wn / 2.0
                     cy = y1n + hn / 2.0
                     zone_name = assign_zone(cx, cy)
