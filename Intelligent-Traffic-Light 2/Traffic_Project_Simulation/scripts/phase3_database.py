@@ -147,7 +147,8 @@ class Phase3Database:
     def get_connection(self) -> sqlite3.Connection:
         """Get or create database connection."""
         if self.connection is None:
-            self.connection = sqlite3.connect(str(self.db_path), timeout=30.0)
+            # check_same_thread=False allows sharing the connection across dashboard request threads
+            self.connection = sqlite3.connect(str(self.db_path), timeout=30.0, check_same_thread=False)
             self.connection.row_factory = sqlite3.Row
         return self.connection
 

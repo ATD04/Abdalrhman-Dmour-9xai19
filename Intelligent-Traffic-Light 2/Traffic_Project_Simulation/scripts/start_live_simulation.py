@@ -295,9 +295,12 @@ class LiveHandler(SimpleHTTPRequestHandler):
                     self.send_header("Accept-Ranges", "bytes")
                     self.end_headers()
                     if not head_only:
-                        with file_path.open("rb") as fh:
-                            fh.seek(start)
-                            self.wfile.write(fh.read(length))
+                        try:
+                            with file_path.open("rb") as fh:
+                                fh.seek(start)
+                                self.wfile.write(fh.read(length))
+                        except (BrokenPipeError, ConnectionResetError):
+                            pass
                     return
         self.send_response(HTTPStatus.OK)
         self.send_header("Content-Type", content_type)
@@ -305,8 +308,11 @@ class LiveHandler(SimpleHTTPRequestHandler):
         self.send_header("Accept-Ranges", "bytes")
         self.end_headers()
         if not head_only:
-            with file_path.open("rb") as fh:
-                self.copyfile(fh, self.wfile)
+            try:
+                with file_path.open("rb") as fh:
+                    self.copyfile(fh, self.wfile)
+            except (BrokenPipeError, ConnectionResetError):
+                pass
 
     def stream_events(self) -> None:
         self.send_response(HTTPStatus.OK)
