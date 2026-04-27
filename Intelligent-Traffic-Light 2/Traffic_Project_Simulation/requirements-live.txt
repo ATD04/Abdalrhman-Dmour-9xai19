@@ -1,0 +1,17 @@
+# Core HTTP + Google auth
+requests>=2.32.0
+google-auth>=2.40.0
+
+# Geospatial
+pyproj>=3.6.0
+
+# Numerical / ML
+numpy>=1.26.0
+scikit-learn>=1.5.0
+
+# Computer vision + YOLO
+opencv-python>=4.10.0
+ultralytics>=8.4.0
+
+# Dev / testing
+pytest>=8.0.0

@@ -1,0 +1,1746 @@
+{
+  "status": "running",
+  "state_version": 4330,
+  "wall_time": "2026-04-27T12:08:06+03:00",
+  "sim_time_s": 4329.0,
+  "source": "detector_data",
+  "simulation_center": {
+    "lat": 31.964932,
+    "lon": 35.884545,
+    "distance_from_reference_m": 489.7
+  },
+  "site_reference": {
+    "label": "Wadi Saqra camera reference",
+    "lat": 31.96387,
+    "lon": 35.88957
+  },
+  "controller_tls_id": "cluster_10989299571_10989299572_10989299573_10989307263_#11more",
+  "vehicles": [
+    {
+      "id": "ea_001033_00403",
+      "lat": 31.964471,
+      "lon": 35.883756,
+      "speed_ms": 0.0,
+      "speed_kmh": 0.0,
+      "heading_deg": 134.6,
+      "lane_id": "1473593772#0_2",
+      "direction": "eastbound",
+      "type": "truck"
+    },
+    {
+      "id": "ea_001044_00407",
+      "lat": 31.964539,
+      "lon": 35.883679,
+      "speed_ms": 0.0,
+      "speed_kmh": 0.0,
+      "heading_deg": 134.6,
+      "lane_id": "1473593772#0_2",
+      "direction": "eastbound",
+      "type": "passenger"
+    },
+    {
+      "id": "ea_001055_00411",
+      "lat": 31.964588,
+      "lon": 35.883624,
+      "speed_ms": 0.0,
+      "speed_kmh": 0.0,
+      "heading_deg": 134.6,
+      "lane_id": "1473593772#0_2",
+      "direction": "eastbound",
+      "type": "passenger"
+    },
+    {
+      "id": "ea_001066_00415",
+      "lat": 31.964637,
+      "lon": 35.883569,
+      "speed_ms": 0.0,
+      "speed_kmh": 0.0,
+      "heading_deg": 134.6,
+      "lane_id": "1473593772#0_2",
+      "direction": "eastbound",
+      "type": "passenger"
+    },
+    {
+      "id": "ea_001076_00418",
+      "lat": 31.964689,
+      "lon": 35.883511,
+      "speed_ms": 0.0,
+      "speed_kmh": 0.0,
+      "heading_deg": 134.6,
+      "lane_id": "1473593772#0_2",
+      "direction": "eastbound",
+      "type": "bus"
+    },
+    {
+      "id": "ea_001087_00423",
+      "lat": 31.964783,
+      "lon": 35.883405,
+      "speed_ms": 0.0,
+      "speed_kmh": 0.0,
+      "heading_deg": 134.6,
+      "lane_id": "1473593772#0_2",
+      "direction": "eastbound",
+      "type": "passenger"
+    },
+    {
+      "id": "no_004327_01631",
+      "lat": 31.964585,
+      "lon": 35.884251,
+      "speed_ms": 17.33,
+      "speed_kmh": 62.4,
+      "heading_deg": 38.1,
+      "lane_id": "150999182#0_0",
+      "direction": "northbound",
+      "type": "passenger"
+    },
+    {
+      "id": "so_004210_01588",
+      "lat": 31.964519,
+      "lon": 35.883988,
+      "speed_ms": 0.0,
+      "speed_kmh": 0.0,
+      "heading_deg": 217.5,
+      "lane_id": "1376463188#0_1",
+      "direction": "southbound",
+      "type": "passenger"
+    },
+    {
+      "id": "so_004219_01592",
+      "lat": 31.964572,
+      "lon": 35.884038,
+      "speed_ms": 0.0,
+      "speed_kmh": 0.0,
+      "heading_deg": 217.5,
+      "lane_id": "1376463188#0_1",
+      "direction": "southbound",
+      "type": "passenger"
+    },
+    {
+      "id": "so_004228_01596",
+      "lat": 31.964625,
+      "lon": 35.884088,
+      "speed_ms": 0.0,
+      "speed_kmh": 0.0,
+      "heading_deg": 217.5,
+      "lane_id": "1376463188#0_1",
+      "direction": "southbound",
+      "type": "passenger"
+    },
+    {
+      "id": "so_004237_01599",
+      "lat": 31.964677,
+      "lon": 35.884138,
+      "speed_ms": 0.01,
+      "speed_kmh": 0.0,
+      "heading_deg": 218.3,
+      "lane_id": "1376463188#0_1",
+      "direction": "southbound",
+      "type": "passenger"
+    },
+    {
+      "id": "so_004246_01603",
+      "lat": 31.964729,
+      "lon": 35.884189,
+      "speed_ms": 0.07,
+      "speed_kmh": 0.3,
+      "heading_deg": 218.5,
+      "lane_id": "1376463188#0_1",
+      "direction": "southbound",
+      "type": "passenger"
+    },
+    {
+      "id": "so_004256_01605",
+      "lat": 31.964787,
+      "lon": 35.884246,
+      "speed_ms": 1.37,
+      "speed_kmh": 4.9,
+      "heading_deg": 218.3,
+      "lane_id": "1376463188#0_1",
+      "direction": "southbound",
+      "type": "bus"
+    },
+    {
+      "id": "so_004265_01608",
+      "lat": 31.964902,
+      "lon": 35.884358,
+      "speed_ms": 5.91,
+      "speed_kmh": 21.3,
+      "heading_deg": 217.6,
+      "lane_id": "1376463188#0_1",
+      "direction": "southbound",
+      "type": "passenger"
+    },
+    {
+      "id": "so_004274_01612",
+      "lat": 31.96501,
+      "lon": 35.88446,
+      "speed_ms": 8.56,
+      "speed_kmh": 30.8,
+      "heading_deg": 217.5,
+      "lane_id": "1376463188#0_1",
+      "direction": "southbound",
+      "type": "passenger"
+    },
+    {
+      "id": "so_004283_01615",
+      "lat": 31.965129,
+      "lon": 35.884574,
+      "speed_ms": 11.71,
+      "speed_kmh": 42.2,
+      "heading_deg": 217.7,
+      "lane_id": "1376463188#0_1",
+      "direction": "southbound",
+      "type": "passenger"
+    },
+    {
+      "id": "so_004293_01619",
+      "lat": 31.965266,
+      "lon": 35.884705,
+      "speed_ms": 12.18,
+      "speed_kmh": 43.9,
+      "heading_deg": 217.8,
+      "lane_id": "1376463188#0_1",
+      "direction": "southbound",
+      "type": "motorcycle"
+    },
+    {
+      "id": "so_004302_01623",
+      "lat": 31.965624,
+      "lon": 35.88507,
+      "speed_ms": 6.79,
+      "speed_kmh": 24.5,
+      "heading_deg": 221.3,
+      "lane_id": "150999181-AddedOffRampEdge_2",
+      "direction": "southbound",
+      "type": "passenger"
+    },
+    {
+      "id": "so_004311_01626",
+      "lat": 31.965725,
+      "lon": 35.88518,
+      "speed_ms": 4.94,
+      "speed_kmh": 17.8,
+      "heading_deg": 221.2,
+      "lane_id": "150999181-AddedOffRampEdge_2",
+      "direction": "southbound",
+      "type": "passenger"
+    },
+    {
+      "id": "so_004320_01630",
+      "lat": 31.965892,
+      "lon": 35.885372,
+      "speed_ms": 5.43,
+      "speed_kmh": 19.5,
+      "heading_deg": 224.5,
+      "lane_id": "150999181-AddedOffRampEdge_2",
+      "direction": "southbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_003930_01485",
+      "lat": 31.964538,
+      "lon": 35.883962,
+      "speed_ms": 0.0,
+      "speed_kmh": 0.0,
+      "heading_deg": 217.5,
+      "lane_id": "1376463188#0_0",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_003951_01493",
+      "lat": 31.96459,
+      "lon": 35.884012,
+      "speed_ms": 0.0,
+      "speed_kmh": 0.0,
+      "heading_deg": 217.5,
+      "lane_id": "1376463188#0_0",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_003983_01505",
+      "lat": 31.964643,
+      "lon": 35.884061,
+      "speed_ms": 0.0,
+      "speed_kmh": 0.0,
+      "heading_deg": 217.5,
+      "lane_id": "1376463188#0_0",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_003993_01509",
+      "lat": 31.964695,
+      "lon": 35.884111,
+      "speed_ms": 0.0,
+      "speed_kmh": 0.0,
+      "heading_deg": 218.3,
+      "lane_id": "1376463188#0_0",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004004_01513",
+      "lat": 31.96475,
+      "lon": 35.884166,
+      "speed_ms": 0.01,
+      "speed_kmh": 0.0,
+      "heading_deg": 218.5,
+      "lane_id": "1376463188#0_0",
+      "direction": "westbound",
+      "type": "truck"
+    },
+    {
+      "id": "we_004025_01521",
+      "lat": 31.964875,
+      "lon": 35.884288,
+      "speed_ms": 0.1,
+      "speed_kmh": 0.4,
+      "heading_deg": 217.6,
+      "lane_id": "1376463188#0_0",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004035_01525",
+      "lat": 31.964985,
+      "lon": 35.884393,
+      "speed_ms": 1.22,
+      "speed_kmh": 4.4,
+      "heading_deg": 217.5,
+      "lane_id": "1376463188#0_0",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004046_01529",
+      "lat": 31.965042,
+      "lon": 35.884448,
+      "speed_ms": 0.86,
+      "speed_kmh": 3.1,
+      "heading_deg": 217.4,
+      "lane_id": "1376463188#0_0",
+      "direction": "westbound",
+      "type": "motorcycle"
+    },
+    {
+      "id": "we_004056_01532",
+      "lat": 31.965083,
+      "lon": 35.884487,
+      "speed_ms": 2.84,
+      "speed_kmh": 10.2,
+      "heading_deg": 217.4,
+      "lane_id": "1376463188#0_0",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004067_01536",
+      "lat": 31.965169,
+      "lon": 35.884569,
+      "speed_ms": 4.79,
+      "speed_kmh": 17.3,
+      "heading_deg": 217.7,
+      "lane_id": "1376463188#0_0",
+      "direction": "westbound",
+      "type": "truck"
+    },
+    {
+      "id": "we_004077_01540",
+      "lat": 31.965402,
+      "lon": 35.884793,
+      "speed_ms": 6.8,
+      "speed_kmh": 24.5,
+      "heading_deg": 218.1,
+      "lane_id": "150999181-AddedOffRampEdge_1",
+      "direction": "westbound",
+      "type": "bus"
+    },
+    {
+      "id": "we_004088_01544",
+      "lat": 31.965281,
+      "lon": 35.884676,
+      "speed_ms": 6.49,
+      "speed_kmh": 23.3,
+      "heading_deg": 217.9,
+      "lane_id": "1376463188#0_0",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004098_01547",
+      "lat": 31.964928,
+      "lon": 35.884339,
+      "speed_ms": 0.3,
+      "speed_kmh": 1.1,
+      "heading_deg": 217.6,
+      "lane_id": "1376463188#0_0",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004109_01552",
+      "lat": 31.965669,
+      "lon": 35.885073,
+      "speed_ms": 4.65,
+      "speed_kmh": 16.8,
+      "heading_deg": 221.2,
+      "lane_id": "150999181-AddedOffRampEdge_1",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004119_01556",
+      "lat": 31.964823,
+      "lon": 35.884237,
+      "speed_ms": 0.01,
+      "speed_kmh": 0.0,
+      "heading_deg": 218.5,
+      "lane_id": "1376463188#0_0",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004130_01560",
+      "lat": 31.96556,
+      "lon": 35.884954,
+      "speed_ms": 6.93,
+      "speed_kmh": 25.0,
+      "heading_deg": 221.5,
+      "lane_id": "150999181-AddedOffRampEdge_1",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004140_01563",
+      "lat": 31.965756,
+      "lon": 35.885168,
+      "speed_ms": 2.28,
+      "speed_kmh": 8.2,
+      "heading_deg": 221.2,
+      "lane_id": "150999181-AddedOffRampEdge_1",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004151_01567",
+      "lat": 31.965827,
+      "lon": 35.885244,
+      "speed_ms": 0.15,
+      "speed_kmh": 0.5,
+      "heading_deg": 224.3,
+      "lane_id": "150999181-AddedOffRampEdge_1",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004161_01571",
+      "lat": 31.965876,
+      "lon": 35.885304,
+      "speed_ms": 0.29,
+      "speed_kmh": 1.0,
+      "heading_deg": 224.5,
+      "lane_id": "150999181-AddedOffRampEdge_1",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004172_01575",
+      "lat": 31.965965,
+      "lon": 35.885412,
+      "speed_ms": 0.95,
+      "speed_kmh": 3.4,
+      "heading_deg": 228.5,
+      "lane_id": ":150999181-AddedOnRampNode_0_0",
+      "direction": "westbound",
+      "type": "truck"
+    },
+    {
+      "id": "we_004182_01579",
+      "lat": 31.965923,
+      "lon": 35.885361,
+      "speed_ms": 1.51,
+      "speed_kmh": 5.4,
+      "heading_deg": 224.5,
+      "lane_id": "150999181-AddedOffRampEdge_1",
+      "direction": "westbound",
+      "type": "motorcycle"
+    },
+    {
+      "id": "we_004193_01583",
+      "lat": 31.966034,
+      "lon": 35.88551,
+      "speed_ms": 1.43,
+      "speed_kmh": 5.1,
+      "heading_deg": 230.0,
+      "lane_id": "150999181-AddedOnRampEdge_3",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004203_01587",
+      "lat": 31.965808,
+      "lon": 35.88527,
+      "speed_ms": 3.75,
+      "speed_kmh": 13.5,
+      "heading_deg": 224.5,
+      "lane_id": "150999181-AddedOffRampEdge_2",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004214_01591",
+      "lat": 31.966805,
+      "lon": 35.890774,
+      "speed_ms": 9.99,
+      "speed_kmh": 36.0,
+      "heading_deg": 277.5,
+      "lane_id": "688507122#1_0",
+      "direction": "westbound",
+      "type": "bus"
+    },
+    {
+      "id": "we_004224_01594",
+      "lat": 31.966723,
+      "lon": 35.891191,
+      "speed_ms": 3.73,
+      "speed_kmh": 13.4,
+      "heading_deg": 288.4,
+      "lane_id": "688507122#1_1",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004235_01598",
+      "lat": 31.966686,
+      "lon": 35.891195,
+      "speed_ms": 2.81,
+      "speed_kmh": 10.1,
+      "heading_deg": 95.7,
+      "lane_id": "688511662#0_1",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004245_01602",
+      "lat": 31.966698,
+      "lon": 35.891083,
+      "speed_ms": 4.66,
+      "speed_kmh": 16.8,
+      "heading_deg": 95.7,
+      "lane_id": "688511662#0_1",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004256_01606",
+      "lat": 31.966712,
+      "lon": 35.890948,
+      "speed_ms": 4.97,
+      "speed_kmh": 17.9,
+      "heading_deg": 95.7,
+      "lane_id": "688511662#0_1",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004266_01610",
+      "lat": 31.966727,
+      "lon": 35.890809,
+      "speed_ms": 3.1,
+      "speed_kmh": 11.2,
+      "heading_deg": 95.7,
+      "lane_id": "688511662#0_1",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004277_01614",
+      "lat": 31.96674,
+      "lon": 35.890688,
+      "speed_ms": 1.32,
+      "speed_kmh": 4.7,
+      "heading_deg": 95.7,
+      "lane_id": "688511662#0_1",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004287_01618",
+      "lat": 31.96674,
+      "lon": 35.887449,
+      "speed_ms": 13.47,
+      "speed_kmh": 48.5,
+      "heading_deg": 75.8,
+      "lane_id": "688515256#1_3",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004298_01621",
+      "lat": 31.966823,
+      "lon": 35.888117,
+      "speed_ms": 17.68,
+      "speed_kmh": 63.7,
+      "heading_deg": 84.3,
+      "lane_id": "688511663#0-AddedOnRampEdge_4",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004308_01625",
+      "lat": 31.966302,
+      "lon": 35.886169,
+      "speed_ms": 16.93,
+      "speed_kmh": 61.0,
+      "heading_deg": 55.9,
+      "lane_id": "688983278_1",
+      "direction": "westbound",
+      "type": "passenger"
+    },
+    {
+      "id": "we_004318_01628",
+      "lat": 31.965333,
+      "lon": 35.884965,
+      "speed_ms": 5.3,
+      "speed_kmh": 19.1,
+      "heading_deg": 39.6,
+      "lane_id": "150999182#2_1",
+      "direction": "westbound",
+      "type": "passenger"
+    }
+  ],
+  "signals": {
+    "6456640687": {
+      "phase": 0,
+      "state": "GGGG",
+      "remaining_s": 70.0,
+      "lat": 31.966675,
+      "lon": 35.887343
+    },
+    "6456640688": {
+      "phase": 0,
+      "state": "GGGGG",
+      "remaining_s": 72.0,
+      "lat": 31.966828,
+      "lon": 35.887296
+    },
+    "6456657543": {
+      "phase": 0,
+      "state": "GGG",
+      "remaining_s": 72.0,
+      "lat": 31.966491,
+      "lon": 35.887004
+    },
+    "6456657544": {
+      "phase": 0,
+      "state": "GGGGG",
+      "remaining_s": 70.0,
+      "lat": 31.966535,
+      "lon": 35.887238
+    },
+    "6456662498": {
+      "phase": 0,
+      "state": "GGGG",
+      "remaining_s": 70.0,
+      "lat": 31.966903,
+      "lon": 35.887146
+    },
+    "6456662500": {
+      "phase": 0,
+      "state": "GGGGG",
+      "remaining_s": 70.0,
+      "lat": 31.966861,
+      "lon": 35.886887
+    },
+    "6456662504": {
+      "phase": 0,
+      "state": "GGG",
+      "remaining_s": 70.0,
+      "lat": 31.966556,
+      "lon": 35.886851
+    },
+    "6456662505": {
+      "phase": 0,
+      "state": "GGGG",
+      "remaining_s": 70.0,
+      "lat": 31.966719,
+      "lon": 35.886796
+    },
+    "6458466293": {
+      "phase": 0,
+      "state": "GGG",
+      "remaining_s": 70.0,
+      "lat": 31.96592,
+      "lon": 35.895618
+    },
+    "cluster_1078970911_12761915430_596662090_6456564331_#4more": {
+      "phase": 0,
+      "state": "rGGGggrrrrGGGgg",
+      "remaining_s": 30.0,
+      "lat": 31.966687,
+      "lon": 35.89137
+    },
+    "cluster_10989299571_10989299572_10989299573_10989307263_#11more": {
+      "phase": 2,
+      "state": "rrrrrrrGGGrrrrrrrrrrrrrrGG",
+      "remaining_s": 0.9,
+      "lat": 31.964373,
+      "lon": 35.88389
+    },
+    "cluster_1638510831_6458466292": {
+      "phase": 0,
+      "state": "Grr",
+      "remaining_s": 30.0,
+      "lat": 31.966016,
+      "lon": 35.895555
+    }
+  },
+  "signal_plan": {
+    "tls_id": "cluster_10989299571_10989299572_10989299573_10989307263_#11more",
+    "phase_index": 2,
+    "phase_label": "North + East green",
+    "phase_kind": "green",
+    "phase_duration_s": 6.0,
+    "remaining_s": 0.9,
+    "elapsed_s": 9.0,
+    "extension_applied_s": 0.0,
+    "cycle_length_s": 90.0,
+    "active_directions": [
+      "northbound",
+      "eastbound"
+    ],
+    "phases": [
+      {
+        "index": 0,
+        "duration_s": 16.0,
+        "state": "rrrrrGGrrrrrrrrrrrrrGGGGrr",
+        "kind": "green",
+        "active_directions": [
+          "northbound",
+          "eastbound"
+        ],
+        "label": "North + East green"
+      },
+      {
+        "index": 1,
+        "duration_s": 6.0,
+        "state": "rrrrryyrrrrrrrrrrrrryyyyrr",
+        "kind": "yellow",
+        "active_directions": [],
+        "label": "Lane clearance"
+      },
+      {
+        "index": 2,
+        "duration_s": 6.0,
+        "state": "rrrrrrrGGGrrrrrrrrrrrrrrGG",
+        "kind": "green",
+        "active_directions": [
+          "northbound",
+          "eastbound"
+        ],
+        "label": "North + East green"
+      },
+      {
+        "index": 3,
+        "duration_s": 6.0,
+        "state": "rrrrrrryyyrrrrrrrrrrrrrryy",
+        "kind": "yellow",
+        "active_directions": [],
+        "label": "Lane clearance"
+      },
+      {
+        "index": 4,
+        "duration_s": 16.0,
+        "state": "rrrrrrrrrrGGGrrGGrrrrrrrrr",
+        "kind": "green",
+        "active_directions": [
+          "northbound",
+          "eastbound"
+        ],
+        "label": "North + East green"
+      },
+      {
+        "index": 5,
+        "duration_s": 6.0,
+        "state": "rrrrrrrrrryyyrryyrrrrrrrrr",
+        "kind": "yellow",
+        "active_directions": [],
+        "label": "Lane clearance"
+      },
+      {
+        "index": 6,
+        "duration_s": 6.0,
+        "state": "rrrrrrrrrrrrrGGrrGGGrrrrrr",
+        "kind": "green",
+        "active_directions": [
+          "northbound",
+          "eastbound"
+        ],
+        "label": "North + East green"
+      },
+      {
+        "index": 7,
+        "duration_s": 6.0,
+        "state": "rrrrrrrrrrrrryyrryyyrrrrrr",
+        "kind": "yellow",
+        "active_directions": [],
+        "label": "Lane clearance"
+      },
+      {
+        "index": 8,
+        "duration_s": 16.0,
+        "state": "GGGGGrrrrrrrrrrrrrrrrrrrrr",
+        "kind": "green",
+        "active_directions": [
+          "southbound"
+        ],
+        "label": "South green"
+      },
+      {
+        "index": 9,
+        "duration_s": 6.0,
+        "state": "yyyyyrrrrrrrrrrrrrrrrrrrrr",
+        "kind": "yellow",
+        "active_directions": [],
+        "label": "Lane clearance"
+      }
+    ],
+    "groups": [
+      {
+        "lane_id": "1473593772#0_0",
+        "direction": "eastbound",
+        "lane_index": 0,
+        "label": "Lane 1",
+        "signal_state": "red",
+        "queue_m": 0.0,
+        "queue_vehicles": 0,
+        "vehicle_count": 0,
+        "avg_speed_kmh": 0.0,
+        "controlled_movements": 1,
+        "link_indices": [
+          15
+        ]
+      },
+      {
+        "lane_id": "1376463188#0_0",
+        "direction": "eastbound",
+        "lane_index": 0,
+        "label": "Lane 1",
+        "signal_state": "red",
+        "queue_m": 0.0,
+        "queue_vehicles": 0,
+        "vehicle_count": 0,
+        "avg_speed_kmh": 0.0,
+        "controlled_movements": 2,
+        "link_indices": [
+          20,
+          21
+        ]
+      },
+      {
+        "lane_id": "1473593772#0_1",
+        "direction": "eastbound",
+        "lane_index": 1,
+        "label": "Lane 2",
+        "signal_state": "red",
+        "queue_m": 0.0,
+        "queue_vehicles": 0,
+        "vehicle_count": 0,
+        "avg_speed_kmh": 0.0,
+        "controlled_movements": 1,
+        "link_indices": [
+          16
+        ]
+      },
+      {
+        "lane_id": "1376463188#0_1",
+        "direction": "eastbound",
+        "lane_index": 1,
+        "label": "Lane 2",
+        "signal_state": "green",
+        "queue_m": 0.0,
+        "queue_vehicles": 0,
+        "vehicle_count": 0,
+        "avg_speed_kmh": 0.0,
+        "controlled_movements": 4,
+        "link_indices": [
+          22,
+          23,
+          24,
+          25
+        ]
+      },
+      {
+        "lane_id": "1473593772#0_2",
+        "direction": "eastbound",
+        "lane_index": 2,
+        "label": "Lane 3",
+        "signal_state": "red",
+        "queue_m": 45.0,
+        "queue_vehicles": 6,
+        "vehicle_count": 6,
+        "avg_speed_kmh": 0.0,
+        "controlled_movements": 3,
+        "link_indices": [
+          17,
+          18,
+          19
+        ]
+      },
+      {
+        "lane_id": "1067942483#0_0",
+        "direction": "northbound",
+        "lane_index": 0,
+        "label": "Lane 1",
+        "signal_state": "red",
+        "queue_m": 0.0,
+        "queue_vehicles": 0,
+        "vehicle_count": 0,
+        "avg_speed_kmh": 0.0,
+        "controlled_movements": 2,
+        "link_indices": [
+          5,
+          6
+        ]
+      },
+      {
+        "lane_id": "1025848866#0_0",
+        "direction": "northbound",
+        "lane_index": 0,
+        "label": "Lane 1",
+        "signal_state": "red",
+        "queue_m": 0.0,
+        "queue_vehicles": 0,
+        "vehicle_count": 0,
+        "avg_speed_kmh": 0.0,
+        "controlled_movements": 5,
+        "link_indices": [
+          10,
+          11,
+          12,
+          13,
+          14
+        ]
+      },
+      {
+        "lane_id": "1067942483#0_1",
+        "direction": "northbound",
+        "lane_index": 1,
+        "label": "Lane 2",
+        "signal_state": "green",
+        "queue_m": 0.0,
+        "queue_vehicles": 0,
+        "vehicle_count": 0,
+        "avg_speed_kmh": 0.0,
+        "controlled_movements": 3,
+        "link_indices": [
+          7,
+          8,
+          9
+        ]
+      },
+      {
+        "lane_id": "1389972213#1_0",
+        "direction": "southbound",
+        "lane_index": 0,
+        "label": "Lane 1",
+        "signal_state": "red",
+        "queue_m": 0.0,
+        "queue_vehicles": 0,
+        "vehicle_count": 0,
+        "avg_speed_kmh": 0.0,
+        "controlled_movements": 5,
+        "link_indices": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      }
+    ],
+    "adaptive_applied": true,
+    "applied_greens": {
+      "northbound": 26.5,
+      "southbound": 26.5,
+      "eastbound": 10.3,
+      "westbound": 8.2
+    },
+    "applied_cycle_s": 60.0,
+    "countdown_s": 1.0
+  },
+  "metrics": {
+    "northbound": {
+      "lane_count": 6,
+      "vehicles_on_approach": 1,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 17.33,
+      "avg_speed_kmh": 62.4,
+      "occupancy_pct": 0.0,
+      "density": 0.0,
+      "queue_lane_count": 0,
+      "green_lane_count": 1,
+      "flow_veh_h": 264.0,
+      "target_veh_h": 255.78,
+      "google_delay_s": 15.2,
+      "google_speed_kmh": 26.5
+    },
+    "southbound": {
+      "lane_count": 12,
+      "vehicles_on_approach": 12,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 3.75,
+      "avg_speed_kmh": 13.5,
+      "occupancy_pct": 0.1,
+      "density": 0.001,
+      "queue_lane_count": 0,
+      "green_lane_count": 0,
+      "flow_veh_h": 384.0,
+      "target_veh_h": 390.77,
+      "google_delay_s": 325.0,
+      "google_speed_kmh": 10.1
+    },
+    "eastbound": {
+      "lane_count": 5,
+      "vehicles_on_approach": 6,
+      "queue_vehicles": 6,
+      "queue_m": 45.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.1,
+      "density": 0.001,
+      "queue_lane_count": 1,
+      "green_lane_count": 0,
+      "flow_veh_h": 336.0,
+      "target_veh_h": 334.64,
+      "google_delay_s": 140.6,
+      "google_speed_kmh": 16.9
+    },
+    "westbound": {
+      "lane_count": 3,
+      "vehicles_on_approach": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "density": 0.0,
+      "queue_lane_count": 0,
+      "green_lane_count": 0,
+      "flow_veh_h": 336.0,
+      "target_veh_h": 343.17,
+      "google_delay_s": 163.2,
+      "google_speed_kmh": 15.9
+    }
+  },
+  "lane_metrics": {
+    "150999182#0_0": {
+      "lane_id": "150999182#0_0",
+      "edge_id": "150999182#0",
+      "direction": "northbound",
+      "lane_index": 0,
+      "vehicle_count": 1,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 17.33,
+      "avg_speed_kmh": 62.4,
+      "occupancy_pct": 0.1,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "150999182#0_1": {
+      "lane_id": "150999182#0_1",
+      "edge_id": "150999182#0",
+      "direction": "northbound",
+      "lane_index": 1,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "150999182#0_2": {
+      "lane_id": "150999182#0_2",
+      "edge_id": "150999182#0",
+      "direction": "northbound",
+      "lane_index": 2,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "1067942483#0_0": {
+      "lane_id": "1067942483#0_0",
+      "edge_id": "1067942483#0",
+      "direction": "northbound",
+      "lane_index": 0,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "red",
+      "controlled_movements": 2
+    },
+    "1067942483#0_1": {
+      "lane_id": "1067942483#0_1",
+      "edge_id": "1067942483#0",
+      "direction": "northbound",
+      "lane_index": 1,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "green",
+      "controlled_movements": 3
+    },
+    "282619518_0": {
+      "lane_id": "282619518_0",
+      "edge_id": "282619518",
+      "direction": "northbound",
+      "lane_index": 0,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "150999181-AddedOnRampEdge_0": {
+      "lane_id": "150999181-AddedOnRampEdge_0",
+      "edge_id": "150999181-AddedOnRampEdge",
+      "direction": "southbound",
+      "lane_index": 0,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "150999181-AddedOnRampEdge_1": {
+      "lane_id": "150999181-AddedOnRampEdge_1",
+      "edge_id": "150999181-AddedOnRampEdge",
+      "direction": "southbound",
+      "lane_index": 1,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "150999181-AddedOnRampEdge_2": {
+      "lane_id": "150999181-AddedOnRampEdge_2",
+      "edge_id": "150999181-AddedOnRampEdge",
+      "direction": "southbound",
+      "lane_index": 2,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "150999181-AddedOnRampEdge_3": {
+      "lane_id": "150999181-AddedOnRampEdge_3",
+      "edge_id": "150999181-AddedOnRampEdge",
+      "direction": "southbound",
+      "lane_index": 3,
+      "vehicle_count": 1,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 1.43,
+      "avg_speed_kmh": 5.1,
+      "occupancy_pct": 0.1,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "150999181-AddedOnRampEdge_4": {
+      "lane_id": "150999181-AddedOnRampEdge_4",
+      "edge_id": "150999181-AddedOnRampEdge",
+      "direction": "southbound",
+      "lane_index": 4,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "688515255#1_0": {
+      "lane_id": "688515255#1_0",
+      "edge_id": "688515255#1",
+      "direction": "southbound",
+      "lane_index": 0,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "688515255#1_1": {
+      "lane_id": "688515255#1_1",
+      "edge_id": "688515255#1",
+      "direction": "southbound",
+      "lane_index": 1,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "688515255#1_2": {
+      "lane_id": "688515255#1_2",
+      "edge_id": "688515255#1",
+      "direction": "southbound",
+      "lane_index": 2,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "688515255#1_3": {
+      "lane_id": "688515255#1_3",
+      "edge_id": "688515255#1",
+      "direction": "southbound",
+      "lane_index": 3,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "150999181-AddedOffRampEdge_0": {
+      "lane_id": "150999181-AddedOffRampEdge_0",
+      "edge_id": "150999181-AddedOffRampEdge",
+      "direction": "southbound",
+      "lane_index": 0,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "150999181-AddedOffRampEdge_1": {
+      "lane_id": "150999181-AddedOffRampEdge_1",
+      "edge_id": "150999181-AddedOffRampEdge",
+      "direction": "southbound",
+      "lane_index": 1,
+      "vehicle_count": 7,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 3.23,
+      "avg_speed_kmh": 11.6,
+      "occupancy_pct": 0.4,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "150999181-AddedOffRampEdge_2": {
+      "lane_id": "150999181-AddedOffRampEdge_2",
+      "edge_id": "150999181-AddedOffRampEdge",
+      "direction": "southbound",
+      "lane_index": 2,
+      "vehicle_count": 4,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 5.23,
+      "avg_speed_kmh": 18.8,
+      "occupancy_pct": 0.2,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "1473593772#0_0": {
+      "lane_id": "1473593772#0_0",
+      "edge_id": "1473593772#0",
+      "direction": "eastbound",
+      "lane_index": 0,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "red",
+      "controlled_movements": 1
+    },
+    "1473593772#0_1": {
+      "lane_id": "1473593772#0_1",
+      "edge_id": "1473593772#0",
+      "direction": "eastbound",
+      "lane_index": 1,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "red",
+      "controlled_movements": 1
+    },
+    "1473593772#0_2": {
+      "lane_id": "1473593772#0_2",
+      "edge_id": "1473593772#0",
+      "direction": "eastbound",
+      "lane_index": 2,
+      "vehicle_count": 6,
+      "queue_vehicles": 6,
+      "queue_m": 45.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.7,
+      "signal_state": "red",
+      "controlled_movements": 3
+    },
+    "708835814_0": {
+      "lane_id": "708835814_0",
+      "edge_id": "708835814",
+      "direction": "eastbound",
+      "lane_index": 0,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "154403484_0": {
+      "lane_id": "154403484_0",
+      "edge_id": "154403484",
+      "direction": "eastbound",
+      "lane_index": 0,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "51270303#9_0": {
+      "lane_id": "51270303#9_0",
+      "edge_id": "51270303#9",
+      "direction": "westbound",
+      "lane_index": 0,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "-796721514#0_0": {
+      "lane_id": "-796721514#0_0",
+      "edge_id": "-796721514#0",
+      "direction": "westbound",
+      "lane_index": 0,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    },
+    "-796720232_0": {
+      "lane_id": "-796720232_0",
+      "edge_id": "-796720232",
+      "direction": "westbound",
+      "lane_index": 0,
+      "vehicle_count": 0,
+      "queue_vehicles": 0,
+      "queue_m": 0.0,
+      "avg_speed_ms": 0.0,
+      "avg_speed_kmh": 0.0,
+      "occupancy_pct": 0.0,
+      "signal_state": "unknown",
+      "controlled_movements": 0
+    }
+  },
+  "demand": {
+    "northbound": {
+      "google_capacity_veh_h": 220.0,
+      "target_veh_h": 255.78,
+      "pressure_index": 0.08,
+      "speed_ratio": 0.92,
+      "delay_ratio": 0.087,
+      "google_avg_speed_kmh": 26.5,
+      "google_free_flow_speed_kmh": 28.8,
+      "jam_share": 0.05,
+      "slow_share": 0.033,
+      "congestion_level": "free",
+      "source": "detector_data"
+    },
+    "southbound": {
+      "google_capacity_veh_h": 220.0,
+      "target_veh_h": 390.77,
+      "pressure_index": 0.65,
+      "speed_ratio": 0.35,
+      "delay_ratio": 1.857,
+      "google_avg_speed_kmh": 10.1,
+      "google_free_flow_speed_kmh": 28.8,
+      "jam_share": 0.05,
+      "slow_share": 0.033,
+      "congestion_level": "severe",
+      "source": "detector_data"
+    },
+    "eastbound": {
+      "google_capacity_veh_h": 220.0,
+      "target_veh_h": 334.64,
+      "pressure_index": 0.413,
+      "speed_ratio": 0.587,
+      "delay_ratio": 0.703,
+      "google_avg_speed_kmh": 16.9,
+      "google_free_flow_speed_kmh": 28.8,
+      "jam_share": 0.05,
+      "slow_share": 0.033,
+      "congestion_level": "moderate",
+      "source": "detector_data"
+    },
+    "westbound": {
+      "google_capacity_veh_h": 220.0,
+      "target_veh_h": 343.17,
+      "pressure_index": 0.449,
+      "speed_ratio": 0.551,
+      "delay_ratio": 0.816,
+      "google_avg_speed_kmh": 15.9,
+      "google_free_flow_speed_kmh": 28.8,
+      "jam_share": 0.05,
+      "slow_share": 0.033,
+      "congestion_level": "heavy",
+      "source": "detector_data"
+    }
+  },
+  "google_snapshot": {
+    "northbound": {
+      "speed_ratio": 0.92,
+      "congestion_level": "free",
+      "delay_s": 15.2,
+      "delay_ratio": 0.087,
+      "duration_s": 190.2,
+      "static_duration_s": 175.0,
+      "avg_speed_kmh": 26.5,
+      "free_flow_speed_kmh": 28.8,
+      "normal_share": 0.9,
+      "slow_share": 0.033,
+      "jam_share": 0.05,
+      "polyline": [
+        {
+          "lat": 31.952341,
+          "lon": 35.884545
+        },
+        {
+          "lat": 31.964932,
+          "lon": 35.884545
+        }
+      ],
+      "traffic_segments": [
+        {
+          "speed": "NORMAL",
+          "points": [
+            {
+              "lat": 31.952341,
+              "lon": 35.884545
+            },
+            {
+              "lat": 31.964932,
+              "lon": 35.884545
+            }
+          ]
+        }
+      ]
+    },
+    "southbound": {
+      "speed_ratio": 0.35,
+      "congestion_level": "severe",
+      "delay_s": 325.0,
+      "delay_ratio": 1.857,
+      "duration_s": 500.0,
+      "static_duration_s": 175.0,
+      "avg_speed_kmh": 10.1,
+      "free_flow_speed_kmh": 28.8,
+      "normal_share": 0.9,
+      "slow_share": 0.033,
+      "jam_share": 0.05,
+      "polyline": [
+        {
+          "lat": 31.977523,
+          "lon": 35.884545
+        },
+        {
+          "lat": 31.964932,
+          "lon": 35.884545
+        }
+      ],
+      "traffic_segments": [
+        {
+          "speed": "NORMAL",
+          "points": [
+            {
+              "lat": 31.977523,
+              "lon": 35.884545
+            },
+            {
+              "lat": 31.964932,
+              "lon": 35.884545
+            }
+          ]
+        }
+      ]
+    },
+    "eastbound": {
+      "speed_ratio": 0.587,
+      "congestion_level": "moderate",
+      "delay_s": 140.6,
+      "delay_ratio": 0.703,
+      "duration_s": 340.6,
+      "static_duration_s": 200.0,
+      "avg_speed_kmh": 16.9,
+      "free_flow_speed_kmh": 28.8,
+      "normal_share": 0.9,
+      "slow_share": 0.033,
+      "jam_share": 0.05,
+      "polyline": [
+        {
+          "lat": 31.964931,
+          "lon": 35.867584
+        },
+        {
+          "lat": 31.964932,
+          "lon": 35.884545
+        }
+      ],
+      "traffic_segments": [
+        {
+          "speed": "NORMAL",
+          "points": [
+            {
+              "lat": 31.964931,
+              "lon": 35.867584
+            },
+            {
+              "lat": 31.964932,
+              "lon": 35.884545
+            }
+          ]
+        }
+      ]
+    },
+    "westbound": {
+      "speed_ratio": 0.551,
+      "congestion_level": "heavy",
+      "delay_s": 163.2,
+      "delay_ratio": 0.816,
+      "duration_s": 363.2,
+      "static_duration_s": 200.0,
+      "avg_speed_kmh": 15.9,
+      "free_flow_speed_kmh": 28.8,
+      "normal_share": 0.9,
+      "slow_share": 0.033,
+      "jam_share": 0.05,
+      "polyline": [
+        {
+          "lat": 31.964931,
+          "lon": 35.901506
+        },
+        {
+          "lat": 31.964932,
+          "lon": 35.884545
+        }
+      ],
+      "traffic_segments": [
+        {
+          "speed": "NORMAL",
+          "points": [
+            {
+              "lat": 31.964931,
+              "lon": 35.901506
+            },
+            {
+              "lat": 31.964932,
+              "lon": 35.884545
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "insights": {
+    "dominant_queue_direction": "eastbound",
+    "google_delay_direction": "southbound",
+    "total_queue_m": 45.0,
+    "avg_network_speed_kmh": 19.0,
+    "events": [
+      {
+        "type": "heavy_congestion",
+        "severity": "high",
+        "direction": "southbound",
+        "message": "Google reports severe inbound conditions from the south side (+325s delay).",
+        "tip": "Increase demand estimate for this approach and consider pre-emptive green time allocation."
+      },
+      {
+        "type": "heavy_congestion",
+        "severity": "medium",
+        "direction": "westbound",
+        "message": "Google reports heavy inbound conditions from the west side (+163s delay).",
+        "tip": "Increase demand estimate for this approach and consider pre-emptive green time allocation."
+      }
+    ],
+    "recommendation": "Prioritize the east approach: it has the longest simulated queue, while Google shows the strongest travel-time penalty on the south corridor."
+  },
+  "signal_recommendation": {
+    "mode": "three_phase",
+    "cycle_s": 60.0,
+    "lost_time_s": 15.0,
+    "flow_ratio_total": 0.3,
+    "y_ns": 0.107,
+    "y_e": 0.1,
+    "y_w": 0.093,
+    "Y_saturated": false,
+    "delay_reduction_pct": 36.1,
+    "current_delay_s_veh": 44.05,
+    "recommended_delay_s_veh": 28.13,
+    "phases": [
+      {
+        "label": "North + South",
+        "directions": [
+          "northbound",
+          "southbound"
+        ],
+        "current_green_s": 26.5,
+        "recommended_green_s": 16.0,
+        "flow_ratio": 0.107,
+        "improvement_pct": -39.6
+      },
+      {
+        "label": "East",
+        "directions": [
+          "eastbound"
+        ],
+        "current_green_s": 10.3,
+        "recommended_green_s": 15.0,
+        "flow_ratio": 0.1,
+        "improvement_pct": 45.6
+      },
+      {
+        "label": "West",
+        "directions": [
+          "westbound"
+        ],
+        "current_green_s": 8.2,
+        "recommended_green_s": 14.0,
+        "flow_ratio": 0.093,
+        "improvement_pct": 70.7
+      }
+    ],
+    "saturation_warning": null
+  },
+  "adaptive_active": true,
+  "emissions": {
+    "fleet_size": 54,
+    "co2_g_per_h": 347663.1,
+    "nox_g_per_h": 122.01,
+    "fuel_l_per_h": 132.6
+  },
+  "anomaly": {
+    "any_anomaly": false,
+    "directions": {
+      "northbound": {
+        "score": 0.615,
+        "is_anomaly": false,
+        "reason": "Within learned normal envelope",
+        "metrics": {
+          "queue_vehicles": 0.0,
+          "queue_m": 0.0,
+          "avg_speed_kmh": 0.0
+        }
+      },
+      "southbound": {
+        "score": 0.61,
+        "is_anomaly": false,
+        "reason": "Within learned normal envelope",
+        "metrics": {
+          "queue_vehicles": 4.0,
+          "queue_m": 30.0,
+          "avg_speed_kmh": 8.1
+        }
+      },
+      "eastbound": {
+        "score": 0.591,
+        "is_anomaly": false,
+        "reason": "Within learned normal envelope",
+        "metrics": {
+          "queue_vehicles": 6.0,
+          "queue_m": 45.0,
+          "avg_speed_kmh": 0.0
+        }
+      },
+      "westbound": {
+        "score": 0.603,
+        "is_anomaly": false,
+        "reason": "Within learned normal envelope",
+        "metrics": {
+          "queue_vehicles": 0.0,
+          "queue_m": 0.0,
+          "avg_speed_kmh": 42.4
+        }
+      }
+    },
+    "summary": "Network state within normal bounds",
+    "mode": "iforest"
+  },
+  "google_error": null,
+  "data_provenance": {
+    "google_delay_s": "Live Google Routes travel-time delta versus free flow.",
+    "google_speed_kmh": "Live Google Routes corridor speed derived from route distance and travel time.",
+    "target_veh_h": "Simulation demand estimate derived from Google pressure and congestion shares.",
+    "flow_veh_h": "Observed SUMO flow rate over the rolling five-minute window.",
+    "queue_m": "Stopped vehicles on monitored lanes multiplied by the configured vehicle length."
+  }
+}

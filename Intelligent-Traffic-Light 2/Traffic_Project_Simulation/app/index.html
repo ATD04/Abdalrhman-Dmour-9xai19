@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wadi Saqra Live Digital Twin</title>
+  <link rel="stylesheet" href="/app/index.css?v=4" />
+  <link rel="stylesheet" href="/app/video-analytics.css?v=3" />
+</head>
+
+<body>
+  <div class="shell">
+    <!-- ════════════════════════════════════════════════════════════
+         HEADER / TOP BAR
+         ════════════════════════════════════════════════════════════ -->
+    <header class="hero-new">
+      <div class="hero-left">
+        <div class="hero-title-block">
+          <h1 class="i18n-key-header.title">Wadi Saqra Traffic Digital Twin</h1>
+          <p class="hero-tagline i18n-key-header.subtitle">Live digital twin with AI-powered signal optimization</p>
+        </div>
+      </div>
+      
+      <div class="hero-right">
+        <div class="status-badges">
+          <span id="source-badge" class="badge badge-live i18n-key-banner.connecting">Source: booting</span>
+          <span id="center-badge" class="badge">Center: --</span>
+          <button id="adaptive-toggle" class="badge-button i18n-key-btn.toggleAdaptive">Adaptive: --</button>
+        </div>
+        <div class="control-buttons">
+          <button id="theme-toggle" class="btn-icon i18n-key-nav.theme" title="Toggle light/dark theme">🌓</button>
+          <button id="language-toggle" class="btn-lang" title="Toggle language">EN</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Read-Only Safety Banner -->
+    <div class="safety-banner">
+      <span class="safety-icon">🔒</span>
+      <div>
+        <strong class="i18n-key-header.readOnly">Read-only analytical system</strong>
+        <span class="i18n-key-header.readOnlyDetail">Signal timing outputs are recommendations for operator review only</span>
+      </div>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════
+         TAB BAR
+         ════════════════════════════════════════════════════════════ -->
+    <div class="main-tab-bar-new">
+      <button class="main-tab-btn active" data-tab="live-tab">
+        <span class="tab-icon">📡</span>
+        <span class="i18n-key-tab.liveDigitalTwin">Live Digital Twin</span>
+      </button>
+      <button class="main-tab-btn" data-tab="va-tab">
+        <span class="tab-icon">🎬</span>
+        <span class="i18n-key-tab.videoAnalytics">Video Analytics</span>
+      </button>
+    </div>
+
+    <!-- ════════════════════════════════════════════════════════════
+         LIVE DIGITAL TWIN TAB
+         ════════════════════════════════════════════════════════════ -->
+    <div id="live-tab" class="tab-content active">
+
+      <!-- Data Source Banner -->
+      <div id="data-source-banner" class="data-source-banner">
+        <span id="data-source-icon" class="banner-icon">●</span>
+        <div class="banner-text">
+          <strong id="data-source-label" class="i18n-key-banner.connecting">Connecting to data source…</strong>
+          <span id="data-source-detail" class="i18n-key-banner.startingUp">Starting up — please wait</span>
+        </div>
+      </div>
+
+      <!-- KPI Overview Section (FIRST SCREEN) -->
+      <section class="kpi-overview-section">
+        <div class="kpi-grid-new">
+          <div class="kpi-card-new">
+            <span class="kpi-label i18n-key-kpi.networkQueue">Network Queue</span>
+            <strong id="kpi-queue" class="kpi-value">--</strong>
+            <span class="kpi-unit i18n-key-traffic.meters">m</span>
+          </div>
+          <div class="kpi-card-new">
+            <span class="kpi-label i18n-key-kpi.avgSpeed">Avg Speed</span>
+            <strong id="kpi-speed" class="kpi-value">--</strong>
+            <span class="kpi-unit i18n-key-kpi.avgSpeedUnit">km/h</span>
+          </div>
+          <div class="kpi-card-new">
+            <span class="kpi-label i18n-key-kpi.dominantQueue">Dominant Queue</span>
+            <strong id="kpi-dominant" class="kpi-value">--</strong>
+            <span class="kpi-unit"></span>
+          </div>
+          <div class="kpi-card-new">
+            <span class="kpi-label i18n-key-kpi.googleDelay">Max Delay</span>
+            <strong id="kpi-google" class="kpi-value">--</strong>
+            <span class="kpi-unit">min</span>
+          </div>
+          <div class="kpi-card-new">
+            <span class="kpi-label i18n-key-kpi.forecast15">15-min Forecast</span>
+            <strong id="kpi-forecast" class="kpi-value">--</strong>
+            <span class="kpi-unit i18n-key-kpi.forecastUnit">/h</span>
+          </div>
+          <div class="kpi-card-new kpi-health">
+            <span class="kpi-label i18n-key-health.title">System Health</span>
+            <strong id="health-status-badge" class="kpi-value badge-status">--</strong>
+            <span class="kpi-unit"></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Main Content Grid -->
+      <main class="grid-new">
+        
+        <!-- LIVE MAP (LEFT - LARGE) -->
+        <section class="panel map-panel-new">
+          <div class="panel-head">
+            <div>
+              <p class="eyebrow i18n-key-map.title">Live Map</p>
+              <h2 class="i18n-key-map.subtitle">Digital Twin Visualization</h2>
+            </div>
+            <div class="map-controls-compact">
+              <button id="map-zoom-in" class="map-btn-compact" title="Zoom in">＋</button>
+              <button id="map-zoom-out" class="map-btn-compact" title="Zoom out">－</button>
+              <button id="map-reset" class="map-btn-compact" title="Reset">⌂</button>
+              <div class="map-mode-toggle-compact">
+                <button id="map-mode-sumo" class="map-mode-btn-compact active i18n-key-map.sumoMode">SUMO</button>
+                <button id="map-mode-satellite" class="map-mode-btn-compact i18n-key-map.satelliteMode">Map</button>
+              </div>
+            </div>
+          </div>
+          <div class="map-layer-wrap-new">
+            <canvas id="network-map" width="1200" height="600"></canvas>
+            <iframe
+              id="satellite-iframe"
+              class="satellite-iframe"
+              src="about:blank"
+              data-src="https://maps.google.com/maps?q=31.964932,35.884545&z=17&output=embed&t=k"
+              title="Wadi Saqra satellite view"
+              allowfullscreen
+              style="display:none;"
+            ></iframe>
+          </div>
+          <div class="map-legend-new">
+            <span><i class="dot dot-normal"></i> Normal</span>
+            <span><i class="dot dot-slow"></i> Slow</span>
+            <span><i class="dot dot-jam"></i> Jam</span>
+            <span><i class="dot dot-vehicle"></i> Vehicle</span>
+          </div>
+        </section>
+
+        <!-- RIGHT SIDEBAR -->
+        <aside class="sidebar-new">
+          
+          <!-- System Health Card -->
+          <div class="card-compact">
+            <div class="card-head">
+              <h3 class="i18n-key-health.title">System Health</h3>
+            </div>
+            <div id="system-health-panel" class="system-health-panel-new">
+              <div class="spinner-small"></div>
+            </div>
+          </div>
+
+          <!-- Active Events Card -->
+          <div class="card-compact">
+            <div class="card-head">
+              <h3 class="i18n-key-events.title">Active Incidents</h3>
+              <span id="events-count-badge" class="badge-small">0</span>
+            </div>
+            <div id="phase3-events-panel" class="events-panel-new">
+              <div class="spinner-small"></div>
+            </div>
+          </div>
+
+          <!-- Signal Timing Card -->
+          <div class="card-compact">
+            <div class="card-head">
+              <h3 class="i18n-key-signal.title">Signal Timing</h3>
+              <span id="tls-id" class="badge-small">--</span>
+            </div>
+            <div id="signal-phase-summary-compact" class="signal-summary-compact">--</div>
+          </div>
+
+          <!-- Webster Recommendation -->
+          <div class="card-compact">
+            <div class="card-head">
+              <h3 class="i18n-key-signal.currentVsWebster">Recommended Plan</h3>
+            </div>
+            <div id="webster-panel-compact" class="webster-panel-compact">
+              <div class="spinner-small"></div>
+            </div>
+          </div>
+
+        </aside>
+
+      </main>
+
+      <!-- Direction Comparison Table -->
+      <section class="panel table-panel-new">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow i18n-key-table.title">Directions</p>
+            <h2 class="i18n-key-table.subtitle">Google vs SUMO</h2>
+          </div>
+        </div>
+        <div class="table-wrap-new">
+          <table>
+            <thead>
+              <tr>
+                <th class="i18n-key-table.direction">Direction</th>
+                <th class="i18n-key-table.googleSpeed">Google Speed</th>
+                <th class="i18n-key-table.liveDemand">Live Demand</th>
+                <th class="i18n-key-table.simulatedFlow">Sim Flow</th>
+                <th class="i18n-key-table.queueLength">Queue</th>
+                <th class="i18n-key-table.laneStatus">Status</th>
+              </tr>
+            </thead>
+            <tbody id="approach-table-body"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- History Chart -->
+      <section class="panel history-panel-new">
+        <div class="panel-head">
+          <div>
+            <p class="eyebrow i18n-key-history.title">Recent History</p>
+            <h2 class="i18n-key-history.subtitle">10-Minute Trends</h2>
+          </div>
+        </div>
+        <canvas id="history-chart" width="1200" height="200"></canvas>
+      </section>
+
+    </div><!-- /live-tab -->
+
+    <!-- ════════════════════════════════════════════════════════════
+         VIDEO ANALYTICS TAB
+         ════════════════════════════════════════════════════════════ -->
+    <div id="va-tab" class="tab-content">
+      <div id="va-root">
+
+        <!-- Incidents -->
+        <div id="va-incidents"></div>
+
+        <!-- Summary -->
+        <div class="va-section">
+          <div class="va-section-head">
+            <p class="eyebrow i18n-key-va.summary">Analytics</p>
+            <h2 class="i18n-key-va.summary">Video Processing Summary</h2>
+          </div>
+          <div id="va-kpi-strip" class="va-kpi-strip">
+            <div class="va-loading">
+              <div class="spinner"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gallery -->
+        <div class="va-section">
+          <div class="va-section-head">
+            <p class="eyebrow i18n-key-va.gallery">Videos</p>
+            <h2 class="i18n-key-va.gallery">Video Gallery</h2>
+          </div>
+          <div id="va-gallery" class="va-gallery"></div>
+        </div>
+
+        <!-- Player -->
+        <div id="va-player-section" class="va-player-section" style="display:none;">
+          <div class="va-section">
+            <div class="va-section-head">
+              <p class="eyebrow i18n-key-va.player">Detection</p>
+              <h2 class="i18n-key-va.player">Video Player</h2>
+            </div>
+            <div id="va-player-wrap" class="va-player-wrap">
+              <video id="va-player-video" class="va-player-video" muted playsinline></video>
+              <canvas id="va-player-canvas" class="va-player-canvas"></canvas>
+              <div class="va-player-overlay">
+                <span id="va-overlay-info"></span>
+                <span id="va-overlay-time"></span>
+              </div>
+              <div class="va-player-hud">
+                <span id="va-hud-left"></span>
+                <span id="va-hud-right"></span>
+              </div>
+            </div>
+            <div class="va-player-controls">
+              <button id="va-play-btn" class="i18n-key-va.play">▶ Play</button>
+              <input id="va-seek" class="va-seek" type="range" min="0" value="0" step="1" />
+              <span id="va-time-label" class="va-player-time">0:00 / 0:00</span>
+            </div>
+          </div>
+
+          <!-- Timeline -->
+          <div class="va-section">
+            <div class="va-section-head">
+              <p class="eyebrow i18n-key-va.timeline">Analysis</p>
+              <h2 class="i18n-key-va.timeline">Traffic Timeline</h2>
+            </div>
+            <canvas id="va-timeline-canvas" class="va-timeline-canvas"></canvas>
+          </div>
+
+          <!-- Events -->
+          <div class="va-section">
+            <div class="va-section-head">
+              <p class="eyebrow i18n-key-va.events">Events</p>
+              <h2 class="i18n-key-va.events">Detected Events</h2>
+            </div>
+            <div id="va-events-panel" class="va-events-sidebar"></div>
+          </div>
+        </div>
+
+        <!-- Use Cases -->
+        <div class="va-section">
+          <div class="va-section-head">
+            <p class="eyebrow i18n-key-va.useCases">Capability</p>
+            <h2 class="i18n-key-va.useCases">Proven Use Cases</h2>
+          </div>
+          <div id="va-use-cases" class="va-use-cases-grid"></div>
+        </div>
+
+      </div>
+    </div><!-- /va-tab -->
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="/app/i18n.js?v=1" defer></script>
+  <script src="/app/index.js?v=3" defer></script>
+  <script src="/app/video-analytics.js?v=3" defer></script>
+</body>
+
+</html>

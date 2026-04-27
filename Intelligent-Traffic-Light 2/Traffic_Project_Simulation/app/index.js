@@ -1,0 +1,1483 @@
+const state = {
+  config: null,
+  geometry: null,
+  liveState: null,
+  history: [],
+  eventSource: null,
+  mapMode: "sumo", // "sumo" | "satellite"
+  sseReconnectAttempts: 0,
+  sseReconnectTimer: null,
+  connectionStatus: "connecting", // connecting | connected | reconnecting | failed
+  pendingRender: false,
+  lastRenderTs: 0,
+  theme: "dark",
+};
+
+const SSE_RECONNECT_BASE_MS = 1500;
+const SSE_RECONNECT_MAX_MS = 30000;
+const RENDER_THROTTLE_MS = 33; // ~30 Hz
+const HISTORY_MAX_POINTS = 600;
+const HISTORY_DRAW_LIMIT = 180; // last 3 minutes drawn for perf
+
+const els = {
+  sourceBadge: document.getElementById("source-badge"),
+  centerBadge: document.getElementById("center-badge"),
+  adaptiveToggle: document.getElementById("adaptive-toggle"),
+  refreshBadge: document.getElementById("refresh-badge"),
+  vehicleCountChip: document.getElementById("vehicle-count-chip"),
+  kpiQueue: document.getElementById("kpi-queue"),
+  kpiSpeed: document.getElementById("kpi-speed"),
+  kpiDominant: document.getElementById("kpi-dominant"),
+  kpiGoogle: document.getElementById("kpi-google"),
+  kpiCo2: document.getElementById("kpi-co2"),
+  kpiCo2Detail: document.getElementById("kpi-co2-detail"),
+  kpiForecast: document.getElementById("kpi-forecast"),
+  kpiForecastDetail: document.getElementById("kpi-forecast-detail"),
+  tlsId: document.getElementById("tls-id"),
+  googleErrorChip: document.getElementById("google-error-chip"),
+  signalPhaseSummary: document.getElementById("signal-phase-summary"),
+  signalList: document.getElementById("signal-list"),
+  recommendation: document.getElementById("recommendation"),
+  alertList: document.getElementById("alert-list"),
+  approachTableBody: document.getElementById("approach-table-body"),
+  notesGrid: document.getElementById("notes-grid"),
+  mapCanvas: document.getElementById("network-map"),
+  satelliteIframe: document.getElementById("satellite-iframe"),
+  mapModeSumo: document.getElementById("map-mode-sumo"),
+  mapModeSatellite: document.getElementById("map-mode-satellite"),
+  websterPanel: document.getElementById("webster-panel"),
+  websterModeBadge: document.getElementById("webster-mode-badge"),
+  mapStory: document.getElementById("map-story"),
+  historyCanvas: document.getElementById("history-chart"),
+  // Phase 3 elements
+  systemHealthPanel: document.getElementById("system-health-panel"),
+  healthStatusBadge: document.getElementById("health-status-badge"),
+  phase3EventsPanel: document.getElementById("phase3-events-panel"),
+  eventsCountBadge: document.getElementById("events-count-badge"),
+};
+
+const directions = ["northbound", "southbound", "eastbound", "westbound"];
+const DIRECTION_LABELS = {
+  northbound: "North",
+  southbound: "South",
+  eastbound: "East",
+  westbound: "West",
+};
+const DIRECTION_ARROWS = {
+  northbound: "↑",
+  southbound: "↓",
+  eastbound: "→",
+  westbound: "←",
+};
+const CONGESTION_LABELS = {
+  free: "Free flow",
+  light: "Light traffic",
+  moderate: "Moderate delay",
+  heavy: "Heavy delay",
+  severe: "Severe jam",
+};
+const SIGNAL_STATE_LABELS = {
+  green: "Moving",
+  yellow: "Clearing",
+  red: "Stopped",
+  unknown: "No signal data",
+};
+const GOOGLE_SEGMENT_COLORS = {
+  NORMAL: "#45d5a0",
+  SLOW: "#ffbf69",
+  TRAFFIC_JAM: "#ff6d75",
+};
+const mapView = { scale: 1, offsetX: 0, offsetY: 0 };
+let isDragging = false;
+let dragStart = { x: 0, y: 0 };
+let dragViewStart = { offsetX: 0, offsetY: 0 };
+
+function formatTime(isoString) {
+  if (!isoString) return "--";
+  try {
+    return new Date(isoString).toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
+    });
+  } catch {
+    return isoString;
+  }
+}
+
+function formatDelay(seconds) {
+  const s = Math.round(seconds || 0);
+  if (s <= 0) return "No extra delay";
+  if (s < 60) return `+${s}s`;
+  const m = Math.floor(s / 60);
+  const rem = s % 60;
+  return rem ? `+${m}m ${rem}s` : `+${m}m`;
+}
+
+function formatDuration(seconds) {
+  const s = Math.round(seconds || 0);
+  if (s < 60) return `${s}s`;
+  const m = Math.floor(s / 60);
+  const rem = s % 60;
+  return rem ? `${m}m ${rem}s` : `${m}m`;
+}
+
+function queueDescription(queueM) {
+  const meters = Math.round(queueM || 0);
+  if (!meters) return "No standing queue";
+  return `${meters} m (~${Math.max(1, Math.round(meters / 7.5))} vehicles)`;
+}
+
+function directionLabel(direction) {
+  if (!direction) return "Unmapped";
+  return `${DIRECTION_LABELS[direction] || direction} ${DIRECTION_ARROWS[direction] || ""}`.trim();
+}
+
+function signalBadge(stateName) {
+  const label = SIGNAL_STATE_LABELS[stateName] || SIGNAL_STATE_LABELS.unknown;
+  return `<span class="signal-state-pill signal-${stateName || "unknown"}">${label}</span>`;
+}
+
+function laneStatusColor(laneMetric) {
+  if (!laneMetric) return "rgba(174, 192, 201, 0.16)";
+  if (laneMetric.signal_state === "red") return "#ff6d75";
+  if (laneMetric.signal_state === "yellow") return "#ffbf69";
+  if ((laneMetric.queue_vehicles || 0) > 0) return "#ffbf69";
+  if ((laneMetric.avg_speed_kmh || 0) > 20) return "#45d5a0";
+  if ((laneMetric.avg_speed_kmh || 0) > 0) return "#ffbf69";
+  return "rgba(174, 192, 201, 0.24)";
+}
+
+function googleSegmentColor(speed) {
+  return GOOGLE_SEGMENT_COLORS[speed] || GOOGLE_SEGMENT_COLORS.NORMAL;
+}
+
+function projectPoint(lat, lon, width, height) {
+  const bbox = state.geometry.bbox;
+  const lonSpan = Math.max(bbox.max_lon - bbox.min_lon, 0.0001);
+  const latSpan = Math.max(bbox.max_lat - bbox.min_lat, 0.0001);
+  const x = ((lon - bbox.min_lon) / lonSpan) * width;
+  const y = height - ((lat - bbox.min_lat) / latSpan) * height;
+  return [x, y];
+}
+
+function reverseProject(x, y, width, height) {
+  const bbox = state.geometry.bbox;
+  const lonSpan = Math.max(bbox.max_lon - bbox.min_lon, 0.0001);
+  const latSpan = Math.max(bbox.max_lat - bbox.min_lat, 0.0001);
+  const lon = bbox.min_lon + (x / width) * lonSpan;
+  const lat = bbox.min_lat + ((height - y) / height) * latSpan;
+  return { lat, lon };
+}
+
+async function fetchJSON(url, { retries = 2, timeoutMs = 8000 } = {}) {
+  let lastError;
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(url, { signal: controller.signal });
+      clearTimeout(timer);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status} on ${url}`);
+      }
+      return await response.json();
+    } catch (error) {
+      clearTimeout(timer);
+      lastError = error;
+      if (attempt < retries) {
+        const backoff = 400 * Math.pow(2, attempt);
+        await new Promise((resolve) => setTimeout(resolve, backoff));
+      }
+    }
+  }
+  throw lastError || new Error(`Failed to load ${url}`);
+}
+
+// ── Toast notifications ──────────────────────────────────────
+function showToast(message, kind = "info", durationMs = 4500) {
+  let host = document.getElementById("toast-host");
+  if (!host) {
+    host = document.createElement("div");
+    host.id = "toast-host";
+    host.className = "toast-host";
+    document.body.appendChild(host);
+  }
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${kind}`;
+  toast.textContent = message;
+  host.appendChild(toast);
+  requestAnimationFrame(() => toast.classList.add("toast-show"));
+  setTimeout(() => {
+    toast.classList.remove("toast-show");
+    setTimeout(() => toast.remove(), 300);
+  }, durationMs);
+}
+
+// ── Connection status indicator ──────────────────────────────
+function setConnectionStatus(status, detail) {
+  state.connectionStatus = status;
+  let host = document.getElementById("connection-status");
+  if (!host) {
+    host = document.createElement("div");
+    host.id = "connection-status";
+    host.className = "connection-status";
+    document.body.appendChild(host);
+  }
+  const labels = {
+    connecting: "Connecting…",
+    connected: "Live",
+    reconnecting: "Reconnecting…",
+    failed: "Disconnected",
+  };
+  host.className = `connection-status status-${status}`;
+  host.textContent = detail ? `${labels[status]} · ${detail}` : labels[status];
+}
+
+function setAdaptiveBadge() {
+  const active = !!state.liveState?.adaptive_active;
+  els.adaptiveToggle.textContent = `Adaptive: ${active ? "ON" : "OFF"}`;
+}
+
+function bindEvents() {
+  els.adaptiveToggle.addEventListener("click", async () => {
+    if (!state.liveState) return;
+    const nextState = !state.liveState.adaptive_active;
+    els.adaptiveToggle.disabled = true;
+    try {
+      const response = await fetch("/api/adaptive-toggle", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ enabled: nextState }),
+      });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const payload = await response.json();
+      state.liveState.adaptive_active = payload.adaptive_active;
+      showToast(`Adaptive control ${payload.adaptive_active ? "enabled" : "disabled"}`, "success", 2000);
+      scheduleRender();
+    } catch (error) {
+      showToast(`Failed to toggle adaptive: ${error.message}`, "error");
+    } finally {
+      els.adaptiveToggle.disabled = false;
+    }
+  });
+
+  // ── Map mode toggle ──────────────────────────────────────────
+  els.mapModeSumo.addEventListener("click", () => setMapMode("sumo"));
+  els.mapModeSatellite.addEventListener("click", () => setMapMode("satellite"));
+
+  // ── Theme toggle ─────────────────────────────────────────────
+  const themeBtn = document.getElementById("theme-toggle");
+  if (themeBtn) {
+    themeBtn.addEventListener("click", toggleTheme);
+  }
+
+  // ── Language toggle ─────────────────────────────────────────
+  const langBtn = document.getElementById("language-toggle");
+  if (langBtn && typeof i18n !== 'undefined') {
+    const updateLangButton = () => {
+      const toggle = i18n.getToggleLanguage();
+      langBtn.textContent = toggle.nextCode.toUpperCase();
+      langBtn.title = toggle.nextLabel;
+    };
+    updateLangButton();
+    langBtn.addEventListener("click", () => {
+      const toggle = i18n.getToggleLanguage();
+      i18n.setLanguage(toggle.next);
+      updateLangButton();
+      updateAllI18nText();
+      scheduleRender();
+    });
+    window.addEventListener("i18n-changed", updateLangButton);
+  }
+
+  // ── Keyboard shortcuts ───────────────────────────────────────
+  document.addEventListener("keydown", handleKeyboardShortcut);
+
+  // ── Tab visibility — pause/resume reconciliation ─────────────
+  document.addEventListener("visibilitychange", () => {
+    if (!document.hidden && state.connectionStatus !== "connected") {
+      // Try a quick reconnect when user returns
+      if (state.sseReconnectTimer) {
+        clearTimeout(state.sseReconnectTimer);
+        state.sseReconnectTimer = null;
+      }
+      connectEventSource();
+    }
+  });
+}
+
+function handleKeyboardShortcut(event) {
+  // Skip if user is typing in an input
+  if (["INPUT", "TEXTAREA", "SELECT"].includes(event.target.tagName)) return;
+  if (event.metaKey || event.ctrlKey || event.altKey) return;
+
+  switch (event.key.toLowerCase()) {
+    case "m":
+      setMapMode(state.mapMode === "sumo" ? "satellite" : "sumo");
+      break;
+    case "a":
+      els.adaptiveToggle?.click();
+      break;
+    case "t":
+      toggleTheme();
+      break;
+    case "+":
+    case "=":
+      document.getElementById("map-zoom-in")?.click();
+      break;
+    case "-":
+    case "_":
+      document.getElementById("map-zoom-out")?.click();
+      break;
+    case "0":
+      document.getElementById("map-reset")?.click();
+      break;
+    case "?":
+      showToast("Shortcuts: M=map mode, A=adaptive, T=theme, +/-=zoom, 0=reset", "info", 6000);
+      break;
+  }
+}
+
+function toggleTheme() {
+  state.theme = state.theme === "dark" ? "light" : "dark";
+  document.documentElement.dataset.theme = state.theme;
+  try {
+    localStorage.setItem("its-theme", state.theme);
+  } catch {/* storage may be unavailable */}
+  scheduleRender();
+}
+
+function loadStoredTheme() {
+  try {
+    const stored = localStorage.getItem("its-theme");
+    if (stored === "light" || stored === "dark") {
+      state.theme = stored;
+      document.documentElement.dataset.theme = stored;
+    }
+  } catch {/* noop */}
+}
+
+function setMapMode(mode) {
+  state.mapMode = mode;
+  els.mapModeSumo.classList.toggle("active", mode === "sumo");
+  els.mapModeSatellite.classList.toggle("active", mode === "satellite");
+
+  if (mode === "satellite") {
+    // Lazy-load the iframe src on first activation to avoid CORS prefetch
+    if (els.satelliteIframe.src === "about:blank" || !els.satelliteIframe.src.includes("maps.google")) {
+      els.satelliteIframe.src = els.satelliteIframe.dataset.src;
+    }
+    els.mapCanvas.style.display = "none";
+    els.satelliteIframe.style.display = "block";
+  } else {
+    els.mapCanvas.style.display = "block";
+    els.satelliteIframe.style.display = "none";
+    drawMap();
+  }
+}
+
+// Update text only when changed — avoids layout thrash & saves CPU
+function setText(el, value) {
+  if (!el) return;
+  const next = String(value);
+  if (el.textContent !== next) el.textContent = next;
+}
+
+function setClass(el, classes) {
+  if (!el) return;
+  if (el.className !== classes) el.className = classes;
+}
+
+function renderHeader(live) {
+  const isGoogleLive = live.source === "google_routes" || live.source === "google_routes_stale";
+  const banner = document.getElementById("data-source-banner");
+  const bannerLabel = document.getElementById("data-source-label");
+  const bannerDetail = document.getElementById("data-source-detail");
+  const centerLat = live.simulation_center?.lat;
+  const centerLon = live.simulation_center?.lon;
+  const stale = live.source === "google_routes_stale";
+
+  setClass(banner, `data-source-banner ${isGoogleLive ? "banner-live" : "banner-fallback"}`);
+  setText(bannerLabel, isGoogleLive
+    ? stale
+      ? "Live Google snapshot temporarily stale"
+      : "Live data from Google Routes API"
+    : "Fallback data source active");
+  setText(bannerDetail, isGoogleLive
+    ? `Wadi Saqra intersection, refreshed at ${formatTime(live.wall_time)}`
+    : (live.google_error || "Google traffic source is unavailable."));
+
+  setText(els.sourceBadge, isGoogleLive ? "Source: Google Routes API" : "Source: Fallback mode");
+  setClass(els.sourceBadge, `badge ${isGoogleLive ? "badge-live" : "badge-warn"}`);
+  setText(els.centerBadge, centerLat
+    ? `Wadi Saqra (${centerLat.toFixed(4)}, ${centerLon.toFixed(4)})`
+    : "Center: --");
+  setText(els.refreshBadge, `Updated: ${formatTime(live.wall_time)}`);
+  setText(els.vehicleCountChip, `${live.vehicles?.length || 0} vehicles in simulation`);
+}
+
+function renderKpis(live) {
+  const insights = live.insights || {};
+  setText(els.kpiQueue, queueDescription(insights.total_queue_m));
+  setText(els.kpiSpeed, `${(insights.avg_network_speed_kmh || 0).toFixed(1)} km/h`);
+  setText(els.kpiDominant, directionLabel(insights.dominant_queue_direction));
+  setText(els.kpiGoogle, directionLabel(insights.google_delay_direction));
+  setText(els.tlsId, live.signal_plan?.tls_id ? "Active junction controller" : "No active controller");
+  setText(els.googleErrorChip, live.source === "google_routes" ? "Google live" : "Using fallback");
+  setClass(els.googleErrorChip, `badge ${live.source === "google_routes" ? "badge-live" : "badge-warn"}`);
+  setText(els.recommendation, insights.recommendation || "No active recommendation.");
+  setAdaptiveBadge();
+
+  // Emissions
+  const emissions = live.emissions || {};
+  if (els.kpiCo2) {
+    if (emissions.co2_g_per_h !== undefined) {
+      const co2_kg = emissions.co2_g_per_h / 1000;
+      setText(els.kpiCo2, co2_kg >= 100 ? `${co2_kg.toFixed(0)} kg/h` : `${co2_kg.toFixed(1)} kg/h`);
+      setText(els.kpiCo2Detail, `${emissions.fleet_size || 0} vehicles · ${(emissions.fuel_l_per_h || 0).toFixed(1)} L/h fuel`);
+    } else {
+      setText(els.kpiCo2, "--");
+      setText(els.kpiCo2Detail, "Emissions tracking warming up");
+    }
+  }
+
+  // Forecast (cached fetch — refreshed periodically)
+  if (els.kpiForecast && state.forecast) {
+    const dom = insights.dominant_queue_direction || "northbound";
+    const dirForecasts = state.forecast.directions?.[dom] || [];
+    const fc15 = dirForecasts.find((p) => p.horizon_minutes === 15) || dirForecasts[0];
+    if (fc15) {
+      setText(els.kpiForecast, `${Math.round(fc15.veh_per_hour)} veh/h`);
+      setText(els.kpiForecastDetail, `${directionLabel(dom)} · ${state.forecast.mode} · conf ${(fc15.confidence * 100).toFixed(0)}%`);
+    }
+  }
+}
+
+// ── Forecast fetcher (fired separately from SSE to avoid blocking) ─
+async function refreshForecast() {
+  try {
+    const fc = await fetchJSON("/api/flow-forecast?horizon=15", { retries: 1, timeoutMs: 5000 });
+    if (fc && fc.directions) {
+      state.forecast = fc;
+      // Build chart-friendly forecast points (current value + 5/15/30 horizons)
+      const dom = state.liveState?.insights?.dominant_queue_direction || "northbound";
+      const points = [];
+      const live = state.liveState || {};
+      const lastHistory = state.history[state.history.length - 1];
+      if (lastHistory) {
+        points.push({
+          wall_time: lastHistory.wall_time,
+          total_queue_m: lastHistory.total_queue_m || 0,
+        });
+      }
+      const horizons = fc.directions[dom] || [];
+      for (const h of horizons) {
+        // Project the dominant-direction forecast onto an estimated total queue (rough heuristic)
+        const factor = (live.metrics?.[dom]?.queue_m || 0) / Math.max(live.metrics?.[dom]?.flow_veh_h || 1, 1);
+        const projected_queue = Math.max(0, h.veh_per_hour * factor * 0.5);
+        points.push({ wall_time: null, total_queue_m: projected_queue });
+      }
+      state.forecast.points = points;
+      scheduleRender();
+    }
+  } catch (err) {
+    // Silently fail — forecast endpoint may be unavailable if model isn't loaded
+  }
+}
+
+function renderAlerts(events, anomaly) {
+  // Compose final list: rule-based events + AI anomaly callouts
+  const aiEvents = [];
+  if (anomaly && anomaly.directions) {
+    Object.entries(anomaly.directions).forEach(([direction, info]) => {
+      if (info && info.is_anomaly) {
+        aiEvents.push({
+          type: "ai_anomaly",
+          severity: info.score >= 0.85 ? "critical" : "warning",
+          direction,
+          message: info.reason || "AI model flagged this approach as anomalous.",
+          tip: `AI score ${(info.score * 100).toFixed(0)}%. Verify with field cameras and consider escalation.`,
+        });
+      }
+    });
+  }
+  const allEvents = [...(events || []), ...aiEvents];
+
+  els.alertList.innerHTML = "";
+  if (!allEvents.length) {
+    const quiet = document.createElement("article");
+    quiet.className = "alert-card";
+    quiet.innerHTML = `
+      <strong>Stable</strong>
+      <p>No high-priority alert is active right now.</p>
+      ${anomaly?.mode ? `<small style="color:var(--muted);">AI monitor mode: ${anomaly.mode}</small>` : ""}
+    `;
+    els.alertList.appendChild(quiet);
+    return;
+  }
+
+  const EVENT_ICONS = {
+    spillback: "🚨",
+    abnormal_stop: "⚠️",
+    congestion_surge: "📈",
+    heavy_congestion: "🟠",
+    ai_anomaly: "🧠",
+  };
+  const SEVERITY_CLASS = {
+    critical: "high",
+    high: "high",
+    warning: "medium",
+    medium: "medium",
+    info: "",
+  };
+
+  allEvents.forEach((event) => {
+    const card = document.createElement("article");
+    const sevClass = SEVERITY_CLASS[event.severity] || "";
+    card.className = `alert-card event-card ${sevClass}`;
+    const icon = EVENT_ICONS[event.type] || "ℹ️";
+    const dirLabel = event.direction ? ` · ${directionLabel(event.direction)}` : "";
+    const titleLabel = event.type === "ai_anomaly"
+      ? `AI Anomaly Detected${dirLabel}`
+      : `${event.type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase())}${dirLabel}`;
+    card.innerHTML = `
+      <div class="event-card-header">
+        <span class="event-icon">${icon}</span>
+        <strong>${titleLabel}</strong>
+      </div>
+      <p>${event.message}</p>
+      ${event.tip ? `<p class="event-tip">💡 ${event.tip}</p>` : ""}
+    `;
+    els.alertList.appendChild(card);
+  });
+}
+
+// ── Webster Signal Timing Panel — table format ───────────────
+function renderWebsterPanel(rec, signalPlan) {
+  if (!rec || !els.websterPanel) return;
+
+  const modeLabels = {
+    three_phase: "3-Phase · Optimized",
+    saturated: "Saturated",
+    field_plan_optimal: "Current Plan Optimal",
+    over_capacity: "Over Capacity",
+  };
+  if (els.websterModeBadge) {
+    setText(els.websterModeBadge, modeLabels[rec.mode] || rec.mode);
+    setClass(els.websterModeBadge, `badge ${
+      rec.mode === "over_capacity" ? "badge-warn" :
+      rec.mode === "saturated" ? "badge-warn" :
+      rec.mode === "three_phase" ? "badge-live" : "badge-muted"
+    }`);
+  }
+
+  const phases = rec.phases || [];
+  const ns   = phases.find((p) => p.directions && p.directions.includes("northbound")) || {};
+  const east = phases.find((p) => p.directions && p.directions.includes("eastbound"))  || {};
+  const west = phases.find((p) => p.directions && p.directions.includes("westbound"))  || {};
+
+  const isAdaptiveApplied = signalPlan?.adaptive_applied || false;
+  const appliedGreens = signalPlan?.applied_greens || {};
+
+  const isSaturated = rec.mode === "saturated";
+  const isOptimal   = rec.mode === "field_plan_optimal";
+  const isThreePhase = rec.mode === "three_phase";
+
+  const curLabel = isAdaptiveApplied ? "Active (adaptive)" : "Current (field)";
+  const recLabel = isSaturated
+    ? "Saturated — plan held"
+    : isOptimal
+      ? "Current plan is already optimal"
+      : "Recommended · next cycle";
+  const recClass = isThreePhase ? "webster-row-recommended" : "";
+
+  const curDelay = (rec.current_delay_s_veh     || 0).toFixed(2);
+  const recDelay = (rec.recommended_delay_s_veh || 0).toFixed(2);
+
+  const Y   = (rec.flow_ratio_total || 0).toFixed(2);
+  const yns = (rec.y_ns || 0).toFixed(2);
+  const ye  = (rec.y_e  || 0).toFixed(2);
+  const yw  = (rec.y_w  || 0).toFixed(2);
+
+  const delayHtml = rec.delay_reduction_pct > 0
+    ? `est. delay reduction <span class="webster-improvement-inline">▼ ${rec.delay_reduction_pct}%</span>`
+    : rec.delay_reduction_pct < 0
+      ? `<span class="webster-sat-label">↑ delay would increase — plan held</span>`
+      : `current plan is optimal`;
+
+  const satWarnHtml = rec.saturation_warning
+    ? `<div class="webster-saturation-warn">${rec.saturation_warning}</div>`
+    : "";
+
+  // Countdown display
+  const countdown = signalPlan?.countdown_s;
+  const phaseKind = signalPlan?.phase_kind || "";
+  const phaseLabel = signalPlan?.phase_label || "";
+  const countdownHtml = (countdown !== undefined && countdown !== null)
+    ? `<div class="webster-countdown webster-countdown-${phaseKind}">
+        <span class="countdown-phase">${phaseLabel}</span>
+        <span class="countdown-timer">${Math.round(countdown)}s</span>
+       </div>`
+    : "";
+
+  // Adaptive status badge
+  const adaptiveHtml = isAdaptiveApplied
+    ? `<div class="webster-adaptive-badge">Adaptive timing active — splits adjust each cycle based on live demand</div>`
+    : "";
+
+  // Min green safety note
+  const safetyHtml = `<span class="webster-safety">Min green: 7s (HCM) · Yellow: 3s · All-red: 2s</span>`;
+
+  els.websterPanel.innerHTML = `
+    ${countdownHtml}
+    ${adaptiveHtml}
+    ${satWarnHtml}
+    <div class="webster-table-wrap">
+      <table class="webster-table">
+        <thead>
+          <tr>
+            <th>Plan</th>
+            <th>NS green</th>
+            <th>E green</th>
+            <th>W green</th>
+            <th>Yellow</th>
+            <th>All-red</th>
+            <th>Cycle</th>
+            <th>Delay (s/veh)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="webster-row-current">
+            <td><span class="webster-plan-label">${curLabel}</span></td>
+            <td>${(ns.current_green_s   || 35).toFixed(1)}s</td>
+            <td>${(east.current_green_s || 35).toFixed(1)}s</td>
+            <td>${(west.current_green_s || 35).toFixed(1)}s</td>
+            <td>3.0s</td><td>2.0s</td>
+            <td>${(signalPlan?.applied_cycle_s || rec.cycle_s || 120).toFixed(1)}s</td>
+            <td>${curDelay}</td>
+          </tr>
+          <tr class="${recClass}">
+            <td><span class="webster-plan-label ${recClass}">${recLabel}</span></td>
+            <td>${(ns.recommended_green_s   || 35).toFixed(1)}s</td>
+            <td>${(east.recommended_green_s || 35).toFixed(1)}s</td>
+            <td>${(west.recommended_green_s || 35).toFixed(1)}s</td>
+            <td>3.0s</td><td>2.0s</td>
+            <td>${(rec.cycle_s || 120).toFixed(1)}s</td>
+            <td>${recDelay}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="webster-footer-line">
+      Y=${Y} | y_NS=${yns} y_E=${ye} y_W=${yw} | ${delayHtml}
+    </div>
+    <p class="webster-footnote">Webster (1958) 3-phase · HCM flow ratios · ${safetyHtml}</p>
+  `;
+}
+
+function renderSignalPlan(plan, metrics) {
+  if (!plan?.groups?.length) {
+    els.signalPhaseSummary.textContent = "Signal plan is loading…";
+    els.signalList.innerHTML = "";
+    return;
+  }
+
+  const activeText = plan.active_directions?.length
+    ? plan.active_directions.map(directionLabel).join(" + ")
+    : "Transition / all-stop";
+  const countdownSec = Math.round(plan.remaining_s || 0);
+  const adaptiveTag = plan.adaptive_applied ? " · Adaptive" : "";
+  els.signalPhaseSummary.innerHTML = `
+    <strong>${plan.phase_label || "Signal phase"}</strong>
+    <span>${signalBadge(plan.phase_kind)}</span>
+    <span class="signal-countdown">${countdownSec}s</span>
+    <small>${activeText} · cycle ${Math.round(plan.cycle_length_s || 0)}s${plan.extension_applied_s ? ` · +${Math.round(plan.extension_applied_s)}s hold` : ""}${adaptiveTag}</small>
+  `;
+
+  els.signalList.innerHTML = "";
+  directions.forEach((direction) => {
+    const directionGroups = plan.groups.filter((group) => group.direction === direction);
+    if (!directionGroups.length) return;
+
+    const metric = metrics[direction] || {};
+    const card = document.createElement("article");
+    card.className = "signal-direction-card";
+    const laneRows = directionGroups
+      .map((group) => `
+        <div class="signal-lane-row">
+          <div>
+            <strong>${group.label}</strong>
+            <small>${group.controlled_movements} controlled movement${group.controlled_movements === 1 ? "" : "s"}</small>
+          </div>
+          <div class="signal-lane-meta">
+            ${signalBadge(group.signal_state)}
+            <span>${queueDescription(group.queue_m)}</span>
+            <span>${(group.avg_speed_kmh || 0).toFixed(1)} km/h</span>
+            <span>${group.vehicle_count || 0} veh</span>
+          </div>
+        </div>
+      `)
+      .join("");
+
+    card.innerHTML = `
+      <div class="signal-direction-head">
+        <div>
+          <strong>${directionLabel(direction)}</strong>
+          <small>${metric.green_lane_count || 0} green lanes · ${metric.queue_lane_count || 0} queued lanes</small>
+        </div>
+        <span class="badge badge-muted">${queueDescription(metric.queue_m)}</span>
+      </div>
+      <div class="signal-lane-list">${laneRows}</div>
+    `;
+    els.signalList.appendChild(card);
+  });
+}
+
+function laneStatusSummary(metric) {
+  return `${metric.green_lane_count || 0} green · ${metric.queue_lane_count || 0} queued`;
+}
+
+function renderApproachTable(metrics, googleDirections, demand) {
+  els.approachTableBody.innerHTML = "";
+  directions.forEach((direction) => {
+    const google = googleDirections[direction] || {};
+    const metric = metrics[direction] || {};
+    const demandState = demand[direction] || {};
+    const row = document.createElement("tr");
+    row.innerHTML = `
+      <td><strong>${directionLabel(direction)}</strong></td>
+      <td>
+        <span class="status-pill status-${google.congestion_level || "free"}">${CONGESTION_LABELS[google.congestion_level] || "—"}</span>
+        <div class="table-sub">${formatDelay(google.delay_s)}</div>
+      </td>
+      <td>${(google.avg_speed_kmh || 0).toFixed(1)} km/h<div class="table-sub">free flow ${(google.free_flow_speed_kmh || 0).toFixed(1)}</div></td>
+      <td>${Math.round(demandState.target_veh_h || 0)} veh/h<div class="table-sub">pressure ${(demandState.pressure_index || 0).toFixed(2)}</div></td>
+      <td>${Math.round(metric.flow_veh_h || 0)} veh/h<div class="table-sub">${metric.vehicles_on_approach || 0} vehicles on approach</div></td>
+      <td>${queueDescription(metric.queue_m)}</td>
+      <td>${(metric.avg_speed_kmh || 0).toFixed(1)} km/h</td>
+      <td>${laneStatusSummary(metric)}</td>
+    `;
+    els.approachTableBody.appendChild(row);
+  });
+}
+
+function renderNotes(live) {
+  const notes = [
+    {
+      title: "Google live metrics",
+      text: live.data_provenance?.google_delay_s || "Live corridor delay is pulled from Google Routes in real time.",
+    },
+    {
+      title: "Simulation estimates",
+      text: live.data_provenance?.target_veh_h || "Demand, queue, and flow are estimated from the live digital twin.",
+    },
+    {
+      title: "Queue length",
+      text: live.data_provenance?.queue_m || "Queue length is measured on monitored incoming lanes only.",
+    },
+    {
+      title: "Signal state",
+      text: "Signal colors come from the active SUMO controller phase, grouped lane by lane at the junction.",
+    },
+    {
+      title: "Lane colors",
+      text: "Green lanes are moving, amber lanes are clearing or building queues, and red stop-bars are held at red.",
+    },
+    {
+      title: "Fallback safety",
+      text: live.source === "google_routes"
+        ? "Google traffic is live. If it drops later, the dashboard can fall back without breaking the display."
+        : "Google is unavailable right now, so the dashboard is running on the fallback data path.",
+    },
+  ];
+
+  els.notesGrid.innerHTML = notes
+    .map((note) => `
+      <article class="note-card">
+        <h3>${note.title}</h3>
+        <p>${note.text}</p>
+      </article>
+    `)
+    .join("");
+}
+
+function renderMapStory(live) {
+  const plan = live.signal_plan || {};
+  const googleDirection = live.insights?.google_delay_direction;
+  const queueDirection = live.insights?.dominant_queue_direction;
+  const activeDirections = plan.active_directions?.length ? plan.active_directions.map(directionLabel).join(" + ") : "transition";
+  els.mapStory.textContent = `Map view: lane geometry comes from SUMO, Google segments show live corridor speed, current signal phase is ${activeDirections}, and the biggest queue is on ${directionLabel(queueDirection)} while the heaviest Google delay is on ${directionLabel(googleDirection)}.`;
+}
+
+function drawProjectedPath(ctx, points, width, height, strokeStyle, lineWidth, alpha = 1) {
+  if (!points || points.length < 2) return;
+  ctx.save();
+  ctx.globalAlpha = alpha;
+  ctx.beginPath();
+  const [startX, startY] = projectPoint(points[0].lat, points[0].lon, width, height);
+  ctx.moveTo(startX, startY);
+  for (let index = 1; index < points.length; index += 1) {
+    const [x, y] = projectPoint(points[index].lat, points[index].lon, width, height);
+    ctx.lineTo(x, y);
+  }
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+  ctx.strokeStyle = strokeStyle;
+  ctx.lineWidth = lineWidth;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawGoogleCorridors(ctx, width, height, googleSnapshot) {
+  Object.values(googleSnapshot || {}).forEach((approach) => {
+    const segments = approach.traffic_segments?.length
+      ? approach.traffic_segments
+      : [{ speed: "NORMAL", points: approach.polyline || [] }];
+
+    segments.forEach((segment) => {
+      drawProjectedPath(ctx, segment.points, width, height, googleSegmentColor(segment.speed), 12, 0.12);
+      drawProjectedPath(ctx, segment.points, width, height, googleSegmentColor(segment.speed), 5.2, 0.42);
+    });
+  });
+}
+
+function drawLaneStopBar(ctx, lane, width, height, color) {
+  const points = lane.shape || [];
+  if (points.length < 2) return;
+  const [x1, y1] = projectPoint(points[points.length - 2].lat, points[points.length - 2].lon, width, height);
+  const [x2, y2] = projectPoint(points[points.length - 1].lat, points[points.length - 1].lon, width, height);
+  const dx = x2 - x1;
+  const dy = y2 - y1;
+  const length = Math.hypot(dx, dy) || 1;
+  const nx = -dy / length;
+  const ny = dx / length;
+  const half = 8;
+  ctx.beginPath();
+  ctx.moveTo(x2 - nx * half, y2 - ny * half);
+  ctx.lineTo(x2 + nx * half, y2 + ny * half);
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 3.2;
+  ctx.stroke();
+}
+
+function drawLaneQueueBubble(ctx, lane, metric, width, height) {
+  if (!metric || !(metric.queue_vehicles > 0)) return;
+  const anchor = lane.stop_point || lane.anchor;
+  if (!anchor) return;
+  const [x, y] = projectPoint(anchor.lat, anchor.lon, width, height);
+  ctx.fillStyle = "rgba(7, 17, 26, 0.92)";
+  ctx.strokeStyle = "rgba(255, 109, 117, 0.55)";
+  ctx.lineWidth = 1.2;
+  ctx.beginPath();
+  ctx.roundRect(x - 20, y - 26, 40, 18, 8);
+  ctx.fill();
+  ctx.stroke();
+  ctx.fillStyle = "#ffbf69";
+  ctx.font = "10px Menlo, monospace";
+  ctx.textAlign = "center";
+  ctx.fillText(`${metric.queue_vehicles}q`, x, y - 13);
+}
+
+function drawLaneOverlays(ctx, width, height, laneMetrics) {
+  // Static lane geometry is drawn from the cached layer.
+  // Here we only draw dynamic overlays: signal-state stripes, stop-bars, queue bubbles.
+  (state.geometry.lanes || []).forEach((lane) => {
+    if (lane.role !== "monitor") return;
+    const metric = laneMetrics[lane.id];
+    drawProjectedPath(ctx, lane.shape, width, height, laneStatusColor(metric), 2.4, 0.9);
+    if (metric?.signal_state && metric.signal_state !== "unknown") {
+      drawLaneStopBar(ctx, lane, width, height, laneStatusColor(metric));
+    }
+    drawLaneQueueBubble(ctx, lane, metric, width, height);
+  });
+}
+
+function drawVehicles(ctx, width, height, vehicles) {
+  (vehicles || []).forEach((vehicle) => {
+    const [x, y] = projectPoint(vehicle.lat, vehicle.lon, width, height);
+    const speed = vehicle.speed_kmh || 0;
+    const color = speed < 4 ? "#ff6d75" : speed < 20 ? "#ffbf69" : "#eff8fb";
+    const headingRad = (vehicle.heading_deg || 0) * Math.PI / 180;
+    const length = 6.4;
+    const widthPx = 3.4;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(headingRad);
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(0, -length);
+    ctx.lineTo(-widthPx, length * 0.55);
+    ctx.lineTo(widthPx, length * 0.55);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  });
+}
+
+function drawMarkers(ctx, width, height, live) {
+  const center = live.simulation_center;
+  const reference = live.site_reference;
+  if (center) {
+    const [x, y] = projectPoint(center.lat, center.lon, width, height);
+    ctx.fillStyle = "#45d5a0";
+    ctx.beginPath();
+    ctx.arc(x, y, 7, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#45d5a0";
+    ctx.font = "bold 13px 'Avenir Next', sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText("Wadi Saqra Junction", x + 10, y + 4);
+  }
+  if (reference) {
+    const [x, y] = projectPoint(reference.lat, reference.lon, width, height);
+    ctx.fillStyle = "#ffbf69";
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ffbf69";
+    ctx.font = "11px Menlo, monospace";
+    ctx.fillText("Reference site", x + 8, y + 3);
+  }
+
+  const signalPlan = live.signal_plan || {};
+  if (center && signalPlan.phase_label) {
+    const [x, y] = projectPoint(center.lat, center.lon, width, height);
+    ctx.fillStyle = "rgba(6, 16, 23, 0.88)";
+    ctx.strokeStyle = "rgba(69, 213, 160, 0.32)";
+    ctx.lineWidth = 1.1;
+    ctx.beginPath();
+    ctx.roundRect(x - 70, y - 48, 140, 34, 12);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#eff8fb";
+    ctx.font = "bold 12px 'Avenir Next', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(signalPlan.phase_label, x, y - 28);
+    ctx.fillStyle = "#99aeb8";
+    ctx.font = "10px Menlo, monospace";
+    ctx.fillText(`${Math.round(signalPlan.remaining_s || 0)}s remaining`, x, y - 15);
+  }
+}
+
+function drawDirectionBadges(ctx, width, height, metrics, googleSnapshot) {
+  const badgePositions = [
+    { direction: "northbound", x: width * 0.5, y: height * 0.08 },
+    { direction: "southbound", x: width * 0.5, y: height * 0.92 },
+    { direction: "eastbound", x: width * 0.92, y: height * 0.5 },
+    { direction: "westbound", x: width * 0.08, y: height * 0.5 },
+  ];
+
+  badgePositions.forEach(({ direction, x, y }) => {
+    const metric = metrics[direction] || {};
+    const google = googleSnapshot[direction] || {};
+    const delayColor = google.congestion_level === "severe" || google.congestion_level === "heavy"
+      ? "#ff6d75"
+      : google.congestion_level === "moderate"
+        ? "#ffbf69"
+        : "#45d5a0";
+
+    ctx.save();
+    ctx.fillStyle = "rgba(6, 16, 23, 0.84)";
+    ctx.strokeStyle = `${delayColor}88`;
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.roundRect(x - 62, y - 28, 124, 56, 12);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = delayColor;
+    ctx.font = "bold 12px 'Avenir Next', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(directionLabel(direction), x, y - 8);
+    ctx.fillStyle = "#99aeb8";
+    ctx.font = "10px Menlo, monospace";
+    ctx.fillText(`${queueDescription(metric.queue_m)} · ${formatDelay(google.delay_s)}`, x, y + 9);
+    ctx.restore();
+  });
+}
+
+// ── Static map layer cache (roads + lanes don't change between SSE ticks) ──
+let staticLayerCache = null;
+let staticLayerKey = null;
+
+function buildStaticLayer(width, height) {
+  // Only roads/lanes are cached. Lane *colors* depend on metrics so live overlays handle that.
+  const offscreen = document.createElement("canvas");
+  offscreen.width = width;
+  offscreen.height = height;
+  const ctx = offscreen.getContext("2d");
+  ctx.fillStyle = getCssVar("--map-bg") || "#07111a";
+  ctx.fillRect(0, 0, width, height);
+  // Draw lane geometries using a stable role-based color (no signal state)
+  (state.geometry?.lanes || []).forEach((lane) => {
+    drawProjectedPath(ctx, lane.shape, width, height, "rgba(8, 16, 23, 0.95)", lane.role === "monitor" ? 7.8 : 4.2, 1);
+    drawProjectedPath(ctx, lane.shape, width, height, lane.role === "monitor" ? "rgba(194, 209, 218, 0.28)" : "rgba(111, 129, 140, 0.18)", lane.role === "monitor" ? 4.6 : 1.9, 1);
+  });
+  return offscreen;
+}
+
+function getCssVar(name) {
+  return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
+function invalidateMapCache() {
+  staticLayerCache = null;
+  staticLayerKey = null;
+}
+
+function drawMap() {
+  const canvas = els.mapCanvas;
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+  const live = state.liveState;
+  if (!live || !state.geometry) return;
+
+  // Reuse cached static layer if dimensions and theme match
+  const cacheKey = `${width}x${height}:${state.theme}`;
+  if (!staticLayerCache || staticLayerKey !== cacheKey) {
+    staticLayerCache = buildStaticLayer(width, height);
+    staticLayerKey = cacheKey;
+  }
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = getCssVar("--map-bg") || "#07111a";
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.save();
+  ctx.translate(mapView.offsetX, mapView.offsetY);
+  ctx.scale(mapView.scale, mapView.scale);
+  // Draw cached static geometry first (fast blit)
+  ctx.drawImage(staticLayerCache, 0, 0);
+  drawGoogleCorridors(ctx, width, height, live.google_snapshot || {});
+  drawLaneOverlays(ctx, width, height, live.lane_metrics || {});
+  drawVehicles(ctx, width, height, live.vehicles || []);
+  drawMarkers(ctx, width, height, live);
+  ctx.restore();
+
+  drawDirectionBadges(ctx, width, height, live.metrics || {}, live.google_snapshot || {});
+
+  if (state.geometry?.bbox) {
+    const bbox = state.geometry.bbox;
+    const lonSpan = Math.max(bbox.max_lon - bbox.min_lon, 0.0001);
+    const metersPerPx = (lonSpan * 111320 * Math.cos(bbox.min_lat * Math.PI / 180)) / width;
+    const barMeters = 200;
+    const barPx = barMeters / metersPerPx;
+    ctx.strokeStyle = "rgba(239, 248, 251, 0.55)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(20, height - 22);
+    ctx.lineTo(20 + barPx, height - 22);
+    ctx.stroke();
+    ctx.fillStyle = "rgba(239, 248, 251, 0.55)";
+    ctx.font = "11px Menlo, monospace";
+    ctx.textAlign = "left";
+    ctx.fillText("200 m", 20, height - 28);
+  }
+
+  ctx.fillStyle = "rgba(153, 174, 184, 0.45)";
+  ctx.font = "11px Menlo, monospace";
+  ctx.textAlign = "right";
+  ctx.fillText(`zoom ×${mapView.scale.toFixed(1)}`, width - 14, height - 24);
+  ctx.fillText("Wadi Saqra — Amman, Jordan", width - 14, height - 8);
+}
+
+function drawHistory() {
+  const canvas = els.historyCanvas;
+  const ctx = canvas.getContext("2d");
+  const width = canvas.width;
+  const height = canvas.height;
+  const fullHistory = state.history || [];
+  // Slice to last N points for perf (sliding window display)
+  const history = fullHistory.length > HISTORY_DRAW_LIMIT
+    ? fullHistory.slice(-HISTORY_DRAW_LIMIT)
+    : fullHistory;
+
+  const bg = getCssVar("--chart-bg") || "#07111a";
+  const grid = getCssVar("--chart-grid") || "rgba(255,255,255,0.07)";
+  const queueColor = getCssVar("--chart-queue") || "#ffbf69";
+  const speedColor = getCssVar("--chart-speed") || "#45d5a0";
+  const forecastColor = getCssVar("--chart-forecast") || "#7ab8ff";
+
+  ctx.clearRect(0, 0, width, height);
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, width, height);
+  if (!history.length) {
+    ctx.fillStyle = "rgba(255,255,255,0.5)";
+    ctx.font = "12px Menlo, monospace";
+    ctx.textAlign = "center";
+    ctx.fillText("Waiting for first state…", width / 2, height / 2);
+    return;
+  }
+
+  const padding = 28;
+  const usableW = width - padding * 2;
+  const usableH = height - padding * 2;
+  let maxQueue = 1;
+  let maxSpeed = 1;
+  for (const item of history) {
+    if (item.total_queue_m > maxQueue) maxQueue = item.total_queue_m;
+    if (item.avg_network_speed_kmh > maxSpeed) maxSpeed = item.avg_network_speed_kmh;
+  }
+
+  ctx.strokeStyle = grid;
+  ctx.lineWidth = 1;
+  for (let step = 0; step <= 4; step += 1) {
+    const y = padding + (usableH / 4) * step;
+    ctx.beginPath();
+    ctx.moveTo(padding, y);
+    ctx.lineTo(width - padding, y);
+    ctx.stroke();
+  }
+
+  const denom = Math.max(history.length - 1, 1);
+
+  ctx.lineWidth = 2.2;
+  ctx.strokeStyle = queueColor;
+  ctx.beginPath();
+  for (let i = 0; i < history.length; i += 1) {
+    const value = history[i].total_queue_m || 0;
+    const x = padding + (i / denom) * usableW;
+    const y = padding + usableH - (value / maxQueue) * usableH;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  ctx.strokeStyle = speedColor;
+  ctx.beginPath();
+  for (let i = 0; i < history.length; i += 1) {
+    const value = history[i].avg_network_speed_kmh || 0;
+    const x = padding + (i / denom) * usableW;
+    const y = padding + usableH - (value / maxSpeed) * usableH;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+
+  // Optional forecast overlay (drawn dashed if state.forecast is set)
+  if (state.forecast && Array.isArray(state.forecast.points) && state.forecast.points.length) {
+    ctx.save();
+    ctx.setLineDash([6, 4]);
+    ctx.strokeStyle = forecastColor;
+    ctx.beginPath();
+    const fcMax = Math.max(maxQueue, ...state.forecast.points.map((p) => p.total_queue_m || 0)) || 1;
+    state.forecast.points.forEach((point, idx) => {
+      const x = padding + (idx / Math.max(state.forecast.points.length - 1, 1)) * usableW;
+      const y = padding + usableH - ((point.total_queue_m || 0) / fcMax) * usableH;
+      if (idx === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    });
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  ctx.fillStyle = queueColor;
+  ctx.font = "11px Menlo, monospace";
+  ctx.textAlign = "left";
+  ctx.fillText("Queue length", padding, 16);
+  ctx.fillStyle = speedColor;
+  ctx.fillText("Average network speed", padding + 110, 16);
+  if (state.forecast?.points?.length) {
+    ctx.fillStyle = forecastColor;
+    ctx.fillText("Forecast (15m)", padding + 290, 16);
+  }
+}
+
+function render() {
+  if (!state.liveState || !state.geometry) return;
+  const live = state.liveState;
+  renderHeader(live);
+  renderKpis(live);
+  renderSignalPlan(live.signal_plan || {}, live.metrics || {});
+  renderAlerts(live.insights?.events || [], live.anomaly);
+  renderWebsterPanel(live.signal_recommendation || null, live.signal_plan || null);
+  renderApproachTable(live.metrics || {}, live.google_snapshot || {}, live.demand || {});
+  renderNotes(live);
+  renderMapStory(live);
+  if (state.mapMode === "sumo") drawMap();
+  drawHistory();
+}
+
+function setupMapInteraction() {
+  const canvas = els.mapCanvas;
+  canvas.style.cursor = "grab";
+
+  canvas.addEventListener("wheel", (event) => {
+    event.preventDefault();
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const cursorX = (event.clientX - rect.left) * scaleX;
+    const cursorY = (event.clientY - rect.top) * scaleY;
+    const factor = event.deltaY < 0 ? 1.14 : 0.88;
+    mapView.offsetX = cursorX + (mapView.offsetX - cursorX) * factor;
+    mapView.offsetY = cursorY + (mapView.offsetY - cursorY) * factor;
+    mapView.scale = Math.max(0.2, Math.min(12, mapView.scale * factor));
+    drawMap();
+  }, { passive: false });
+
+  canvas.addEventListener("mousedown", (event) => {
+    isDragging = true;
+    canvas.style.cursor = "grabbing";
+    dragStart = { x: event.clientX, y: event.clientY };
+    dragViewStart = { offsetX: mapView.offsetX, offsetY: mapView.offsetY };
+  });
+
+  canvas.addEventListener("mousemove", (event) => {
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    if (isDragging) {
+      mapView.offsetX = dragViewStart.offsetX + (event.clientX - dragStart.x) * scaleX;
+      mapView.offsetY = dragViewStart.offsetY + (event.clientY - dragStart.y) * scaleY;
+      drawMap();
+    }
+    if (state.geometry) {
+      const dataX = ((event.clientX - rect.left) * scaleX - mapView.offsetX) / mapView.scale;
+      const dataY = ((event.clientY - rect.top) * scaleY - mapView.offsetY) / mapView.scale;
+      const latlon = reverseProject(dataX, dataY, canvas.width, canvas.height);
+      const coordEl = document.getElementById("map-coords");
+      if (coordEl) coordEl.textContent = `Map coordinates: ${latlon.lat.toFixed(5)}, ${latlon.lon.toFixed(5)}`;
+    }
+  });
+
+  const stopDragging = () => {
+    isDragging = false;
+    canvas.style.cursor = "grab";
+  };
+  canvas.addEventListener("mouseup", stopDragging);
+  canvas.addEventListener("mouseleave", stopDragging);
+
+  document.getElementById("map-zoom-in")?.addEventListener("click", () => {
+    mapView.scale = Math.min(12, mapView.scale * 1.3);
+    drawMap();
+  });
+  document.getElementById("map-zoom-out")?.addEventListener("click", () => {
+    mapView.scale = Math.max(0.2, mapView.scale * 0.77);
+    drawMap();
+  });
+  document.getElementById("map-reset")?.addEventListener("click", () => {
+    mapView.scale = 1;
+    mapView.offsetX = 0;
+    mapView.offsetY = 0;
+    drawMap();
+  });
+}
+
+// ── SSE with auto-reconnect + render throttling ──────────────
+function scheduleRender() {
+  if (state.pendingRender) return;
+  state.pendingRender = true;
+  const elapsed = performance.now() - state.lastRenderTs;
+  const delay = Math.max(0, RENDER_THROTTLE_MS - elapsed);
+  setTimeout(() => {
+    state.pendingRender = false;
+    state.lastRenderTs = performance.now();
+    requestAnimationFrame(render);
+  }, delay);
+}
+
+function connectEventSource() {
+  closeEventSource();
+  setConnectionStatus(state.sseReconnectAttempts === 0 ? "connecting" : "reconnecting");
+
+  try {
+    state.eventSource = new EventSource("/api/live-events");
+  } catch (error) {
+    console.error("Failed to open EventSource:", error);
+    scheduleSseReconnect();
+    return;
+  }
+
+  state.eventSource.addEventListener("open", () => {
+    if (state.sseReconnectAttempts > 0) {
+      showToast("Live connection restored", "success", 2500);
+    }
+    state.sseReconnectAttempts = 0;
+    setConnectionStatus("connected");
+  });
+
+  state.eventSource.addEventListener("state", (event) => {
+    let payload;
+    try {
+      payload = JSON.parse(event.data);
+    } catch (err) {
+      console.warn("Bad SSE payload", err);
+      return;
+    }
+    state.liveState = payload;
+    const insights = payload.insights || {};
+    state.history.push({
+      wall_time: payload.wall_time,
+      total_queue_m: insights.total_queue_m || 0,
+      avg_network_speed_kmh: insights.avg_network_speed_kmh || 0,
+      total_vehicles: (payload.vehicles && payload.vehicles.length) || 0,
+    });
+    if (state.history.length > HISTORY_MAX_POINTS) {
+      state.history = state.history.slice(-HISTORY_MAX_POINTS);
+    }
+    scheduleRender();
+  });
+
+  state.eventSource.onerror = () => {
+    if (state.eventSource && state.eventSource.readyState === EventSource.CLOSED) {
+      scheduleSseReconnect();
+    } else if (state.eventSource && state.eventSource.readyState === EventSource.CONNECTING) {
+      // Browser is auto-retrying; show reconnecting state
+      setConnectionStatus("reconnecting");
+    }
+  };
+}
+
+function closeEventSource() {
+  if (state.eventSource) {
+    try {
+      state.eventSource.close();
+    } catch {/* noop */}
+    state.eventSource = null;
+  }
+}
+
+function scheduleSseReconnect() {
+  closeEventSource();
+  if (state.sseReconnectTimer) clearTimeout(state.sseReconnectTimer);
+  state.sseReconnectAttempts += 1;
+  const backoff = Math.min(
+    SSE_RECONNECT_BASE_MS * Math.pow(2, state.sseReconnectAttempts - 1),
+    SSE_RECONNECT_MAX_MS,
+  );
+  setConnectionStatus("reconnecting", `retry ${state.sseReconnectAttempts}`);
+  if (state.sseReconnectAttempts === 1) {
+    showToast("Live connection lost — reconnecting…", "warn", 2500);
+  }
+  state.sseReconnectTimer = setTimeout(connectEventSource, backoff);
+}
+
+// Reconcile critical state with the server periodically (in case SSE is delayed)
+async function reconcileState() {
+  try {
+    const live = await fetchJSON("/api/live-state", { retries: 1, timeoutMs: 5000 });
+    if (live && state.liveState) {
+      // Only patch fields that don't change often (adaptive toggle, source)
+      state.liveState.adaptive_active = live.adaptive_active;
+      state.liveState.source = live.source;
+      setAdaptiveBadge();
+    }
+  } catch {
+    // Silent — SSE handler shows the disconnect status
+  }
+}
+
+async function init() {
+  loadStoredTheme();
+  setConnectionStatus("connecting");
+  const [config, geometry, liveState, history] = await Promise.all([
+    fetchJSON("/api/live-config"),
+    fetchJSON("/api/network-geometry"),
+    fetchJSON("/api/live-state"),
+    fetchJSON("/api/live-history"),
+  ]);
+
+  state.config = config;
+  state.geometry = geometry;
+  state.liveState = liveState;
+  state.history = Array.isArray(history) ? history : [];
+  bindEvents();
+  initI18n();
+  setupMapInteraction();
+  invalidateMapCache();
+  connectEventSource();
+  // Periodic reconciliation (every 30s) for adaptive toggle / source state
+  setInterval(reconcileState, 30000);
+  // Forecast refresh every 60s (independent of SSE)
+  refreshForecast();
+  setInterval(refreshForecast, 60_000);
+  // Phase 3: System health & events refresh every 5s
+  updateSystemHealth();
+  updatePhase3Events();
+  setInterval(updateSystemHealth, 5000);
+  setInterval(updatePhase3Events, 5000);
+  scheduleRender();
+}
+
+init().catch((error) => {
+  console.error("init failed", error);
+  setConnectionStatus("failed");
+  showToast(`Failed to initialize: ${error.message}`, "error", 8000);
+  // Soft fail: keep the page so users can retry
+  setTimeout(() => init().catch(() => {/* still failing */}), 5000);
+});
+
+async function updateSystemHealth() {
+  const panel = document.getElementById("system-health-panel");
+  if (!panel) return;
+  
+  try {
+    const health = await fetchJSON("/api/system-health", { retries: 1, timeoutMs: 3000 });
+    if (!health) return;
+
+    const uptime = health.uptime_seconds || 0;
+    const upStr = uptime > 3600 ? `${(uptime/3600).toFixed(1)}h` : `${Math.round(uptime)}s`;
+    
+    const googleOK = health.google_api?.available ? "✓" : "✗";
+    const detectOK = health.detector_data ? "✓" : "✗";
+    const dbOK = health.database ? "✓" : "✗";
+    
+    panel.innerHTML = `
+      <div style="display:grid;gap:6px;font-size:12px;">
+        <div><strong>Uptime:</strong> ${upStr}</div>
+        <div>${googleOK} Google API</div>
+        <div>${detectOK} Detector Data</div>
+        <div>${dbOK} Database</div>
+      </div>
+    `;
+  } catch (err) {
+    panel.innerHTML = `<small style="color:var(--danger);">Error loading health</small>`;
+  }
+}
+
+async function updatePhase3Events() {
+  const panel = document.getElementById("phase3-events-panel");
+  const badge = document.getElementById("events-count-badge");
+  if (!panel) return;
+  
+  try {
+    const data = await fetchJSON("/api/events", { retries: 1, timeoutMs: 3000 });
+    if (!data) return;
+
+    const total = data.total_active || 0;
+    if (badge) badge.textContent = total > 0 ? `${total} active` : "0";
+    
+    if (total === 0) {
+      panel.innerHTML = `<small style="color:var(--muted);">No active incidents</small>`;
+    } else if (data.events && data.events.length > 0) {
+      panel.innerHTML = data.events.slice(0, 3).map(e => `
+        <div style="padding:8px;margin-bottom:6px;background:var(--panel-strong);border-radius:8px;border-left:3px solid var(--danger);font-size:11px;">
+          <strong>${e.event_type || 'Event'}</strong><br/>
+          <small style="color:var(--muted);">${e.approach || 'Unknown'} · ${e.severity || 'low'}</small>
+        </div>
+      `).join("");
+    }
+  } catch (err) {
+    panel.innerHTML = `<small style="color:var(--danger);">Error loading events</small>`;
+  }
+}
+
+function updateAllI18nText() {
+  document.querySelectorAll("[class*='i18n-key-']").forEach(el => {
+    const classes = el.className.split(/\s+/);
+    const keyClass = classes.find(c => c.startsWith('i18n-key-'));
+    if (keyClass && typeof i18n !== 'undefined') {
+      const key = keyClass.replace('i18n-key-', '');
+      el.textContent = i18n.t(key);
+    }
+  });
+}
+
+function initI18n() {
+  if (typeof i18n === 'undefined') return;
+  updateAllI18nText();
+  window.addEventListener('i18n-changed', updateAllI18nText);
+}

@@ -1,0 +1,13 @@
+<configuration>
+    <input>
+        <net-file value="wadi_saqra.net.xml"/>
+        <route-files value="wadi_saqra.rou.xml"/>
+    </input>
+    <time>
+        <begin value="0"/>
+        <end value="3600"/>
+    </time>
+    <report>
+        <no-step-log value="true"/>
+    </report>
+</configuration>
