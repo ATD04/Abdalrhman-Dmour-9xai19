@@ -1,0 +1,314 @@
+[
+  {
+    "frame_id": 101,
+    "timestamp_utc": "2024-03-01T07:12:15.000Z",
+    "bbox_x": 320,
+    "bbox_y": 540,
+    "bbox_w": 110,
+    "bbox_h": 60,
+    "class": "car",
+    "confidence": 0.93,
+    "track_id": 1,
+    "approach_lane": "N-in"
+  },
+  {
+    "frame_id": 102,
+    "timestamp_utc": "2024-03-01T07:12:16.000Z",
+    "bbox_x": 600,
+    "bbox_y": 500,
+    "bbox_w": 130,
+    "bbox_h": 70,
+    "class": "truck",
+    "confidence": 0.91,
+    "track_id": 2,
+    "approach_lane": "E-in"
+  },
+  {
+    "frame_id": 103,
+    "timestamp_utc": "2024-03-02T08:22:10.000Z",
+    "bbox_x": 900,
+    "bbox_y": 400,
+    "bbox_w": 100,
+    "bbox_h": 55,
+    "class": "bus",
+    "confidence": 0.95,
+    "track_id": 3,
+    "approach_lane": "S-in"
+  },
+  {
+    "frame_id": 104,
+    "timestamp_utc": "2024-03-03T09:15:45.000Z",
+    "bbox_x": 1200,
+    "bbox_y": 300,
+    "bbox_w": 90,
+    "bbox_h": 50,
+    "class": "motorcycle",
+    "confidence": 0.89,
+    "track_id": 4,
+    "approach_lane": "W-in"
+  },
+  {
+    "frame_id": 105,
+    "timestamp_utc": "2024-03-04T10:05:30.000Z",
+    "bbox_x": 1500,
+    "bbox_y": 800,
+    "bbox_w": 120,
+    "bbox_h": 65,
+    "class": "van",
+    "confidence": 0.92,
+    "track_id": 5,
+    "approach_lane": "N-out"
+  },
+  {
+    "frame_id": 106,
+    "timestamp_utc": "2024-03-05T11:18:20.000Z",
+    "bbox_x": 400,
+    "bbox_y": 900,
+    "bbox_w": 105,
+    "bbox_h": 60,
+    "class": "car",
+    "confidence": 0.94,
+    "track_id": 6,
+    "approach_lane": "E-out"
+  },
+  {
+    "frame_id": 107,
+    "timestamp_utc": "2024-03-06T12:30:10.000Z",
+    "bbox_x": 800,
+    "bbox_y": 700,
+    "bbox_w": 115,
+    "bbox_h": 62,
+    "class": "truck",
+    "confidence": 0.90,
+    "track_id": 7,
+    "approach_lane": "S-out"
+  },
+  {
+    "frame_id": 108,
+    "timestamp_utc": "2024-03-07T13:45:00.000Z",
+    "bbox_x": 1000,
+    "bbox_y": 600,
+    "bbox_w": 95,
+    "bbox_h": 58,
+    "class": "bus",
+    "confidence": 0.88,
+    "track_id": 8,
+    "approach_lane": "W-out"
+  },
+  {
+    "event_id": "EVT001",
+    "clip_id": "CLIP_20240301_071215_stalled_vehicle.mp4",
+    "start_frame": 200,
+    "end_frame": 240,
+    "start_timestamp_utc": "2024-03-01T07:12:15.000Z",
+    "end_timestamp_utc": "2024-03-01T07:12:19.000Z",
+    "event_type": "stalled_vehicle",
+    "location_zone": "Z1",
+    "confidence": 0.91,
+    "severity": "critical",
+    "annotator_notes": "Vehicle stopped for >20s at stop line."
+  },
+  {
+    "event_id": "EVT002",
+    "clip_id": "CLIP_20240302_082210_abnormal_stop.mp4",
+    "start_frame": 300,
+    "end_frame": 340,
+    "start_timestamp_utc": "2024-03-02T08:22:10.000Z",
+    "end_timestamp_utc": "2024-03-02T08:22:14.000Z",
+    "event_type": "abnormal_stop",
+    "location_zone": "Z2",
+    "confidence": 0.87,
+    "severity": "warning",
+    "annotator_notes": "Unexpected stop in through lane."
+  },
+  {
+    "event_id": "EVT003",
+    "clip_id": "CLIP_20240303_091545_wrong_way_driving.mp4",
+    "start_frame": 400,
+    "end_frame": 420,
+    "start_timestamp_utc": "2024-03-03T09:15:45.000Z",
+    "end_timestamp_utc": "2024-03-03T09:15:47.000Z",
+    "event_type": "wrong_way_driving",
+    "location_zone": "Z3",
+    "confidence": 0.92,
+    "severity": "critical",
+    "annotator_notes": "Motorcycle entered against traffic."
+  },
+  {
+    "event_id": "EVT004",
+    "clip_id": "CLIP_20240304_100530_unexpected_trajectory.mp4",
+    "start_frame": 500,
+    "end_frame": 540,
+    "start_timestamp_utc": "2024-03-04T10:05:30.000Z",
+    "end_timestamp_utc": "2024-03-04T10:05:34.000Z",
+    "event_type": "unexpected_trajectory",
+    "location_zone": "Z4",
+    "confidence": 0.89,
+    "severity": "info",
+    "annotator_notes": "Bus made illegal left turn."
+  },
+  {
+    "event_id": "EVT005",
+    "clip_id": "CLIP_20240305_111820_queue_spillback.mp4",
+    "start_frame": 600,
+    "end_frame": 640,
+    "start_timestamp_utc": "2024-03-05T11:18:20.000Z",
+    "end_timestamp_utc": "2024-03-05T11:18:24.000Z",
+    "event_type": "queue_spillback",
+    "location_zone": "Z5",
+    "confidence": 0.93,
+    "severity": "critical",
+    "annotator_notes": "Queue exceeded monitoring zone."
+  },
+  {
+    "event_id": "EVT006",
+    "clip_id": "CLIP_20240306_123010_sudden_congestion.mp4",
+    "start_frame": 700,
+    "end_frame": 740,
+    "start_timestamp_utc": "2024-03-06T12:30:10.000Z",
+    "end_timestamp_utc": "2024-03-06T12:30:14.000Z",
+    "event_type": "sudden_congestion",
+    "location_zone": "Z6",
+    "confidence": 0.85,
+    "severity": "warning",
+    "annotator_notes": "Rapid queue build-up detected."
+  },
+  {
+    "event_id": "EVT007",
+    "clip_id": "CLIP_20240307_134500_abnormal_stop.mp4",
+    "start_frame": 800,
+    "end_frame": 840,
+    "start_timestamp_utc": "2024-03-07T13:45:00.000Z",
+    "end_timestamp_utc": "2024-03-07T13:45:04.000Z",
+    "event_type": "abnormal_stop",
+    "location_zone": "Z7",
+    "confidence": 0.88,
+    "severity": "info",
+    "annotator_notes": "Short stop in queue zone."
+  },
+  {
+    "event_id": "EVT008",
+    "clip_id": "CLIP_20240308_140000_wrong_way_driving.mp4",
+    "start_frame": 900,
+    "end_frame": 940,
+    "start_timestamp_utc": "2024-03-08T14:00:00.000Z",
+    "end_timestamp_utc": "2024-03-08T14:00:04.000Z",
+    "event_type": "wrong_way_driving",
+    "location_zone": "Z8",
+    "confidence": 0.90,
+    "severity": "critical",
+    "annotator_notes": "Car entered from exit lane."
+  },
+  {
+    "window_id": "W001",
+    "timestamp_utc": "2024-03-01T07:15:00.000Z",
+    "approach_label": "N-in",
+    "congestion_level": "free_flow",
+    "queue_length_m": 8.2,
+    "avg_speed_kmh": 41.5
+  },
+  {
+    "window_id": "W002",
+    "timestamp_utc": "2024-03-02T08:30:00.000Z",
+    "approach_label": "E-in",
+    "congestion_level": "mild_congestion",
+    "queue_length_m": 22.7,
+    "avg_speed_kmh": 28.9
+  },
+  {
+    "window_id": "W003",
+    "timestamp_utc": "2024-03-03T09:45:00.000Z",
+    "approach_label": "S-in",
+    "congestion_level": "moderate_congestion",
+    "queue_length_m": 38.1,
+    "avg_speed_kmh": 17.2
+  },
+  {
+    "window_id": "W004",
+    "timestamp_utc": "2024-03-04T10:55:00.000Z",
+    "approach_label": "W-in",
+    "congestion_level": "severe_congestion",
+    "queue_length_m": 61.3,
+    "avg_speed_kmh": 7.8
+  },
+  {
+    "window_id": "W005",
+    "timestamp_utc": "2024-03-05T11:20:00.000Z",
+    "approach_label": "N-out",
+    "congestion_level": "free_flow",
+    "queue_length_m": 9.1,
+    "avg_speed_kmh": 39.7
+  },
+  {
+    "window_id": "W006",
+    "timestamp_utc": "2024-03-06T12:35:00.000Z",
+    "approach_label": "E-out",
+    "congestion_level": "mild_congestion",
+    "queue_length_m": 19.4,
+    "avg_speed_kmh": 26.3
+  },
+  {
+    "window_id": "W007",
+    "timestamp_utc": "2024-03-07T13:50:00.000Z",
+    "approach_label": "S-out",
+    "congestion_level": "moderate_congestion",
+    "queue_length_m": 36.2,
+    "avg_speed_kmh": 15.8
+  },
+  {
+    "window_id": "W008",
+    "timestamp_utc": "2024-03-08T14:05:00.000Z",
+    "approach_label": "W-out",
+    "congestion_level": "severe_congestion",
+    "queue_length_m": 59.7,
+    "avg_speed_kmh": 6.9
+  },
+  {
+    "event_id": "QSB001",
+    "timestamp_utc": "2024-03-01T07:16:00.000Z",
+    "approach_label": "N-in",
+    "spillback_distance_m": 18.5,
+    "zone_breached": "Z5",
+    "clip_reference": "CLIP_20240301_071600_queue_spillback.mp4"
+  },
+  {
+    "event_id": "QSB002",
+    "timestamp_utc": "2024-03-02T08:31:00.000Z",
+    "approach_label": "E-in",
+    "spillback_distance_m": 21.2,
+    "zone_breached": "Z7",
+    "clip_reference": "CLIP_20240302_083100_queue_spillback.mp4"
+  },
+  {
+    "event_id": "QSB003",
+    "timestamp_utc": "2024-03-03T09:46:00.000Z",
+    "approach_label": "S-in",
+    "spillback_distance_m": 25.7,
+    "zone_breached": "Z6",
+    "clip_reference": "CLIP_20240303_094600_queue_spillback.mp4"
+  },
+  {
+    "event_id": "QSB004",
+    "timestamp_utc": "2024-03-04T10:56:00.000Z",
+    "approach_label": "W-in",
+    "spillback_distance_m": 29.3,
+    "zone_breached": "Z8",
+    "clip_reference": "CLIP_20240304_105600_queue_spillback.mp4"
+  },
+  {
+    "event_id": "QSB005",
+    "timestamp_utc": "2024-03-05T11:21:00.000Z",
+    "approach_label": "N-out",
+    "spillback_distance_m": 17.1,
+    "zone_breached": "Z5",
+    "clip_reference": "CLIP_20240305_112100_queue_spillback.mp4"
+  },
+  {
+    "event_id": "QSB006",
+    "timestamp_utc": "2024-03-06T12:36:00.000Z",
+    "approach_label": "E-out",
+    "spillback_distance_m": 20.8,
+    "zone_breached": "Z7",
+    "clip_reference": "CLIP_20240306_123600_queue_spillback.mp4"
+  }
+]

@@ -315,7 +315,9 @@ const GOOGLE_SEGMENT_COLORS = {
   SLOW: "#ffbf69",
   TRAFFIC_JAM: "#ff6d75",
 };
-const mapView = { scale: 1, offsetX: 0, offsetY: 0 };
+// Default to top-down, centered on Wadi Saqra intersection (approx 31.96417, 35.88751)
+// Show ~600m x 400m area. These values may be tweaked for your canvas size.
+const mapView = { scale: 2.1, offsetX: 320, offsetY: 180 };
 let isDragging = false;
 let dragStart = { x: 0, y: 0 };
 let dragViewStart = { offsetX: 0, offsetY: 0 };
@@ -1290,6 +1292,7 @@ function invalidateMapCache() {
 }
 
 function drawMap() {
+  // Strict 2D top-down: ctx.translate/scale only, no tilt/perspective/rotation
   const canvas = els.mapCanvas;
   const ctx = canvas.getContext("2d");
   const width = canvas.width;

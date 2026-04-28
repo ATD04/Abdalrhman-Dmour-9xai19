@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "project": "Wadi Saqra Intelligent Traffic Light — 9XAI Hackathon",
+  "intersection": "Wadi Saqra, Amman, Jordan",
+  "annotation_types": {
+    "vehicle_detection": {
+      "label_classes": ["car", "truck", "bus", "motorcycle", "van"],
+      "fields": ["frame_id", "timestamp_utc", "bbox_x", "bbox_y", "bbox_w", "bbox_h", "class", "confidence", "track_id", "approach_lane"]
+    },
+    "incident_event": {
+      "label_classes": ["stalled_vehicle", "abnormal_stop", "wrong_way_driving", "unexpected_trajectory", "queue_spillback", "sudden_congestion"],
+      "fields": ["event_id", "clip_id", "start_frame", "end_frame", "start_timestamp_utc", "end_timestamp_utc", "event_type", "location_zone", "confidence", "severity", "annotator_notes"]
+    },
+    "congestion_event": {
+      "label_classes": ["free_flow", "mild_congestion", "moderate_congestion", "severe_congestion"],
+      "fields": ["window_id", "timestamp_utc", "approach_label", "congestion_level", "queue_length_m", "avg_speed_kmh"]
+    },
+    "queue_spillback": {
+      "fields": ["event_id", "timestamp_utc", "approach_label", "spillback_distance_m", "zone_breached", "clip_reference"]
+    }
+  },
+  "clip_format": {
+    "resolution": "1920x1080",
+    "fps": 15,
+    "encoding": "H.264",
+    "naming_convention": "CLIP_{YYYYMMDD}_{HHMMSS}_{event_type}.mp4"
+  },
+  "zones": {
+    "description": "Monitoring zones mapped to Wadi Saqra intersection geometry",
+    "zone_list": [
+      {"zone_id": "Z1", "label": "North approach — stop line", "type": "stop_line"},
+      {"zone_id": "Z2", "label": "South approach — stop line", "type": "stop_line"},
+      {"zone_id": "Z3", "label": "East approach — stop line", "type": "stop_line"},
+      {"zone_id": "Z4", "label": "West approach — stop line", "type": "stop_line"},
+      {"zone_id": "Z5", "label": "North queue spillback zone", "type": "queue_monitoring"},
+      {"zone_id": "Z6", "label": "South queue spillback zone", "type": "queue_monitoring"},
+      {"zone_id": "Z7", "label": "East queue spillback zone", "type": "queue_monitoring"},
+      {"zone_id": "Z8", "label": "West queue spillback zone", "type": "queue_monitoring"},
+      {"zone_id": "Z9", "label": "Intersection box — conflict zone", "type": "conflict_zone"}
+    ]
+  }
+}

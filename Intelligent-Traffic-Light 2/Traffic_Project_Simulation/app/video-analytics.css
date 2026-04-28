@@ -1,51 +1,64 @@
-/* ── Camera Vehicle Count Card ─────────────── */
+/* Premium AI Traffic Control Theme for Video Analytics */
 .va-camera-count-card {
-  border-radius: 16px;
-  border: 1.5px solid var(--line);
-  background: linear-gradient(135deg, rgba(98,208,195,0.08), var(--panel));
-  box-shadow: 0 2px 12px 0 rgba(98,208,195,0.08);
-  padding: 16px 18px 10px 18px;
+  border-radius: 18px;
+  border: 1.5px solid var(--accent);
+  background: linear-gradient(135deg, #0B1220 80%, #08111F 100%);
+  box-shadow: 0 0 0 2px rgba(56,189,248,0.10), 0 8px 32px rgba(0,0,0,0.45);
+  padding: 18px 20px 12px 20px;
   display: flex;
   flex-direction: column;
-  gap: 7px;
+  gap: 10px;
   min-width: 0;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 .va-camera-count-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 14px;
+  gap: 16px;
   align-items: center;
-  font-size: 1.01rem;
+  font-size: 1.04rem;
   margin-bottom: 2px;
 }
 .va-cc-label {
   color: var(--muted);
-  font-size: 0.97rem;
+  font-size: 0.98rem;
   margin-right: 2px;
 }
 .va-cc-breakdown {
-  gap: 10px;
-  font-size: 0.97rem;
+  gap: 12px;
+  font-size: 0.98rem;
 }
 .va-cc-confidence {
   font-weight: 600;
-  color: var(--teal);
+  color: var(--accent);
   margin-left: 4px;
 }
 .va-cc-note {
-  font-size: 0.93rem;
+  font-size: 0.94rem;
   color: var(--muted);
-  margin-top: 4px;
+  margin-top: 6px;
 }
 @media (max-width: 900px) {
   .va-camera-count-card {
-    padding: 10px 6px 6px 6px;
+    padding: 12px 8px 8px 8px;
   }
   .va-camera-count-row {
-    gap: 7px;
-    font-size: 0.98rem;
+    gap: 8px;
+    font-size: 0.99rem;
   }
+}
+
+/* Scrollbar styling for Video Analytics */
+::-webkit-scrollbar {
+  width: 10px;
+  background: #08111F;
+}
+::-webkit-scrollbar-thumb {
+  background: #1E293B;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #38BDF8;
 }
 /* ═════════════════════════════════════════════════════════════════════════════════════════════════════════════════════════
    VIDEO ANALYTICS TAB – Wadi Saqra Traffic Control Room
