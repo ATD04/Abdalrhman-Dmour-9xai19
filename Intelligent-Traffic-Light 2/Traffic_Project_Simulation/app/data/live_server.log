@@ -4177,3 +4177,17 @@ ConnectionResetError: [Errno 54] Connection reset by peer
 2026-04-28 11:57:36,911 [INFO] its.engine: Adaptive timing applied: NS=26.4s E=9.7s W=9.2s cycle=60.3s (Y=0.54)
 2026-04-28 11:57:44,335 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
 2026-04-28 11:57:44,941 [INFO] its.engine: Adaptive timing applied: NS=26.4s E=9.7s W=8.9s cycle=60.0s (Y=0.54)
+2026-04-28 11:57:54,234 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
+2026-04-28 11:57:54,237 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
+2026-04-28 11:57:58,126 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
+2026-04-28 11:57:58,246 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
+2026-04-28 11:57:59,130 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
+2026-04-28 11:58:01,007 [INFO] its.engine: Adaptive timing applied: NS=42.8s E=11.5s W=10.6s cycle=79.9s (Y=0.66)
+2026-04-28 11:58:10,031 [INFO] its.engine: Adaptive timing applied: NS=34.2s E=8.2s W=9.4s cycle=66.8s (Y=0.59)
+2026-04-28 11:58:10,048 [INFO] its.engine: Adaptive timing applied: NS=14.8s E=14.4s W=15.8s cycle=60.0s (Y=0.31)
+2026-04-28 11:58:14,238 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
+2026-04-28 11:58:24,207 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
+2026-04-28 11:58:24,229 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
+2026-04-28 11:58:28,222 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
+2026-04-28 11:58:28,226 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
+2026-04-28 11:58:29,250 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
