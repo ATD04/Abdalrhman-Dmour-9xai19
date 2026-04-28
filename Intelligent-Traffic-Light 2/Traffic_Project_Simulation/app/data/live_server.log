@@ -8866,3 +8866,6 @@ ConnectionResetError: [Errno 54] Connection reset by peer
 2026-04-28 16:57:33,045 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
 2026-04-28 16:57:35,055 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
 2026-04-28 16:57:37,044 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
+2026-04-28 16:57:37,967 [INFO] its.engine: Adaptive timing applied: NS=31.5s E=9.0s W=9.5s cycle=65.0s (Y=0.58)
+2026-04-28 16:57:39,075 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
+2026-04-28 16:57:40,104 [WARNING] its.data_sources.composite: Source google_routes failed: 403 Client Error: Forbidden for url: https://routes.googleapis.com/directions/v2:computeRoutes
