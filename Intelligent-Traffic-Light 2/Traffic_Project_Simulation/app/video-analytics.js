@@ -1,3 +1,92 @@
+// ── Camera Vehicle Count Logic (top-level) ─────────────────────────────
+const VA_VEHICLE_CLASSES = ["car", "bus", "truck", "motorcycle"];
+let vaCameraCountState = {
+    uniqueIds: new Set(),
+    idFrameCounts: {},
+    idClass: {},
+    idMotion: {},
+    idLastSeen: {},
+    idDirection: {},
+    classBreakdown: {car:0, bus:0, truck:0, motorcycle:0},
+    moving: 0,
+    stopped: 0,
+    currentVisible: 0,
+    confidence: "Low",
+    lastVideoId: null,
+};
+
+function resetCameraCountState(videoId) {
+    vaCameraCountState = {
+        uniqueIds: new Set(),
+        idFrameCounts: {},
+        idClass: {},
+        idMotion: {},
+        idLastSeen: {},
+        idDirection: {},
+        classBreakdown: {car:0, bus:0, truck:0, motorcycle:0},
+        moving: 0,
+        stopped: 0,
+        currentVisible: 0,
+        confidence: "Low",
+        lastVideoId: videoId,
+    };
+}
+
+function updateCameraVehicleCount(currentDetections, videoId, frameIdx) {
+    if (vaCameraCountState.lastVideoId !== videoId) resetCameraCountState(videoId);
+    const minFrames = 3;
+    const now = Date.now();
+    // Track per-frame
+    let visible = 0, moving = 0, stopped = 0;
+    let classCounts = {car:0, bus:0, truck:0, motorcycle:0};
+    for (const det of currentDetections) {
+        if (!VA_VEHICLE_CLASSES.includes(det.class_name)) continue;
+        if (!det.track_id) continue;
+        if (det.confidence !== undefined && det.confidence < 0.4) continue;
+        visible++;
+        classCounts[det.class_name]++;
+        if (det.motion_state === "moving") moving++;
+        else if (det.motion_state === "stopped") stopped++;
+        vaCameraCountState.idFrameCounts[det.track_id] = (vaCameraCountState.idFrameCounts[det.track_id] || 0) + 1;
+        vaCameraCountState.idClass[det.track_id] = det.class_name;
+        vaCameraCountState.idMotion[det.track_id] = det.motion_state;
+        vaCameraCountState.idLastSeen[det.track_id] = now;
+        if (vaCameraCountState.idFrameCounts[det.track_id] >= minFrames) {
+            vaCameraCountState.uniqueIds.add(det.track_id);
+        }
+    }
+    // Remove stale IDs (not seen for >2s)
+    for (const id in vaCameraCountState.idLastSeen) {
+        if (now - vaCameraCountState.idLastSeen[id] > 2000) {
+            delete vaCameraCountState.idLastSeen[id];
+        }
+    }
+    vaCameraCountState.currentVisible = visible;
+    vaCameraCountState.moving = moving;
+    vaCameraCountState.stopped = stopped;
+    vaCameraCountState.classBreakdown = classCounts;
+    // Confidence logic
+    const uniq = vaCameraCountState.uniqueIds.size;
+    if (uniq > 10 && visible > 0) vaCameraCountState.confidence = "High";
+    else if (uniq > 3) vaCameraCountState.confidence = "Medium";
+    else vaCameraCountState.confidence = "Low";
+    renderCameraVehicleCount();
+}
+
+function renderCameraVehicleCount() {
+    const s = vaCameraCountState;
+    const get = id => document.getElementById(id);
+    if (!get("va-cc-current")) return;
+    get("va-cc-current").textContent = s.currentVisible;
+    get("va-cc-unique").textContent = s.uniqueIds.size;
+    get("va-cc-moving").textContent = s.moving;
+    get("va-cc-stopped").textContent = s.stopped;
+    get("va-cc-cars").textContent = s.classBreakdown.car;
+    get("va-cc-buses").textContent = s.classBreakdown.bus;
+    get("va-cc-trucks").textContent = s.classBreakdown.truck;
+    get("va-cc-motorcycles").textContent = s.classBreakdown.motorcycle;
+    get("va-cc-confidence").textContent = s.confidence;
+}
 /* ═══════════════════════════════════════════════════════════════
    VIDEO ANALYTICS TAB – Wadi Saqra Traffic Control Room
    Full front-end logic: gallery, player, overlay, events, KPIs
@@ -421,6 +510,11 @@ function startVAOverlay(video) {
         VA.els.hudLeft.textContent  = `${vehicles} vehicles | ${peds} peds`;
         VA.els.overlayTime.textContent = fmtTime(videoEl.currentTime);
         VA.els.hudRight.textContent = `▶ ${moving} moving  ■ ${stopped} stopped`;
+
+        // ── Camera vehicle count update (ensure every frame) ─────
+        if (VA.selectedVideoId && Array.isArray(detections)) {
+            updateCameraVehicleCount(detections, VA.selectedVideoId, closestKey);
+        }
 
         if (hasBakedOverlay) {
             // Preview mp4 already has YOLO boxes drawn.

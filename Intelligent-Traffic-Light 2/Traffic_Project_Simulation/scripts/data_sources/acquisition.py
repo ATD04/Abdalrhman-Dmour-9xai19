@@ -57,23 +57,92 @@ class DataAcquisitionLayer:
         return value
 
     def validate_payload(self, payload: Dict[str, Any], schema_type: str) -> bool:
-        """Validate payload for missing fields, anomalies, or corruption."""
+        """
+        Validate payload for missing fields, anomalies, or corruption.
+        Validation rules:
+        - Reject empty or None payloads
+        - Check for missing required top-level fields
+        - For traffic_flow: check approaches, missing detector rows, invalid IDs/labels
+        - Check for negative or physically impossible values (speed, counts)
+        - Check for missing/corrupt video frames (if present)
+        - Check for invalid timestamps (non-ISO8601, out of range)
+        - Log and count all dropped/invalid packets
+        """
         self.stats["packets_received"] += 1
-        
+
+        # 1. Reject empty or None payloads
         if not payload:
+            logger.warning("Payload missing or None.")
             self.stats["packets_dropped"] += 1
             return False
 
-        # Basic anomaly detection (e.g., negative counts or impossible speeds)
+        # 2. Check for missing required top-level fields
+        required_fields = ["timestamp", "approaches"] if schema_type == "traffic_flow" else []
+        for field in required_fields:
+            if field not in payload:
+                logger.warning("Missing required field: %s", field)
+                self.stats["packets_dropped"] += 1
+                return False
+
+        # 3. For traffic_flow: check approaches, missing detector rows, invalid IDs/labels
         if schema_type == "traffic_flow":
             approaches = payload.get("approaches", {})
+            if not approaches or not isinstance(approaches, dict):
+                logger.warning("Missing or invalid approaches block.")
+                self.stats["packets_dropped"] += 1
+                return False
             for direction, data in approaches.items():
+                # 4. Check for invalid lane/approach labels
+                if not isinstance(direction, str) or not direction:
+                    logger.warning("Invalid direction label: %s", direction)
+                    self.stats["packets_dropped"] += 1
+                    return False
+                # 5. Check for missing detector rows
+                if not isinstance(data, dict):
+                    logger.warning("Missing detector row for direction: %s", direction)
+                    self.stats["packets_dropped"] += 1
+                    return False
+                # 6. Check for negative or impossible values
                 speed = data.get("avg_speed_kmh", 0)
-                if speed < 0 or speed > 250: # Physical impossibility check
+                if speed < 0 or speed > 250:
                     logger.warning("Anomalous speed detected for %s: %s", direction, speed)
                     self.stats["packets_dropped"] += 1
                     return False
-        
+                count = data.get("vehicle_count", 0)
+                if count < 0 or count > 5000:
+                    logger.warning("Anomalous vehicle count for %s: %s", direction, count)
+                    self.stats["packets_dropped"] += 1
+                    return False
+                # 7. Check for invalid detector IDs
+                detector_id = data.get("detector_id", "")
+                if detector_id and not isinstance(detector_id, str):
+                    logger.warning("Invalid detector ID for %s: %s", direction, detector_id)
+                    self.stats["packets_dropped"] += 1
+                    return False
+
+        # 8. Check for invalid timestamps (non-ISO8601, out of range)
+        ts = payload.get("timestamp")
+        try:
+            if ts:
+                # Accept both string and numeric, but must be valid
+                if isinstance(ts, str):
+                    datetime.fromisoformat(ts.replace("Z", "+00:00"))
+                elif isinstance(ts, (int, float)):
+                    if ts < 946684800 or ts > 4102444800:  # 2000-01-01 to 2100-01-01
+                        raise ValueError("Timestamp out of range")
+        except Exception as exc:
+            logger.warning("Invalid timestamp: %s (%s)", ts, exc)
+            self.stats["packets_dropped"] += 1
+            return False
+
+        # 9. Check for missing/corrupt video frames (if present)
+        if "frames" in payload:
+            frames = payload["frames"]
+            if not isinstance(frames, dict) or not frames:
+                logger.warning("Missing or corrupt video frames block.")
+                self.stats["packets_dropped"] += 1
+                return False
+
         self.stats["packets_validated"] += 1
         self.stats["last_ingestion_time"] = time.time()
         return True

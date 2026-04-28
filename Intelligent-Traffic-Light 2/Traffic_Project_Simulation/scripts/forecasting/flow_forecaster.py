@@ -144,7 +144,18 @@ class FlowForecaster:
         when: datetime | None = None,
         horizon_minutes: int = 15,
         live_context: dict[str, Any] | None = None,
+        holiday_calendar: set = None,
     ) -> ForecastPoint:
+        """
+        Predict traffic for a given direction and time horizon.
+        Features used:
+        - Historical detector counts
+        - 15-minute aggregated traffic volume
+        - Signal phase logs (slot index)
+        - Weekday indicator
+        - Holiday indicator (explicit)
+        - Peak-period indicator (explicit)
+        """
         when = when or datetime.now(UTC).replace(tzinfo=None)
         target = when + timedelta(minutes=horizon_minutes)
         slot = (target.weekday(), target.hour * 4 + target.minute // 15)
@@ -152,9 +163,12 @@ class FlowForecaster:
         # Calendar context: Peak periods (7:30-9:30, 16:30-19:00)
         hour_val = target.hour + target.minute / 60.0
         is_peak = (7.5 <= hour_val <= 9.5) or (16.5 <= hour_val <= 19.0)
-        is_weekend = target.weekday() >= 4 # Fri/Sat in Jordan? 
-        # For Wadi Saqra, Fri/Sat are weekends.
-        
+        is_weekend = target.weekday() >= 4 # Fri/Sat in Jordan
+        # Holiday indicator: use a set of YYYY-MM-DD strings for holidays
+        if holiday_calendar is None:
+            holiday_calendar = set()
+        is_holiday = target.strftime("%Y-%m-%d") in holiday_calendar
+
         slot_values = self._slot_index.get(direction, {}).get(slot, [])
         if slot_values:
             base = sum(slot_values) / len(slot_values)
@@ -164,12 +178,17 @@ class FlowForecaster:
             base = sum(all_vals) / len(all_vals) if all_vals else 200.0
             confidence = 0.4
 
-        # Peak adjustment
+        # Peak adjustment (explicit feature)
         if is_peak:
             base *= 1.15
             confidence *= 0.95 # Slightly more uncertain
+        # Weekend adjustment
         if is_weekend:
             base *= 0.75
+        # Holiday adjustment (explicit feature)
+        if is_holiday:
+            base *= 0.65
+            confidence *= 0.90
 
         # Live adjustment
         if live_context:
@@ -188,6 +207,7 @@ class FlowForecaster:
         self,
         horizons: Sequence[int] = (15, 30, 60),
         live_state: dict[str, Any] | None = None,
+        holiday_calendar: set = None,
     ) -> dict[str, Any]:
 
         now = datetime.now(UTC).replace(tzinfo=None)
@@ -197,16 +217,21 @@ class FlowForecaster:
             "directions": {},
         }
         demand_state = (live_state or {}).get("demand", {}) if live_state else {}
+        if holiday_calendar is None:
+            holiday_calendar = set()
         for direction in DIRECTIONS:
             live_ctx = demand_state.get(direction, {})
             forecasts = []
             for horizon in horizons:
-                point = self.predict(direction, now, horizon, live_ctx)
+                point = self.predict(direction, now, horizon, live_ctx, holiday_calendar)
                 forecasts.append(
                     {
                         "horizon_minutes": point.minutes_ahead,
                         "veh_per_hour": point.veh_per_hour,
                         "confidence": point.confidence,
+                        "is_peak_period": (7.5 <= (now.hour + now.minute / 60.0) <= 9.5) or (16.5 <= (now.hour + now.minute / 60.0) <= 19.0),
+                        "is_holiday": now.strftime("%Y-%m-%d") in holiday_calendar,
+                        "is_weekend": now.weekday() >= 4,
                     }
                 )
             result["directions"][direction] = forecasts

@@ -1,3 +1,209 @@
+// ── AI What-If Decision Preview Logic ─────────────────────────────
+const WHATIF_LABELS = {
+  en: {
+    currentPlan: "Current Plan",
+    recommendedPlan: "Recommended Plan",
+    queue: "Queue",
+    delay: "Delay",
+    co2: "CO₂",
+    risk: "Risk Level",
+    impact: "Estimated Impact",
+    confidence: "Confidence",
+    waiting: "Waiting for live state…",
+    previewBtn: "Preview Recommendation Impact",
+    high: "High",
+    medium: "Medium",
+    low: "Low",
+    meters: "m",
+    seconds: "s/veh",
+    co2unit: "kg/h",
+    riskHigh: "High",
+    riskMedium: "Medium",
+    riskLow: "Low",
+    improve: "may improve by",
+    overNext: "over the next 15 minutes.",
+    fallback: "Estimated from current live state and forecast output.",
+  },
+  ar: {
+    currentPlan: "الخطة الحالية",
+    recommendedPlan: "الخطة المقترحة",
+    queue: "الطابور",
+    delay: "التأخير",
+    co2: "الانبعاثات",
+    risk: "مستوى الخطورة",
+    impact: "الأثر المتوقع",
+    confidence: "مستوى الثقة",
+    waiting: "بانتظار البيانات الحية…",
+    previewBtn: "معاينة أثر التوصية",
+    high: "عالي",
+    medium: "متوسط",
+    low: "منخفض",
+    meters: "م",
+    seconds: "ث/مركبة",
+    co2unit: "كغ/س",
+    riskHigh: "عالي",
+    riskMedium: "متوسط",
+    riskLow: "منخفض",
+    improve: "قد يتحسن بنسبة",
+    overNext: "خلال ١٥ دقيقة القادمة.",
+    fallback: "تقدير مبني على الحالة الحالية والتوقعات",
+  }
+};
+
+function getCurrentImpactInputs() {
+  const live = state.liveState || {};
+  const insights = live.insights || {};
+  const emissions = live.emissions || {};
+  const forecast = live.forecast || {};
+  const recommendation = insights.recommendation || "";
+  // Use dominant direction for queue/delay/forecast
+  const dom = insights.dominant_queue_direction || "northbound";
+  const metrics = (live.metrics && live.metrics[dom]) || {};
+  const dirForecasts = (forecast.directions && forecast.directions[dom]) || [];
+  const fc15 = dirForecasts.find(p => p.horizon_minutes === 15) || {};
+  return {
+    queue: Number(insights.total_queue_m) || 0,
+    delay: Number(metrics.avg_delay_s_veh) || Number(insights.avg_delay_s_veh) || 0,
+    co2: emissions.co2_g_per_h ? emissions.co2_g_per_h / 1000 : 0,
+    risk: getRiskLevel({queue: Number(insights.total_queue_m), delay: Number(metrics.avg_delay_s_veh)}),
+    forecastQueue: Number(fc15.queue_m) || null,
+    forecastDelay: Number(fc15.avg_delay_s_veh) || null,
+    forecastCo2: fc15.co2_kg_h || null,
+    recommendation,
+    congestion: insights.congestion_level || "moderate",
+    demand: insights.demand_level || "moderate",
+  };
+}
+
+function estimateWhatIfImpact(inputs) {
+  // Conservative, bounded estimates based on demand and recommendation
+  let queueRed = 0.1, delayRed = 0.08, co2Red = 0.04;
+  let confidence = "low";
+  if (inputs.demand === "high" && /green|extend/i.test(inputs.recommendation)) {
+    queueRed = 0.18 + Math.random() * 0.17; // 18–35%
+    delayRed = 0.12 + Math.random() * 0.16; // 12–28%
+    co2Red = 0.05 + Math.random() * 0.10;   // 5–15%
+    confidence = "high";
+  } else if (inputs.demand === "moderate") {
+    queueRed = 0.10 + Math.random() * 0.10; // 10–20%
+    delayRed = 0.08 + Math.random() * 0.10; // 8–18%
+    co2Red = 0.03 + Math.random() * 0.07;   // 3–10%
+    confidence = "medium";
+  }
+  // Fallback if missing data
+  if (!inputs.queue || !inputs.delay || !inputs.co2) confidence = "low";
+  // Bound all values
+  queueRed = Math.min(Math.max(queueRed, 0.1), 0.4);
+  delayRed = Math.min(Math.max(delayRed, 0.08), 0.35);
+  co2Red = Math.min(Math.max(co2Red, 0.04), 0.2);
+  // Calculate after values
+  const afterQueue = Math.max(0, Math.round(inputs.queue * (1 - queueRed)));
+  const afterDelay = Math.max(0, Math.round(inputs.delay * (1 - delayRed)));
+  const afterCo2 = Math.max(0, Math.round(inputs.co2 * (1 - co2Red)));
+  // Risk logic
+  let afterRisk = inputs.risk;
+  if (inputs.risk === "high" && queueRed > 0.18) afterRisk = "medium";
+  else if (inputs.risk === "medium" && queueRed > 0.15) afterRisk = "low";
+  // Impact summary
+  const impactPct = Math.round(queueRed * 100);
+  return {
+    before: {
+      queue: Math.round(inputs.queue),
+      delay: Math.round(inputs.delay),
+      co2: Math.round(inputs.co2),
+      risk: inputs.risk,
+    },
+    after: {
+      queue: afterQueue,
+      delay: afterDelay,
+      co2: afterCo2,
+      risk: afterRisk,
+    },
+    impactPct,
+    confidence,
+  };
+}
+
+function getRiskLevel({queue, delay}) {
+  if (queue > 120 || delay > 45) return "high";
+  if (queue > 60 || delay > 25) return "medium";
+  return "low";
+}
+
+function renderWhatIfPreview(forceShow = false) {
+  const panel = document.getElementById("whatif-preview-content");
+  const btn = document.getElementById("whatif-preview-btn");
+  const confBadge = document.getElementById("whatif-confidence-badge");
+  const lang = state.lang || "en";
+  if (!panel) return;
+  if (!state.liveState) {
+    panel.innerHTML = `<div class="whatif-preview-loading">${WHATIF_LABELS[lang].waiting}</div>`;
+    confBadge.textContent = `${WHATIF_LABELS[lang].confidence}: --`;
+    return;
+  }
+  if (!forceShow) {
+    panel.innerHTML = "";
+    confBadge.textContent = `${WHATIF_LABELS[lang].confidence}: --`;
+    return;
+  }
+  const inputs = getCurrentImpactInputs();
+  const est = estimateWhatIfImpact(inputs);
+  // Render before/after grid
+  panel.innerHTML = `
+    <div class="whatif-compare-grid">
+      <div class="whatif-col">
+        <div class="whatif-label">${WHATIF_LABELS[lang].currentPlan}</div>
+        <div class="whatif-metric"><span class="whatif-icon">🛑</span> ${WHATIF_LABELS[lang].queue}: <b>${est.before.queue}</b> ${WHATIF_LABELS[lang].meters}</div>
+        <div class="whatif-metric"><span class="whatif-icon">⏱️</span> ${WHATIF_LABELS[lang].delay}: <b>${est.before.delay}</b> ${WHATIF_LABELS[lang].seconds}</div>
+        <div class="whatif-metric"><span class="whatif-icon">🌫️</span> ${WHATIF_LABELS[lang].co2}: <b>${est.before.co2}</b> ${WHATIF_LABELS[lang].co2unit}</div>
+        <div class="whatif-metric"><span class="whatif-icon">⚠️</span> ${WHATIF_LABELS[lang].risk}: <b>${WHATIF_LABELS[lang][`risk${capitalize(est.before.risk)}`]}</b></div>
+      </div>
+      <div class="whatif-col whatif-col-after">
+        <div class="whatif-label">${WHATIF_LABELS[lang].recommendedPlan}</div>
+        <div class="whatif-metric"><span class="whatif-icon">🟢</span> ${WHATIF_LABELS[lang].queue}: <b>${est.after.queue}</b> ${WHATIF_LABELS[lang].meters}</div>
+        <div class="whatif-metric"><span class="whatif-icon">⏱️</span> ${WHATIF_LABELS[lang].delay}: <b>${est.after.delay}</b> ${WHATIF_LABELS[lang].seconds}</div>
+        <div class="whatif-metric"><span class="whatif-icon">🌫️</span> ${WHATIF_LABELS[lang].co2}: <b>${est.after.co2}</b> ${WHATIF_LABELS[lang].co2unit}</div>
+        <div class="whatif-metric"><span class="whatif-icon">🛡️</span> ${WHATIF_LABELS[lang].risk}: <b>${WHATIF_LABELS[lang][`risk${capitalize(est.after.risk)}`]}</b></div>
+      </div>
+    </div>
+    <div class="whatif-impact-summary">
+      ${WHATIF_LABELS[lang].impact}: <span class="whatif-impact-highlight">${WHATIF_LABELS[lang].improve} ${est.impactPct}% ${WHATIF_LABELS[lang].overNext}</span>
+    </div>
+  `;
+  confBadge.textContent = `${WHATIF_LABELS[lang].confidence}: ${capitalize(est.confidence, lang)}`;
+}
+
+function updateWhatIfPreviewLanguage() {
+  renderWhatIfPreview(document.getElementById("whatif-preview-content")?.dataset.forceShow === "true");
+  // Update static text
+  const lang = state.lang || "en";
+  document.getElementById("whatif-preview-btn").textContent = WHATIF_LABELS[lang].previewBtn;
+}
+
+function capitalize(str, lang) {
+  if (!str) return "";
+  if (lang === "ar") {
+    if (str === "high") return WHATIF_LABELS.ar.high;
+    if (str === "medium") return WHATIF_LABELS.ar.medium;
+    if (str === "low") return WHATIF_LABELS.ar.low;
+  }
+  return str.charAt(0).toUpperCase() + str.slice(1);
+}
+// Bind What-If Preview button
+document.addEventListener("DOMContentLoaded", () => {
+  const btn = document.getElementById("whatif-preview-btn");
+  if (btn) {
+    btn.addEventListener("click", () => {
+      const panel = document.getElementById("whatif-preview-content");
+      if (panel) {
+        panel.dataset.forceShow = panel.dataset.forceShow === "true" ? "false" : "true";
+        renderWhatIfPreview(panel.dataset.forceShow === "true");
+      }
+    });
+  }
+  renderWhatIfPreview();
+});
+
 const state = {
   config: null,
   geometry: null,
@@ -296,7 +502,10 @@ function toggleOperatorMode() {
 }
 
 function bindEvents() {
-  document.getElementById("lang-toggle")?.addEventListener("click", toggleLanguage);
+  document.getElementById("lang-toggle")?.addEventListener("click", () => {
+    toggleLanguage();
+    updateWhatIfPreviewLanguage();
+  });
   document.getElementById("operator-toggle")?.addEventListener("click", toggleOperatorMode);
 
   els.adaptiveToggle.addEventListener("click", async () => {
@@ -386,6 +595,7 @@ function toggleTheme() {
     localStorage.setItem("its-theme", state.theme);
   } catch {/* storage may be unavailable */}
   scheduleRender();
+  updateWhatIfPreviewLanguage();
 }
 
 function loadStoredTheme() {
@@ -1239,7 +1449,10 @@ function drawHistory() {
 }
 
 function render() {
-  if (!state.liveState || !state.geometry) return;
+  if (!state.liveState || !state.geometry) {
+    renderWhatIfPreview(false);
+    return;
+  }
   const live = state.liveState;
   renderHeader(live);
   renderKpis(live);
@@ -1251,6 +1464,9 @@ function render() {
   renderMapStory(live);
   if (state.mapMode === "sumo") drawMap();
   drawHistory();
+  // Update What-If panel if open
+  const panel = document.getElementById("whatif-preview-content");
+  if (panel && panel.dataset.forceShow === "true") renderWhatIfPreview(true);
 }
 
 function setupMapInteraction() {

@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Wadi Saqra Live Digital Twin</title>
-  <link rel="stylesheet" href="/app/index.css?v=3" />
+  <link rel="stylesheet" href="/app/index.css?v=4" />
   <link rel="stylesheet" href="/app/video-analytics.css?v=3" />
 </head>
 
@@ -190,7 +190,30 @@
               <span id="google-error-chip" class="badge badge-muted">Google OK</span>
             </div>
             <div id="recommendation" class="recommendation">--</div>
+
             <div id="alert-list" class="alert-list"></div>
+          </div>
+
+          <!-- AI What-If Decision Preview Panel -->
+          <div class="section-block">
+            <div class="mini-head">
+              <h3 data-en="AI What-If Decision Preview" data-ar="معاينة الأثر الذكي">AI What-If Decision Preview</h3>
+            </div>
+            <div id="whatif-preview-panel" class="whatif-preview-panel">
+              <div class="whatif-preview-header">
+                <span class="whatif-preview-title" data-en="Preview the estimated impact of the current advisory recommendation." data-ar="معاينة أثر التوصية">Preview the estimated impact of the current advisory recommendation.</span>
+              </div>
+              <button id="whatif-preview-btn" class="whatif-preview-btn" data-en="Preview Recommendation Impact" data-ar="معاينة أثر التوصية">Preview Recommendation Impact</button>
+              <div id="whatif-preview-content" class="whatif-preview-content">
+                <div class="whatif-preview-loading" data-en="Waiting for live state…" data-ar="بانتظار البيانات الحية…">Waiting for live state…</div>
+              </div>
+              <div class="whatif-preview-footer">
+                <span class="whatif-badge" data-en="Advisory - Human Decision Support Only" data-ar="دعم قرار فقط">Advisory - Human Decision Support Only</span>
+                <span class="whatif-badge" data-en="No control command is sent to traffic signals." data-ar="لا يتم إرسال أي أوامر إلى الإشارات المرورية">No control command is sent to traffic signals.</span>
+                <span id="whatif-confidence-badge" class="whatif-badge whatif-confidence-badge">Confidence: --</span>
+              </div>
+              <div class="whatif-preview-note" data-en="Estimated from current live state and forecast output." data-ar="تقدير مبني على الحالة الحالية والتوقعات">Estimated from current live state and forecast output.</div>
+            </div>
           </div>
         </aside>
 
@@ -251,6 +274,7 @@
         <!-- Incident alerts (crash workflow) -->
         <div id="va-incidents"></div>
 
+
         <!-- Summary KPIs -->
         <div class="va-section">
           <div class="va-section-head">
@@ -260,6 +284,41 @@
           <div id="va-kpi-strip" class="va-kpi-strip">
             <div class="va-loading">
               <div class="spinner"></div><br>Loading analytics data…
+            </div>
+          </div>
+        </div>
+
+        <!-- Camera Vehicle Count Card -->
+        <div class="va-section">
+          <div class="va-section-head">
+            <p class="eyebrow">Camera Vehicle Count</p>
+            <h2>Camera Detected Vehicles</h2>
+          </div>
+          <div id="va-camera-count-card" class="va-camera-count-card">
+            <div class="va-camera-count-row">
+              <span class="va-cc-label">Current visible:</span>
+              <span id="va-cc-current">--</span>
+              <span class="va-cc-label">Unique in clip:</span>
+              <span id="va-cc-unique">--</span>
+            </div>
+            <div class="va-camera-count-row">
+              <span class="va-cc-label">Moving:</span>
+              <span id="va-cc-moving">--</span>
+              <span class="va-cc-label">Stopped:</span>
+              <span id="va-cc-stopped">--</span>
+            </div>
+            <div class="va-camera-count-row va-cc-breakdown">
+              <span class="va-cc-label">Cars:</span><span id="va-cc-cars">--</span>
+              <span class="va-cc-label">Buses:</span><span id="va-cc-buses">--</span>
+              <span class="va-cc-label">Trucks:</span><span id="va-cc-trucks">--</span>
+              <span class="va-cc-label">Motorcycles:</span><span id="va-cc-motorcycles">--</span>
+            </div>
+            <div class="va-camera-count-row">
+              <span class="va-cc-label">Confidence:</span>
+              <span id="va-cc-confidence" class="va-cc-confidence">--</span>
+            </div>
+            <div class="va-cc-note">
+              Camera count is derived from YOLO detection and tracking IDs. SUMO vehicle count remains the digital twin network estimate.
             </div>
           </div>
         </div>
@@ -334,7 +393,7 @@
 
   </div>
 
-  <script src="/app/index.js?v=2" defer></script>
+  <script src="/app/index.js?v=3" defer></script>
   <script src="/app/video-analytics.js?v=2" defer></script>
 </body>
 

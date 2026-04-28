@@ -1,0 +1,25 @@
+# Open Source Components Used
+
+- Python 3.9+
+- OpenCV (cv2)
+- Ultralytics YOLO (YOLOv8)
+- BoT-SORT (if used in tracking)
+- SUMO (Simulation of Urban MObility) + TraCI
+- Pandas
+- NumPy
+- scikit-learn
+- Flask (or built-in HTTP server)
+- Matplotlib
+- Polars
+- PyYAML
+- Torch (PyTorch)
+- torchvision
+- psutil
+- requests
+- google-auth
+- pytest
+- Jinja2
+- fsspec
+- SQLite (for local storage)
+- Any other packages in requirements-live.txt
+- Frontend: Vanilla JS, HTML, CSS (no major frameworks)
