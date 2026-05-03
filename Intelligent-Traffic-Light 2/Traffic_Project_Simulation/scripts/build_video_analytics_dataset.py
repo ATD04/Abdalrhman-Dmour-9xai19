@@ -468,9 +468,9 @@ def process_video(
                 verbose=False,
                 tracker="botsort.yaml",
                 classes=sorted(ALLOWED_CLASSES),
-                imgsz=preview_width,
-                conf=0.20,
-                iou=0.45,
+                imgsz=1280,
+                conf=0.15,
+                iou=0.40,
                 device="mps",
             )
             boxes = results[0].boxes if results and results[0].boxes is not None else None

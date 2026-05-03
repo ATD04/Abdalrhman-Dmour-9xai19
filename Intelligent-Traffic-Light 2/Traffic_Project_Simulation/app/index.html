@@ -1,400 +1,393 @@
+
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Wadi Saqra Live Digital Twin</title>
-  <link rel="stylesheet" href="/app/index.css?v=4" />
+  <title>Wadi Saqra Traffic Intelligence Center</title>
+  <link rel="stylesheet" href="/app/index.css?v=5" />
   <link rel="stylesheet" href="/app/video-analytics.css?v=3" />
 </head>
-
 <body>
-  <div class="shell">
-    <header class="hero">
-      <div>
-        <p class="eyebrow" data-en="Live Intelligence Build" data-ar="نظام الاستخبارات الميداني المباشر">Live Intelligence Build</p>
-        <h1 data-en="Wadi Saqra Traffic Digital Twin" data-ar="التوأم الرقمي المروري - وادي صقرة">Wadi Saqra Traffic Digital Twin</h1>
-        <p id="hero-copy" class="hero-copy" data-en="Live Google Routes traffic is fused with a lane-level SUMO digital twin for predictive intelligence and incident detection." data-ar="يتم دمج بيانات حركة المرور من Google مع توأم رقمي بنظام SUMO لتوفير ذكاء تنبؤي واكتشاف الحوادث.">
-          Live Google Routes traffic is fused with a lane-level SUMO digital twin for predictive intelligence and incident detection.
-        </p>
-      </div>
-      <div class="hero-side">
-        <div class="badge-row">
-          <button id="lang-toggle" class="lang-toggle">English / العربية</button>
-          <button id="operator-toggle" class="badge badge-muted" title="Operator Authorization Required">Operator Mode: OFF</button>
-        </div>
-        <div class="badge-row">
-          <span id="source-badge" class="badge badge-live">Source: booting</span>
-          <span id="center-badge" class="badge">Center: --</span>
-        </div>
-        <div class="badge-row">
-          <button id="adaptive-toggle" class="adaptive-button" title="Press A">Adaptive: --</button>
-          <button id="theme-toggle" class="theme-toggle" title="Toggle light/dark theme (T)">🌓 Theme</button>
-          <span id="refresh-badge" class="badge">Snapshot: --</span>
-        </div>
-      </div>
-    </header>
-
-    <!-- ── Main Tab Bar ─────────────────────────────────────── -->
-    <div class="main-tab-bar">
-      <button class="main-tab-btn active" data-tab="live-tab">
-        <span class="tab-icon">📡</span> Live Digital Twin
-      </button>
-      <button class="main-tab-btn" data-tab="va-tab">
-        <span class="tab-icon">🎬</span> Video Analytics
-      </button>
+  <!-- HEADER -->
+  <header id="main-header" style="height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 38px;border-bottom:1px solid #0A1A2E;box-shadow:0 2px 0 0 var(--c-blue-glow);background:var(--c-bg);">
+    <div style="display:flex;align-items:center;gap:18px;">
+      <span id="live-dot" style="display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--c-cyan);box-shadow:0 0 16px 2px var(--c-cyan);animation:pulse-cyan 1.2s infinite alternate;"></span>
+      <span style="font-size:1.32rem;font-weight:800;letter-spacing:0.04em;color:#fff;">WADI SAQRA INTELLIGENCE</span>
+      <span style="font-family:'Cairo','Tajawal',sans-serif;font-size:15px;color:var(--c-text-muted);margin-left:10px;">مركز ذكاء المرور</span>
     </div>
+    <div style="text-align:center;">
+      <span id="current-time" style="font-family:monospace;font-size:22px;color:var(--c-blue-bright);font-weight:700;">--:--:--</span><br>
+      <span id="current-date" style="font-size:13px;color:var(--c-text-secondary);">--</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <span id="source-badge" class="badge badge-info">Source: --</span>
+      <button id="lang-toggle" class="lang-toggle">EN / ع</button>
+      <span id="operator-badge" class="badge badge-muted">Operator Mode</span>
+    </div>
+  </header>
 
-    <!-- ═══ TAB 1: Live Digital Twin (existing) ═══ -->
-    <div id="live-tab" class="tab-content active">
+  <!-- NAV TABS -->
+  <nav id="main-tabs" style="height:44px;display:flex;align-items:end;gap:0;background:var(--c-bg);border-bottom:1px solid var(--c-border);">
+    <button class="main-tab-btn active" data-tab="live-tab" style="height:44px;flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:10px;font-size:1.08rem;font-weight:700;border:none;background:none;outline:none;position:relative;color:var(--c-blue-bright);border-radius:0;">
+      <span>⬡</span> LIVE DASHBOARD <span style="font-family:'Cairo','Tajawal',sans-serif;font-size:13px;color:var(--c-text-muted);margin-left:8px;">لوحة القيادة</span>
+      <span class="tab-underline" style="position:absolute;left:0;right:0;bottom:0;height:3px;background:var(--c-blue-bright);border-radius:2px;"></span>
+    </button>
+    <button class="main-tab-btn" data-tab="va-tab" style="height:44px;flex:1 1 0;display:flex;align-items:center;justify-content:center;gap:10px;font-size:1.08rem;font-weight:700;border:none;background:none;outline:none;position:relative;color:var(--c-text-secondary);border-radius:0;">
+      <span>◉</span> VIDEO ANALYTICS <span style="font-family:'Cairo','Tajawal',sans-serif;font-size:13px;color:var(--c-text-muted);margin-left:8px;">تحليل الفيديو</span>
+    </button>
+  </nav>
 
-      <div id="data-source-banner" class="data-source-banner">
-        <span id="data-source-icon" class="banner-icon">●</span>
-        <div class="banner-text">
-          <strong id="data-source-label">Connecting to data source…</strong>
-          <span id="data-source-detail">Starting up — please wait</span>
-        </div>
-      </div>
-
-      <main class="grid">
-        <section class="panel map-panel">
-          <div class="panel-head">
-            <div>
-              <p class="eyebrow">Map Layer</p>
-              <h2>Google Traffic Overlay + SUMO Vehicles</h2>
-            </div>
-            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-              <span id="vehicle-count-chip" class="badge">Vehicles: --</span>
-              <div class="map-mode-toggle">
-                <button id="map-mode-sumo" class="map-mode-btn active">🗺️ Top-Down 2D</button>
-                <button id="map-mode-satellite" class="map-mode-btn">🗺 Satellite View</button>
-              </div>
-            </div>
-          </div>
-          <div class="map-layer-wrap">
-            <canvas id="network-map" width="1200" height="700"></canvas>
-            <iframe
-              id="satellite-iframe"
-              class="satellite-iframe"
-              src="about:blank"
-              data-src="https://maps.google.com/maps?q=31.964932,35.884545&z=17&output=embed&t=k"
-              title="Wadi Saqra satellite view"
-              allowfullscreen
-              style="display:none;"
-            ></iframe>
-          </div>
-          <div class="map-controls">
-            <button id="map-zoom-in" class="map-ctrl-btn" title="Zoom in">＋ Zoom In</button>
-            <button id="map-zoom-out" class="map-ctrl-btn" title="Zoom out">－ Zoom Out</button>
-            <button id="map-reset" class="map-ctrl-btn" title="Reset view">⌂ Reset View</button>
-            <span id="map-coords" class="map-coords">Hover over the map to see coordinates</span>
-          </div>
-          <div id="map-story" class="map-story">Loading lane-level traffic view…</div>
-          <div class="map-legend">
-            <span><i class="dot dot-road"></i> Base road network</span>
-            <span><i class="dot dot-lane"></i> Monitored lanes</span>
-            <span><i class="dot dot-normal"></i> Google live segment</span>
-            <span><i class="dot dot-slow"></i> Slow / queued lane</span>
-            <span><i class="dot dot-jam"></i> Red stop-bar / heavy delay</span>
-            <span><i class="dot dot-vehicle"></i> Simulated vehicles</span>
-          </div>
-        </section>
-
-        <aside class="panel summary-panel">
-          <div class="panel-head">
-            <div>
-              <p class="eyebrow">Operations</p>
-              <h2>Live Situation</h2>
-            </div>
-          </div>
-          <div class="kpi-grid">
-            <article class="kpi-card">
-              <span>Network Queue</span>
-              <strong id="kpi-queue">--</strong>
-              <small>meters in monitored approaches</small>
-            </article>
-            <article class="kpi-card">
-              <span>Avg Speed</span>
-              <strong id="kpi-speed">--</strong>
-              <small>km/h across live approaches</small>
-            </article>
-            <article class="kpi-card">
-              <span>Dominant Queue</span>
-              <strong id="kpi-dominant">--</strong>
-              <small>approach currently under stress</small>
-            </article>
-            <article class="kpi-card">
-              <span>Google Delay</span>
-              <strong id="kpi-google">--</strong>
-              <small>largest live travel-time delta</small>
-            </article>
-            <article class="kpi-card kpi-emissions">
-              <span>CO₂ Emissions</span>
-              <strong id="kpi-co2">--</strong>
-              <small id="kpi-co2-detail">grams per hour (live fleet)</small>
-            </article>
-            <article class="kpi-card kpi-forecast">
-              <span data-en="Multi-Horizon Forecast" data-ar="التوقعات متعددة المدى">Multi-Horizon Forecast</span>
-              <div id="forecast-grid" class="forecast-grid">
-                <div class="forecast-item">
-                  <span>15m</span>
-                  <strong id="forecast-15">--</strong>
-                </div>
-                <div class="forecast-item">
-                  <span>30m</span>
-                  <strong id="forecast-30">--</strong>
-                </div>
-                <div class="forecast-item">
-                  <span>60m</span>
-                  <strong id="forecast-60">--</strong>
-                </div>
-              </div>
-              <small data-en="predicted veh/h (demand)" data-ar="المركبات المتوقعة/ساعة">predicted veh/h (demand)</small>
-            </article>
-            <article class="kpi-card kpi-health">
-              <span data-en="System Health" data-ar="صحة النظام">System Health</span>
-              <strong id="kpi-health">--</strong>
-              <small id="kpi-health-detail" data-en="FPS / Uptime / Monitoring" data-ar="معدل الإطارات / وقت التشغيل">FPS / Uptime / Monitoring</small>
-            </article>
-          </div>
-
-          <div class="section-block">
-            <div class="mini-head">
-              <h3>Traffic Signals at Junction</h3>
-              <span id="tls-id" class="badge badge-muted">Loading…</span>
-            </div>
-            <div id="signal-phase-summary" class="phase-summary">Loading signal plan…</div>
-            <p class="signal-explainer">
-              Each section below shows one approach. Every row is one incoming lane, with its current signal color,
-              queue,
-              moving vehicles, and speed so the operator can read the junction lane by lane.
-            </p>
-            <div id="signal-list" class="signal-list"></div>
-          </div>
-
-          <!-- Webster Signal Timing Optimizer -->
-          <div class="section-block">
-            <div class="mini-head">
-              <p class="eyebrow" style="margin:0;">Signal Plan · Current vs Webster</p>
-              <span id="webster-mode-badge" class="badge badge-muted">Computing…</span>
-            </div>
-            <div id="webster-panel" class="webster-panel">
-              <div class="webster-loading">Computing optimal timing…</div>
-            </div>
-          </div>
-
-          <div class="section-block">
-            <div class="mini-head">
-              <h3>Decision Support</h3>
-              <span id="google-error-chip" class="badge badge-muted">Google OK</span>
-            </div>
-            <div id="recommendation" class="recommendation">--</div>
-
-            <div id="alert-list" class="alert-list"></div>
-          </div>
-
-          <!-- AI What-If Decision Preview Panel -->
-          <div class="section-block">
-            <div class="mini-head">
-              <h3 data-en="AI What-If Decision Preview" data-ar="معاينة الأثر الذكي">AI What-If Decision Preview</h3>
-            </div>
-            <div id="whatif-preview-panel" class="whatif-preview-panel">
-              <div class="whatif-preview-header">
-                <span class="whatif-preview-title" data-en="Preview the estimated impact of the current advisory recommendation." data-ar="معاينة أثر التوصية">Preview the estimated impact of the current advisory recommendation.</span>
-              </div>
-              <button id="whatif-preview-btn" class="whatif-preview-btn" data-en="Preview Recommendation Impact" data-ar="معاينة أثر التوصية">Preview Recommendation Impact</button>
-              <div id="whatif-preview-content" class="whatif-preview-content">
-                <div class="whatif-preview-loading" data-en="Waiting for live state…" data-ar="بانتظار البيانات الحية…">Waiting for live state…</div>
-              </div>
-              <div class="whatif-preview-footer">
-                <span class="whatif-badge" data-en="Advisory - Human Decision Support Only" data-ar="دعم قرار فقط">Advisory - Human Decision Support Only</span>
-                <span class="whatif-badge" data-en="No control command is sent to traffic signals." data-ar="لا يتم إرسال أي أوامر إلى الإشارات المرورية">No control command is sent to traffic signals.</span>
-                <span id="whatif-confidence-badge" class="whatif-badge whatif-confidence-badge">Confidence: --</span>
-              </div>
-              <div class="whatif-preview-note" data-en="Estimated from current live state and forecast output." data-ar="تقدير مبني على الحالة الحالية والتوقعات">Estimated from current live state and forecast output.</div>
-            </div>
-          </div>
-        </aside>
-
-        <section class="panel table-panel">
-          <div class="panel-head">
-            <div>
-              <p class="eyebrow">Approach Layer</p>
-              <h2>Google vs SUMO by Direction</h2>
-            </div>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Direction</th>
-                  <th>Google Corridor</th>
-                  <th>Google Speed</th>
-                  <th>Live Demand</th>
-                  <th>Simulated Flow</th>
-                  <th>Queue Length</th>
-                  <th>Sim Speed</th>
-                  <th>Lane Status</th>
-                </tr>
-              </thead>
-              <tbody id="approach-table-body"></tbody>
-            </table>
-          </div>
-        </section>
-
-        <section class="panel history-panel">
-          <div class="panel-head">
-            <div>
-              <p class="eyebrow">Recent Buffer</p>
-              <h2>Last 10 Minutes</h2>
-            </div>
-            <span class="badge badge-muted">1 Hz rolling history</span>
-          </div>
-          <canvas id="history-chart" width="1200" height="260"></canvas>
-        </section>
-
-        <section class="panel notes-panel">
-          <div class="panel-head">
-            <div>
-              <p class="eyebrow">Read This</p>
-              <h2>How To Read The Numbers</h2>
-            </div>
-          </div>
-          <div id="notes-grid" class="notes-grid"></div>
-        </section>
-      </main>
-
-    </div><!-- /live-tab -->
-
-    <!-- ═══ TAB 2: Video Analytics ═══ -->
-    <div id="va-tab" class="tab-content">
-      <div id="va-root">
-
-        <!-- Incident alerts (crash workflow) -->
-        <div id="va-incidents"></div>
-
-
-        <!-- Summary KPIs -->
-        <div class="va-section">
-          <div class="va-section-head">
-            <p class="eyebrow">Analytics Overview</p>
-            <h2>Video Processing Summary</h2>
-          </div>
-          <div id="va-kpi-strip" class="va-kpi-strip">
-            <div class="va-loading">
-              <div class="spinner"></div><br>Loading analytics data…
-            </div>
-          </div>
-        </div>
-
-        <!-- Camera Vehicle Count Card -->
-        <div class="va-section">
-          <div class="va-section-head">
-            <p class="eyebrow">Camera Vehicle Count</p>
-            <h2>Camera Detected Vehicles</h2>
-          </div>
-          <div id="va-camera-count-card" class="va-camera-count-card">
-            <div class="va-camera-count-row">
-              <span class="va-cc-label">Current visible:</span>
-              <span id="va-cc-current">--</span>
-              <span class="va-cc-label">Unique in clip:</span>
-              <span id="va-cc-unique">--</span>
-            </div>
-            <div class="va-camera-count-row">
-              <span class="va-cc-label">Moving:</span>
-              <span id="va-cc-moving">--</span>
-              <span class="va-cc-label">Stopped:</span>
-              <span id="va-cc-stopped">--</span>
-            </div>
-            <div class="va-camera-count-row va-cc-breakdown">
-              <span class="va-cc-label">Cars:</span><span id="va-cc-cars">--</span>
-              <span class="va-cc-label">Buses:</span><span id="va-cc-buses">--</span>
-              <span class="va-cc-label">Trucks:</span><span id="va-cc-trucks">--</span>
-              <span class="va-cc-label">Motorcycles:</span><span id="va-cc-motorcycles">--</span>
-            </div>
-            <div class="va-camera-count-row">
-              <span class="va-cc-label">Confidence:</span>
-              <span id="va-cc-confidence" class="va-cc-confidence">--</span>
-            </div>
-            <div class="va-cc-note">
-              Camera count is derived from YOLO detection and tracking IDs. SUMO vehicle count remains the digital twin network estimate.
-            </div>
-          </div>
-        </div>
-
-        <!-- Video gallery -->
-        <div class="va-section">
-          <div class="va-section-head">
-            <p class="eyebrow">Field Recordings</p>
-            <h2>Wadi Saqra Video Gallery</h2>
-          </div>
-          <div id="va-gallery" class="va-gallery"></div>
-        </div>
-
-        <!-- Player + Events -->
-        <div id="va-player-section" class="va-player-section" style="display:none;">
-          <div>
-            <div class="va-section">
-              <div class="va-section-head">
-                <p class="eyebrow">Object Detection + Tracking</p>
-                <h2>Video Player with YOLO Overlay</h2>
-              </div>
-              <div id="va-player-wrap" class="va-player-wrap">
-                <video id="va-player-video" class="va-player-video" muted playsinline></video>
-                <canvas id="va-player-canvas" class="va-player-canvas"></canvas>
-                <div class="va-player-overlay">
-                  <span id="va-overlay-info">--</span>
-                  <span id="va-overlay-time">0:00</span>
-                </div>
-                <div class="va-player-hud">
-                  <span id="va-hud-left">--</span>
-                  <span id="va-hud-right">--</span>
-                </div>
-              </div>
-              <div class="va-player-controls">
-                <button id="va-play-btn">▶ Play</button>
-                <input id="va-seek" class="va-seek" type="range" min="0" value="0" step="1" />
-                <span id="va-time-label" class="va-player-time">0:00 / 0:00</span>
-              </div>
-            </div>
-
-            <!-- Timeline mini chart -->
-            <div class="va-section" style="margin-top:16px;">
-              <div class="va-section-head">
-                <p class="eyebrow">Temporal Analysis</p>
-                <h2>Traffic Density Timeline</h2>
-              </div>
-              <canvas id="va-timeline-canvas" class="va-timeline-canvas"></canvas>
-            </div>
-          </div>
-
-          <!-- Events sidebar -->
-          <div class="va-section">
-            <div class="va-section-head">
-              <p class="eyebrow">Event Log</p>
-              <h2>Detected Events</h2>
-            </div>
-            <div id="va-events-panel" class="va-events-sidebar"></div>
-          </div>
-        </div>
-
-        <!-- Use case evidence -->
-        <div class="va-section">
-          <div class="va-section-head">
-            <p class="eyebrow">Capability Demonstration</p>
-            <h2>Proven Use Cases</h2>
-          </div>
-          <div id="va-use-cases" class="va-use-cases-grid"></div>
-        </div>
-
-      </div>
-    </div><!-- /va-tab -->
-
+  <!-- ALERT BANNER (conditional) -->
+  <div id="alert-banner" style="display:none;height:52px;align-items:center;gap:18px;padding:0 38px;background:var(--c-danger-dim);border-left:3px solid var(--c-danger);animation:pulse-danger 1.2s infinite alternate;">
+    <span style="font-size:1.3rem;color:var(--c-danger);">&#9888;</span>
+    <span style="font-weight:700;color:var(--c-danger);">ALERT: <span id="alert-banner-en">--</span></span>
+    <span style="font-family:'Cairo','Tajawal',sans-serif;font-size:15px;color:var(--c-text-muted);margin-left:10px;"> <span id="alert-banner-ar">--</span></span>
+    <button id="alert-banner-dismiss" style="margin-left:auto;background:none;border:none;color:var(--c-danger);font-size:1.3rem;cursor:pointer;">&times;</button>
   </div>
 
-  <script src="/app/index.js?v=3" defer></script>
-  <script src="/app/video-analytics.js?v=2" defer></script>
-</body>
+  <!-- MAIN KPI GRID -->
+  <main id="live-tab" class="tab-content active">
+    <div class="kpi-cards-grid">
+      <!-- CARD 1: NETWORK QUEUE -->
+      <section class="kpi-card kpi-card-queue" id="kpi-card-queue">
+        <div class="kpi-card-top-strip kpi-status-nominal" id="kpi-queue-strip"></div>
+        <div class="kpi-card-label">
+          <span>NETWORK QUEUE</span>
+          <span class="kpi-card-label-ar">· طول الطابور</span>
+        </div>
+        <div class="kpi-card-main">
+          <span class="kpi-card-value" id="kpi-queue">--</span>
+          <span class="kpi-card-unit">m</span>
+        </div>
+        <div class="kpi-card-sub" id="kpi-queue-vehicles">(~-- vehicles)</div>
+        <div class="kpi-card-bottom">
+          <span class="kpi-card-status">
+            <span class="kpi-card-status-label">Dominant pressure:</span>
+            <span class="kpi-card-status-value" id="kpi-dominant">--</span>
+            <span class="kpi-card-label-ar">· الضغط الأعلى: <span id="kpi-dominant-ar">--</span></span>
+            <span class="kpi-badge kpi-badge-amber" id="kpi-queue-badge" style="display:none;">High</span>
+          </span>
+        </div>
+      </section>
 
+      <!-- CARD 2: AVG SPEED -->
+      <section class="kpi-card kpi-card-speed" id="kpi-card-speed">
+        <div class="kpi-card-top-strip kpi-status-nominal" id="kpi-speed-strip"></div>
+        <div class="kpi-card-label">
+          <span>NETWORK SPEED</span>
+          <span class="kpi-card-label-ar">· متوسط السرعة</span>
+        </div>
+        <div class="kpi-card-main">
+          <span class="kpi-card-value" id="kpi-speed">--</span>
+          <span class="kpi-card-unit">km/h</span>
+        </div>
+        <div class="kpi-card-gauge">
+          <div class="kpi-arc-gauge-bg"></div>
+          <div class="kpi-arc-gauge-fill" id="kpi-speed-gauge"></div>
+        </div>
+        <div class="kpi-card-bottom kpi-card-bottom-muted">
+          Across all monitored approaches
+        </div>
+      </section>
+
+      <!-- CARD 3: SIGNAL PHASE -->
+      <section class="kpi-card kpi-card-signal" id="kpi-card-signal">
+        <div class="kpi-card-top-strip kpi-status-nominal" id="kpi-signal-strip"></div>
+        <div class="kpi-card-label">
+          <span>ACTIVE SIGNAL PHASE</span>
+          <span class="kpi-card-label-ar">· الطور النشط</span>
+        </div>
+        <div class="kpi-card-phase-main">
+          <div class="kpi-card-phase-name" id="signal-phase-summary">--</div>
+          <div class="kpi-card-phase-name-ar" id="signal-phase-summary-ar">--</div>
+          <div class="kpi-card-countdown">
+            <span class="kpi-card-countdown-value" id="signal-phase-countdown">--</span>
+            <span class="kpi-card-countdown-unit">s</span>
+          </div>
+          <div class="kpi-card-countdown-bar">
+            <div class="kpi-card-countdown-bar-fill" id="signal-phase-bar"></div>
+          </div>
+        </div>
+        <div class="kpi-card-bottom">
+          <span class="kpi-badge" id="signal-phase-type">--</span>
+          <span id="signal-phase-cycle">Cycle: --s · Adaptive</span>
+        </div>
+      </section>
+
+      <!-- CARD 4: MULTI-HORIZON FORECAST -->
+      <section class="kpi-card kpi-card-forecast" id="kpi-card-forecast">
+        <div class="kpi-card-top-strip kpi-status-nominal" id="kpi-forecast-strip"></div>
+        <div class="kpi-card-label">
+          <span>TRAFFIC FORECAST</span>
+          <span class="kpi-card-label-ar">· توقع الطلب</span>
+        </div>
+        <div class="kpi-card-forecast-rows">
+          <div class="kpi-forecast-row">
+            <span class="kpi-forecast-horizon">15m</span>
+            <div class="kpi-forecast-bar-bg">
+              <div class="kpi-forecast-bar-fill" id="forecast-bar-15"></div>
+            </div>
+            <span class="kpi-forecast-value" id="forecast-15">--</span>
+            <span class="kpi-forecast-unit">veh/h</span>
+          </div>
+          <div class="kpi-forecast-row">
+            <span class="kpi-forecast-horizon">30m</span>
+            <div class="kpi-forecast-bar-bg">
+              <div class="kpi-forecast-bar-fill" id="forecast-bar-30"></div>
+            </div>
+            <span class="kpi-forecast-value" id="forecast-30">--</span>
+            <span class="kpi-forecast-unit">veh/h</span>
+          </div>
+          <div class="kpi-forecast-row">
+            <span class="kpi-forecast-horizon">60m</span>
+            <div class="kpi-forecast-bar-bg">
+              <div class="kpi-forecast-bar-fill" id="forecast-bar-60"></div>
+            </div>
+            <span class="kpi-forecast-value" id="forecast-60">--</span>
+            <span class="kpi-forecast-unit">veh/h</span>
+          </div>
+        </div>
+        <div class="kpi-card-bottom kpi-card-bottom-cyan">
+          Predicted demand · ML model active
+        </div>
+      </section>
+
+      <!-- CARD 5: DECISION SUPPORT -->
+      <section class="kpi-card kpi-card-decision" id="kpi-card-decision">
+        <div class="kpi-card-top-strip kpi-status-amber" id="kpi-decision-strip"></div>
+        <div class="kpi-card-label">
+          <span>SIGNAL ADVISORY</span>
+          <span class="kpi-card-label-ar">· توصية الإشارة</span>
+        </div>
+        <div class="kpi-card-badge-pill kpi-badge-amber">HUMAN DECISION ONLY · قرار بشري فقط</div>
+        <div class="kpi-card-decision-content" id="recommendation">--</div>
+        <div class="kpi-card-webster-table" id="webster-panel">
+          <!-- Webster table rows injected by JS -->
+        </div>
+        <div class="kpi-card-bottom">
+          <span id="decision-confidence">Confidence: --</span>
+          <span class="kpi-badge kpi-badge-dim" id="decision-fallback" style="display:none;">Using fallback</span>
+        </div>
+      </section>
+
+      <!-- CARD 6: SYSTEM HEALTH -->
+      <section class="kpi-card kpi-card-health" id="kpi-card-health">
+        <div class="kpi-card-top-strip kpi-status-nominal" id="kpi-health-strip"></div>
+        <div class="kpi-card-label">
+          <span>SYSTEM HEALTH</span>
+          <span class="kpi-card-label-ar">· صحة النظام</span>
+        </div>
+        <div class="kpi-card-main">
+          <span class="kpi-card-value kpi-card-health-value" id="kpi-health">--</span>
+        </div>
+        <div class="kpi-card-health-ar" id="kpi-health-ar">طبيعي</div>
+        <div class="kpi-card-health-pills">
+          <span class="kpi-health-pill"><span class="kpi-health-pill-label">FPS:</span> <span id="kpi-health-fps">--</span></span>
+          <span class="kpi-health-pill"><span class="kpi-health-pill-label">Uptime:</span> <span id="kpi-health-uptime">--</span></span>
+          <span class="kpi-health-pill"><span class="kpi-health-pill-label">Stream:</span> <span id="kpi-health-stream">--</span></span>
+        </div>
+        <div class="kpi-card-bottom kpi-card-bottom-dots" id="kpi-health-dots">
+          <!-- Monitoring dots injected by JS -->
+        </div>
+      </section>
+    </div>
+    <!-- SPARKLINE STRIP -->
+    <section id="sparkline-strip" style="width:100%;padding:0 38px 0 38px;display:flex;align-items:center;justify-content:center;min-height:70px;">
+      <div style="width:100%;background:var(--c-bg-card);border-radius:10px;padding:18px 24px;box-shadow:0 0 24px var(--c-blue-dim);display:flex;flex-direction:column;align-items:center;">
+        <span class="section-header" style="margin-bottom:6px;">LAST 10 MINUTES <span class="section-header-ar">آخر ١٠ دقائق</span></span>
+        <canvas id="history-chart" width="1600" height="60" style="width:100%;max-width:1600px;height:60px;"></canvas>
+      </div>
+    </section>
+    <!-- FOOTER -->
+    <footer id="main-footer" style="height:28px;display:flex;align-items:center;justify-content:center;width:100%;background:var(--c-bg);color:var(--c-blue-bright);font-size:11px;letter-spacing:0.04em;">
+      ADVISORY SYSTEM ONLY · NO CONTROL COMMANDS TRANSMITTED · نظام استشاري فقط — لا تُرسل أوامر تحكم
+    </footer>
+  </main>
+
+  <!-- VIDEO ANALYTICS TAB -->
+  <div id="va-tab" class="tab-content">
+    <div id="va-root">
+
+      <!-- KPI strip -->
+      <div id="va-kpi-strip" class="va-kpi-strip"></div>
+
+      <!-- Incident banners -->
+      <div id="va-incidents"></div>
+
+      <!-- Video gallery -->
+      <section class="va-section">
+        <h2 class="va-section-title">Field Recordings — Video Gallery</h2>
+        <div id="va-gallery" class="va-gallery"></div>
+      </section>
+
+      <!-- Player + events (hidden until a video is selected) -->
+      <div id="va-player-section" class="va-player-section" style="display:none;">
+
+        <!-- Left: video player -->
+        <div>
+          <div id="va-player-wrap" class="va-player-wrap">
+            <video id="va-player-video" class="va-player-video" muted playsinline></video>
+            <canvas id="va-player-canvas" class="va-player-canvas"></canvas>
+
+            <div class="va-player-overlay">
+              <div class="va-player-hud">
+                <span id="va-hud-left" class="va-hud-left"></span>
+                <span id="va-overlay-time" class="va-overlay-time"></span>
+                <span id="va-hud-right" class="va-hud-right"></span>
+              </div>
+              <div class="va-overlay-info-row">
+                <span id="va-overlay-info" class="va-overlay-info"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="va-player-controls">
+            <button id="va-play-btn" class="va-play-btn">▶ Play</button>
+            <input id="va-seek" class="va-seek" type="range" min="0" max="100" value="0" step="1" />
+            <span id="va-time-label" class="va-player-time">0:00 / 0:00</span>
+          </div>
+
+          <!-- Timeline mini chart -->
+          <div class="va-timeline-wrap">
+            <canvas id="va-timeline-canvas" class="va-timeline-canvas"></canvas>
+          </div>
+        </div>
+
+        <!-- Right: events panel -->
+        <aside id="va-events-panel" class="va-events-panel"></aside>
+      </div>
+
+      <!-- ── LIVE INTELLIGENCE PANEL ── -->
+      <div id="va-intel-panel" class="va-intel-panel" style="display:none;">
+
+        <!-- Live Object Counts -->
+        <div class="va-intel-row">
+          <div class="va-intel-section-title">LIVE OBJECT COUNT · عدد المركبات المباشر</div>
+          <div class="va-count-cards">
+            <div class="va-count-card">
+              <span class="va-count-val" id="va-cc-current">--</span>
+              <span class="va-count-label">Visible Now</span>
+            </div>
+            <div class="va-count-card">
+              <span class="va-count-val va-cv-green" id="va-cc-moving">--</span>
+              <span class="va-count-label">Moving ▶</span>
+            </div>
+            <div class="va-count-card">
+              <span class="va-count-val va-cv-red" id="va-cc-stopped">--</span>
+              <span class="va-count-label">Stopped ■</span>
+            </div>
+            <div class="va-count-sep"></div>
+            <div class="va-count-card">
+              <span class="va-count-val va-cv-cyan" id="va-cc-cars">--</span>
+              <span class="va-count-label">Cars</span>
+            </div>
+            <div class="va-count-card">
+              <span class="va-count-val va-cv-orange" id="va-cc-trucks">--</span>
+              <span class="va-count-label">Trucks</span>
+            </div>
+            <div class="va-count-card">
+              <span class="va-count-val va-cv-yellow" id="va-cc-buses">--</span>
+              <span class="va-count-label">Buses</span>
+            </div>
+            <div class="va-count-card">
+              <span class="va-count-val va-cv-pink" id="va-cc-motorcycles">--</span>
+              <span class="va-count-label">Motos</span>
+            </div>
+            <div class="va-count-sep"></div>
+            <div class="va-count-card">
+              <span class="va-count-val va-cv-muted" id="va-cc-unique">--</span>
+              <span class="va-count-label">Session Tracks</span>
+            </div>
+            <div class="va-count-card">
+              <span class="va-count-val va-cv-muted" id="va-cc-confidence">--</span>
+              <span class="va-count-label">AI Confidence</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Signals + Direction Flow -->
+        <div class="va-intel-row va-intel-row-split">
+
+          <div class="va-signals-block">
+            <div class="va-intel-section-title">LIVE SIGNAL STATE · حالة الإشارة المباشرة</div>
+            <div class="va-signals-grid">
+
+              <div class="va-signal-col">
+                <div class="va-signal-box">
+                  <div class="va-sig-light va-sig-red  va-sig-dim" id="va-sigl-n-r"></div>
+                  <div class="va-sig-light va-sig-yellow va-sig-dim" id="va-sigl-n-y"></div>
+                  <div class="va-sig-light va-sig-green va-sig-dim" id="va-sigl-n-g"></div>
+                </div>
+                <div class="va-signal-label">↑ NORTH</div>
+                <div class="va-signal-sublabel" id="va-sigcount-north">-- veh</div>
+              </div>
+
+              <div class="va-signal-col">
+                <div class="va-signal-box">
+                  <div class="va-sig-light va-sig-red  va-sig-dim" id="va-sigl-s-r"></div>
+                  <div class="va-sig-light va-sig-yellow va-sig-dim" id="va-sigl-s-y"></div>
+                  <div class="va-sig-light va-sig-green va-sig-dim" id="va-sigl-s-g"></div>
+                </div>
+                <div class="va-signal-label">↓ SOUTH</div>
+                <div class="va-signal-sublabel" id="va-sigcount-south">-- veh</div>
+              </div>
+
+              <div class="va-signal-col">
+                <div class="va-signal-box">
+                  <div class="va-sig-light va-sig-red  va-sig-dim" id="va-sigl-e-r"></div>
+                  <div class="va-sig-light va-sig-yellow va-sig-dim" id="va-sigl-e-y"></div>
+                  <div class="va-sig-light va-sig-green va-sig-dim" id="va-sigl-e-g"></div>
+                </div>
+                <div class="va-signal-label">→ EAST</div>
+                <div class="va-signal-sublabel" id="va-sigcount-east">-- veh</div>
+              </div>
+
+              <div class="va-signal-col">
+                <div class="va-signal-box">
+                  <div class="va-sig-light va-sig-red  va-sig-dim" id="va-sigl-w-r"></div>
+                  <div class="va-sig-light va-sig-yellow va-sig-dim" id="va-sigl-w-y"></div>
+                  <div class="va-sig-light va-sig-green va-sig-dim" id="va-sigl-w-g"></div>
+                </div>
+                <div class="va-signal-label">← WEST</div>
+                <div class="va-signal-sublabel" id="va-sigcount-west">-- veh</div>
+              </div>
+
+            </div>
+          </div>
+
+          <div class="va-dirflow-block">
+            <div class="va-intel-section-title">DIRECTION FLOW · تدفق الحركة</div>
+            <div id="va-direction-flow"></div>
+          </div>
+
+        </div>
+      </div><!-- /va-intel-panel -->
+
+      <!-- Use cases -->
+      <section class="va-section">
+        <h2 class="va-section-title">Use Cases Demonstrated</h2>
+        <div id="va-use-cases" class="va-use-cases-grid"></div>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="/app/index.js?v=5" defer></script>
+  <script src="/app/video-analytics.js?v=5" defer></script>
+  <style>
+    @keyframes pulse-cyan {
+      0% { box-shadow:0 0 16px 2px var(--c-cyan); }
+      100% { box-shadow:0 0 32px 8px var(--c-cyan-dim); }
+    }
+    @keyframes pulse-danger {
+      0% { box-shadow:0 0 0 0 var(--c-danger); }
+      100% { box-shadow:0 0 16px 4px var(--c-danger); }
+    }
+    .tab-underline { display:block; }
+    .main-tab-btn.active .tab-underline { display:block; }
+    .main-tab-btn:not(.active) .tab-underline { display:none; }
+  </style>
+</body>
 </html>

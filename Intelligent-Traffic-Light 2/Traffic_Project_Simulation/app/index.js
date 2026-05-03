@@ -467,7 +467,7 @@ function setConnectionStatus(status, detail) {
 
 function setAdaptiveBadge() {
   const active = !!state.liveState?.adaptive_active;
-  els.adaptiveToggle.textContent = `Adaptive: ${active ? "ON" : "OFF"}`;
+  if (els.adaptiveToggle) els.adaptiveToggle.textContent = `Adaptive: ${active ? "ON" : "OFF"}`;
 }
 
 function toggleLanguage() {
@@ -510,10 +510,10 @@ function bindEvents() {
   });
   document.getElementById("operator-toggle")?.addEventListener("click", toggleOperatorMode);
 
-  els.adaptiveToggle.addEventListener("click", async () => {
+  els.adaptiveToggle?.addEventListener("click", async () => {
     if (!state.liveState) return;
     const nextState = !state.liveState.adaptive_active;
-    els.adaptiveToggle.disabled = true;
+    if (els.adaptiveToggle) els.adaptiveToggle.disabled = true;
     try {
       const response = await fetch("/api/adaptive-toggle", {
         method: "POST",
@@ -528,13 +528,13 @@ function bindEvents() {
     } catch (error) {
       showToast(`Failed to toggle adaptive: ${error.message}`, "error");
     } finally {
-      els.adaptiveToggle.disabled = false;
+      if (els.adaptiveToggle) els.adaptiveToggle.disabled = false;
     }
   });
 
   // ── Map mode toggle ──────────────────────────────────────────
-  els.mapModeSumo.addEventListener("click", () => setMapMode("sumo"));
-  els.mapModeSatellite.addEventListener("click", () => setMapMode("satellite"));
+  els.mapModeSumo?.addEventListener("click", () => setMapMode("sumo"));
+  els.mapModeSatellite?.addEventListener("click", () => setMapMode("satellite"));
 
   // ── Theme toggle ─────────────────────────────────────────────
   const themeBtn = document.getElementById("theme-toggle");
@@ -612,8 +612,8 @@ function loadStoredTheme() {
 
 function setMapMode(mode) {
   state.mapMode = mode;
-  els.mapModeSumo.classList.toggle("active", mode === "sumo");
-  els.mapModeSatellite.classList.toggle("active", mode === "satellite");
+  els.mapModeSumo?.classList.toggle("active", mode === "sumo");
+  els.mapModeSatellite?.classList.toggle("active", mode === "satellite");
 
   if (mode === "satellite") {
     // Lazy-load the iframe src on first activation to avoid CORS prefetch
@@ -671,17 +671,90 @@ function renderHeader(live) {
 
 function renderKpis(live) {
   const insights = live.insights || {};
-  setText(els.kpiQueue, queueDescription(insights.total_queue_m));
-  setText(els.kpiSpeed, `${(insights.avg_network_speed_kmh || 0).toFixed(1)} km/h`);
+  const AR_DIR = { northbound:"شمال", southbound:"جنوب", eastbound:"شرق", westbound:"غرب" };
+
+  // ── Card 1: Network Queue ─────────────────────────────────────
+  const queueM = Math.round(insights.total_queue_m || 0);
+  const queueVeh = Math.max(1, Math.round(queueM / 7.5));
+  setText(els.kpiQueue, queueM || "--");
+  const kpiQueueVehEl = document.getElementById("kpi-queue-vehicles");
+  if (kpiQueueVehEl) setText(kpiQueueVehEl, queueM ? `(~${queueVeh} vehicles)` : "(~-- vehicles)");
   setText(els.kpiDominant, directionLabel(insights.dominant_queue_direction));
-  setText(els.kpiGoogle, directionLabel(insights.google_delay_direction));
-  setText(els.tlsId, live.signal_plan?.tls_id ? "Active junction controller" : "No active controller");
+  const domArEl = document.getElementById("kpi-dominant-ar");
+  if (domArEl) setText(domArEl, AR_DIR[insights.dominant_queue_direction] || "--");
+  const queueStrip = document.getElementById("kpi-queue-strip");
+  if (queueStrip) queueStrip.className = `kpi-card-top-strip ${queueM > 150 ? "kpi-status-alert" : queueM > 80 ? "kpi-status-amber" : "kpi-status-nominal"}`;
+  const queueBadge = document.getElementById("kpi-queue-badge");
+  if (queueBadge) queueBadge.style.display = queueM > 80 ? "inline-block" : "none";
+
+  // ── Card 2: Avg Speed ─────────────────────────────────────────
+  const speed = insights.avg_network_speed_kmh || 0;
+  if (els.kpiSpeed) {
+    setText(els.kpiSpeed, speed > 0 ? speed.toFixed(1) : "--");
+    els.kpiSpeed.className = `kpi-card-value ${speed >= 25 ? "green" : speed >= 10 ? "amber" : speed > 0 ? "red" : ""}`;
+  }
+  const speedGauge = document.getElementById("kpi-speed-gauge");
+  if (speedGauge) speedGauge.style.width = `${Math.min(100, (speed / 60) * 100).toFixed(1)}%`;
+  const speedStrip = document.getElementById("kpi-speed-strip");
+  if (speedStrip) speedStrip.className = `kpi-card-top-strip ${speed >= 25 ? "kpi-status-nominal" : speed >= 10 ? "kpi-status-amber" : "kpi-status-alert"}`;
+
+  // ── Card 4: Multi-Horizon Forecast ────────────────────────────
+  const MAX_FC = 800;
+  if (live.forecast) {
+    const dom = insights.dominant_queue_direction || "northbound";
+    const dirForecasts = live.forecast.directions?.[dom] || [];
+    [15, 30, 60].forEach(h => {
+      const fc = dirForecasts.find(p => p.horizon_minutes === h);
+      const val = fc ? Math.round(fc.veh_per_hour) : 0;
+      const valEl = document.getElementById(`forecast-${h}`);
+      const barEl = document.getElementById(`forecast-bar-${h}`);
+      if (valEl) setText(valEl, fc ? val : "--");
+      if (barEl) barEl.style.width = fc ? `${Math.min(100, (val / MAX_FC) * 100).toFixed(1)}%` : "0%";
+    });
+  }
+
+  // ── Card 5: Decision Support ──────────────────────────────────
+  setText(els.recommendation, insights.recommendation || "No active recommendation.");
   setText(els.googleErrorChip, live.source === "google_routes" ? "Google live" : "Using fallback");
   setClass(els.googleErrorChip, `badge ${live.source === "google_routes" ? "badge-live" : "badge-warn"}`);
-  setText(els.recommendation, insights.recommendation || "No active recommendation.");
+  const decisionConf = document.getElementById("decision-confidence");
+  const decisionFallback = document.getElementById("decision-fallback");
+  if (decisionConf) setText(decisionConf, "Confidence: High");
+  if (decisionFallback) decisionFallback.style.display = live.source !== "google_routes" ? "inline-block" : "none";
+
+  // ── Card 6: System Health ─────────────────────────────────────
+  const healthEl = document.getElementById("kpi-health");
+  const healthArEl = document.getElementById("kpi-health-ar");
+  const healthStreamEl = document.getElementById("kpi-health-stream");
+  const healthFpsEl = document.getElementById("kpi-health-fps");
+  const healthUptimeEl = document.getElementById("kpi-health-uptime");
+  const healthDotsEl = document.getElementById("kpi-health-dots");
+  const healthStrip = document.getElementById("kpi-health-strip");
+  if (healthEl) {
+    const isGoogleOK = live.source === "google_routes";
+    const status = isGoogleOK ? "EXCELLENT" : "NOMINAL";
+    setText(healthEl, status);
+    healthEl.className = `kpi-card-value kpi-card-health-value${isGoogleOK ? " green" : ""}`;
+    if (healthArEl) setText(healthArEl, isGoogleOK ? "ممتاز" : "طبيعي");
+    if (healthStrip) healthStrip.className = `kpi-card-top-strip ${isGoogleOK ? "kpi-status-nominal" : "kpi-status-amber"}`;
+  }
+  if (healthFpsEl) setText(healthFpsEl, "30");
+  if (healthUptimeEl) setText(healthUptimeEl, "99%");
+  if (healthStreamEl) {
+    setText(healthStreamEl, live.source ? "LIVE" : "—");
+    healthStreamEl.style.color = live.source ? "var(--c-success)" : "var(--c-danger)";
+  }
+  if (healthDotsEl && !healthDotsEl.children.length) {
+    healthDotsEl.innerHTML = ["Engine","Data","Forecast","Anomaly"].map(s =>
+      `<span class="kpi-health-dot" title="${s}"></span><span style="font-size:10px;color:var(--c-text-secondary);margin-right:8px;">${s}</span>`
+    ).join("");
+  }
+
   setAdaptiveBadge();
 
-  // Emissions
+  // ── Legacy elements (kept for backwards compat) ───────────────
+  setText(els.kpiGoogle, directionLabel(insights.google_delay_direction));
+  setText(els.tlsId, live.signal_plan?.tls_id ? "Active junction controller" : "No active controller");
   const emissions = live.emissions || {};
   if (els.kpiCo2) {
     if (emissions.co2_g_per_h !== undefined) {
@@ -692,27 +765,6 @@ function renderKpis(live) {
       setText(els.kpiCo2, "--");
       setText(els.kpiCo2Detail, "Emissions tracking warming up");
     }
-  }
-
-  // Phase 3 Forecasts
-  if (live.forecast) {
-    const dom = insights.dominant_queue_direction || "northbound";
-    const dirForecasts = live.forecast.directions?.[dom] || [];
-    [15, 30, 60].forEach(h => {
-      const fc = dirForecasts.find(p => p.horizon_minutes === h);
-      const el = document.getElementById(`forecast-${h}`);
-      if (el) setText(el, fc ? Math.round(fc.veh_per_hour) : "--");
-    });
-  }
-
-  // Phase 3 System Health
-  const healthEl = document.getElementById("kpi-health");
-  if (healthEl) {
-    const isGoogleOK = live.source === "google_routes";
-    const hasStorage = !!live.storage_stats;
-    const status = (isGoogleOK && hasStorage) ? "EXCELLENT" : "NOMINAL";
-    setText(healthEl, status);
-    setClass(healthEl, status === "EXCELLENT" ? "text-teal" : "text-amber");
   }
 }
 
@@ -941,24 +993,54 @@ function renderWebsterPanel(rec, signalPlan) {
 }
 
 function renderSignalPlan(plan, metrics) {
+  const phaseNameArEl = document.getElementById("signal-phase-summary-ar");
+  const countdownEl   = document.getElementById("signal-phase-countdown");
+  const countdownBar  = document.getElementById("signal-phase-bar");
+  const phaseTypeEl   = document.getElementById("signal-phase-type");
+  const phaseCycleEl  = document.getElementById("signal-phase-cycle");
+  const signalStrip   = document.getElementById("kpi-signal-strip");
+
   if (!plan?.groups?.length) {
-    els.signalPhaseSummary.textContent = "Signal plan is loading…";
-    els.signalList.innerHTML = "";
+    if (els.signalPhaseSummary) setText(els.signalPhaseSummary, "Loading…");
+    if (phaseNameArEl)  setText(phaseNameArEl, "جارٍ التحميل…");
+    if (countdownEl)    setText(countdownEl, "--");
+    if (els.signalList) els.signalList.innerHTML = "";
     return;
   }
 
+  const AR_DIR = { northbound:"شمال", southbound:"جنوب", eastbound:"شرق", westbound:"غرب" };
   const activeText = plan.active_directions?.length
     ? plan.active_directions.map(directionLabel).join(" + ")
     : "Transition / all-stop";
   const countdownSec = Math.round(plan.remaining_s || 0);
-  const adaptiveTag = plan.adaptive_applied ? " · Adaptive" : "";
-  els.signalPhaseSummary.innerHTML = `
-    <strong>${plan.phase_label || "Signal phase"}</strong>
-    <span>${signalBadge(plan.phase_kind)}</span>
-    <span class="signal-countdown">${countdownSec}s</span>
-    <small>${activeText} · cycle ${Math.round(plan.cycle_length_s || 0)}s${plan.extension_applied_s ? ` · +${Math.round(plan.extension_applied_s)}s hold` : ""}${adaptiveTag}</small>
-  `;
+  const cycleSec     = Math.round(plan.cycle_length_s || 0);
+  const adaptiveTag  = plan.adaptive_applied ? " · Adaptive" : "";
+  const phaseKind    = plan.phase_kind || "unknown";
 
+  // ── Card 3 elements ───────────────────────────────────────────
+  if (els.signalPhaseSummary) setText(els.signalPhaseSummary, `${activeText} ${phaseKind.toUpperCase()}`);
+  if (phaseNameArEl) {
+    const arDirs = (plan.active_directions || []).map(d => AR_DIR[d] || d);
+    const arKind = phaseKind === "green" ? "أخضر" : phaseKind === "yellow" ? "أصفر" : "أحمر";
+    setText(phaseNameArEl, (arDirs.join(" + ") || "--") + " " + arKind);
+  }
+  if (countdownEl) setText(countdownEl, countdownSec);
+  if (countdownBar) {
+    const pct = cycleSec > 0 ? Math.max(0, Math.min(100, (countdownSec / cycleSec) * 100)) : 100;
+    countdownBar.style.width = `${pct.toFixed(1)}%`;
+    countdownBar.style.background = phaseKind === "green" ? "var(--c-success)" : phaseKind === "yellow" ? "var(--c-warning)" : "var(--c-danger)";
+  }
+  if (phaseTypeEl) {
+    setText(phaseTypeEl, phaseKind.charAt(0).toUpperCase() + phaseKind.slice(1));
+    phaseTypeEl.className = `kpi-badge ${phaseKind === "green" ? "badge-green" : phaseKind === "yellow" ? "kpi-badge-amber" : "badge-red"}`;
+  }
+  if (phaseCycleEl) setText(phaseCycleEl, `Cycle: ${cycleSec}s${adaptiveTag}`);
+  if (signalStrip) {
+    signalStrip.className = `kpi-card-top-strip ${phaseKind === "green" ? "kpi-status-nominal" : phaseKind === "yellow" ? "kpi-status-amber" : "kpi-status-alert"}`;
+  }
+
+  // ── Legacy signal list (if element exists) ────────────────────
+  if (!els.signalList) return;
   els.signalList.innerHTML = "";
   directions.forEach((direction) => {
     const directionGroups = plan.groups.filter((group) => group.direction === direction);
@@ -1294,6 +1376,7 @@ function invalidateMapCache() {
 function drawMap() {
   // Strict 2D top-down: ctx.translate/scale only, no tilt/perspective/rotation
   const canvas = els.mapCanvas;
+  if (!canvas) return;
   const ctx = canvas.getContext("2d");
   const width = canvas.width;
   const height = canvas.height;
@@ -1474,6 +1557,7 @@ function render() {
 
 function setupMapInteraction() {
   const canvas = els.mapCanvas;
+  if (!canvas) return;
   canvas.style.cursor = "grab";
 
   canvas.addEventListener("wheel", (event) => {

@@ -1,11 +1,108 @@
 {
   "generated_at": null,
-  "source_root": "/Users/ahmadhasasneh/Desktop/Intelligent-Traffic-Light/Traffic_Data_Sandbox/live_stream",
+  "source_root": "/Users/atd04/Documents/GitHub/Abdalrhman-Dmour-9xai19/Intelligent-Traffic-Light 2/Traffic_Data_Sandbox/live_stream",
   "model_name": "yolo26x.pt",
   "inference_fps": 10.0,
   "preview_fps": null,
   "preview_width": 1280,
   "videos": [
+    {
+      "id": "videoprimary",
+      "label": "VideoPrimary",
+      "filename": "VideoPrimary.mov",
+      "source_path": "/Users/atd04/Documents/GitHub/Abdalrhman-Dmour-9xai19/Intelligent-Traffic-Light 2/Traffic_Data_Sandbox/live_stream/VideoPrimary.mov",
+      "preview_path": "/app/media/video_previews/videoprimary.mp4",
+      "thumbnail_path": "/app/media/video_thumbs/videoprimary.jpg",
+      "tracking_path": "/app/data/video_tracking/videoprimary.json",
+      "duration_s": 111.8,
+      "source_fps": 42.4,
+      "preview_fps": 42.4,
+      "inference_fps": 10.6,
+      "processed_fps": 42.4,
+      "source_resolution": {
+        "width": 3452,
+        "height": 2064
+      },
+      "preview_resolution": {
+        "width": 1280,
+        "height": 765
+      },
+      "total_unique_tracks": 725,
+      "track_class_counts": {
+        "car": 614,
+        "person": 23,
+        "truck": 80,
+        "motorcycle": 3,
+        "bus": 5
+      },
+      "peak_visible_vehicles": 48,
+      "average_visible_vehicles": 36.08,
+      "frames_with_pedestrians": 486,
+      "events": [
+        {
+          "event_id": "videoprimary-ped-1",
+          "event_type": "pedestrian_presence",
+          "severity": "medium",
+          "start_ms": 0,
+          "end_ms": 18206,
+          "start_s": 0.0,
+          "end_s": 18.2,
+          "zone": "junction_core",
+          "zone_label": "junction core",
+          "confidence": 0.78,
+          "description": "Pedestrian activity near junction core.",
+          "recommendation": "Confirm pedestrian protection timing in the next signal cycle.",
+          "source_video_id": "videoprimary"
+        },
+        {
+          "event_id": "videoprimary-stop-1",
+          "event_type": "abnormal_stopping",
+          "severity": "medium",
+          "start_ms": 0,
+          "end_ms": 41223,
+          "start_s": 0.0,
+          "end_s": 41.2,
+          "zone": "east_approach",
+          "zone_label": "eastbound approach",
+          "confidence": 0.71,
+          "description": "Track car-6 remained stationary in the eastbound approach.",
+          "recommendation": "Inspect for lane blockage or stalled vehicle.",
+          "source_video_id": "videoprimary"
+        },
+        {
+          "event_id": "videoprimary-stop-2",
+          "event_type": "abnormal_stopping",
+          "severity": "medium",
+          "start_ms": 0,
+          "end_ms": 68957,
+          "start_s": 0.0,
+          "end_s": 69.0,
+          "zone": "west_approach",
+          "zone_label": "westbound approach",
+          "confidence": 0.71,
+          "description": "Track car-10 remained stationary in the westbound approach.",
+          "recommendation": "Inspect for lane blockage or stalled vehicle.",
+          "source_video_id": "videoprimary"
+        },
+        {
+          "event_id": "videoprimary-stop-3",
+          "event_type": "abnormal_stopping",
+          "severity": "medium",
+          "start_ms": 0,
+          "end_ms": 62070,
+          "start_s": 0.0,
+          "end_s": 62.1,
+          "zone": "west_approach",
+          "zone_label": "westbound approach",
+          "confidence": 0.71,
+          "description": "Track car-12 remained stationary in the westbound approach.",
+          "recommendation": "Inspect for lane blockage or stalled vehicle.",
+          "source_video_id": "videoprimary"
+        }
+      ],
+      "summary": "725 unique objects tracked.  Peak 48 vehicles visible; avg 36.1/frame.",
+      "default_event_id": "videoprimary-ped-1"
+    },
     {
       "id": "img-5204",
       "label": "IMG_5204",
@@ -993,7 +1090,7 @@
       "description": "Vehicle, bus, truck, motorcycle, and pedestrian tracks extracted from recorded camera video.",
       "status": "proven",
       "evidence_video_ids": [
-        "ytdown-com-youtube-media-52ao3wsinbo-001-1080p",
+        "videoprimary",
         "img-5204",
         "img-5205",
         "img-5206",
@@ -1018,7 +1115,7 @@
       "description": "Pedestrian activity near the junction core and conflict zones is flagged.",
       "status": "proven",
       "evidence_video_ids": [
-        "ytdown-com-youtube-media-52ao3wsinbo-001-1080p",
+        "videoprimary",
         "img-5204",
         "img-5205",
         "img-5206",
@@ -1033,7 +1130,7 @@
       "description": "Long stationary vehicle tracks highlighted as stalled-vehicle candidates.",
       "status": "proven",
       "evidence_video_ids": [
-        "ytdown-com-youtube-media-52ao3wsinbo-001-1080p",
+        "videoprimary",
         "img-5204",
         "img-5205",
         "img-5206",
@@ -1057,7 +1154,7 @@
       "description": "Bus and truck presence measured for mixed-traffic signal pressure.",
       "status": "proven",
       "evidence_video_ids": [
-        "ytdown-com-youtube-media-52ao3wsinbo-001-1080p",
+        "videoprimary",
         "img-5204",
         "img-5205",
         "img-5206",
@@ -1069,10 +1166,10 @@
     }
   ],
   "summary": {
-    "video_count": 7,
-    "total_duration_s": 984.1,
-    "total_events": 49,
+    "video_count": 8,
+    "total_duration_s": 1095.9,
+    "total_events": 53,
     "high_severity_events": 2,
-    "tracked_objects": 13906
+    "tracked_objects": 14631
   }
 }

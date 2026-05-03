@@ -36,17 +36,18 @@ function updateCameraVehicleCount(currentDetections, videoId, frameIdx) {
     if (vaCameraCountState.lastVideoId !== videoId) resetCameraCountState(videoId);
     const minFrames = 3;
     const now = Date.now();
-    // Track per-frame
+    // Track per-frame — every visible vehicle is either moving or stopped (always sums correctly)
     let visible = 0, moving = 0, stopped = 0;
     let classCounts = {car:0, bus:0, truck:0, motorcycle:0};
     for (const det of currentDetections) {
         if (!VA_VEHICLE_CLASSES.includes(det.class_name)) continue;
         if (!det.track_id) continue;
-        if (det.confidence !== undefined && det.confidence < 0.4) continue;
+        if (det.confidence !== undefined && det.confidence < 0.30) continue;
         visible++;
         classCounts[det.class_name]++;
+        // Treat anything that isn't explicitly "moving" as stopped so counts always sum to visible
         if (det.motion_state === "moving") moving++;
-        else if (det.motion_state === "stopped") stopped++;
+        else stopped++;
         vaCameraCountState.idFrameCounts[det.track_id] = (vaCameraCountState.idFrameCounts[det.track_id] || 0) + 1;
         vaCameraCountState.idClass[det.track_id] = det.class_name;
         vaCameraCountState.idMotion[det.track_id] = det.motion_state;
@@ -55,19 +56,21 @@ function updateCameraVehicleCount(currentDetections, videoId, frameIdx) {
             vaCameraCountState.uniqueIds.add(det.track_id);
         }
     }
-    // Remove stale IDs (not seen for >2s)
+    // Prune IDs not seen for >3s
     for (const id in vaCameraCountState.idLastSeen) {
-        if (now - vaCameraCountState.idLastSeen[id] > 2000) {
+        if (now - vaCameraCountState.idLastSeen[id] > 3000) {
             delete vaCameraCountState.idLastSeen[id];
+            delete vaCameraCountState.idFrameCounts[id];
         }
     }
     vaCameraCountState.currentVisible = visible;
-    vaCameraCountState.moving = moving;
+    vaCameraCountState.moving  = moving;
     vaCameraCountState.stopped = stopped;
     vaCameraCountState.classBreakdown = classCounts;
-    // Confidence logic
+    // Confidence: based on how many unique tracks have been confirmed (≥minFrames)
     const uniq = vaCameraCountState.uniqueIds.size;
-    if (uniq > 10 && visible > 0) vaCameraCountState.confidence = "High";
+    if (uniq > 15 && visible > 0) vaCameraCountState.confidence = "High";
+    else if (uniq > 5) vaCameraCountState.confidence = "Medium";
     else if (uniq > 3) vaCameraCountState.confidence = "Medium";
     else vaCameraCountState.confidence = "Low";
     renderCameraVehicleCount();
@@ -86,6 +89,179 @@ function renderCameraVehicleCount() {
     get("va-cc-trucks").textContent = s.classBreakdown.truck;
     get("va-cc-motorcycles").textContent = s.classBreakdown.motorcycle;
     get("va-cc-confidence").textContent = s.confidence;
+}
+
+// ── Signal Intelligence ────────────────────────────────────────
+// Zone convention (from build script):
+//   north_approach = top-right area  → vehicles traveling SOUTH (from north)
+//   south_approach = bottom area     → vehicles traveling NORTH (from south)
+//   east_approach  = right area      → vehicles traveling WEST  (from east)
+//   west_approach  = left area       → vehicles traveling EAST  (from west)
+// Signal naming: by the APPROACH SIDE (north signal = signal at north leg)
+const ZONE_TO_APPROACH = {
+    north_approach: "north",
+    south_approach: "south",
+    east_approach:  "east",
+    west_approach:  "west",
+};
+
+// ── 3-Phase signal model ────────────────────────────────────────
+// Phase "ns" : North + South GREEN simultaneously (same road axis, opposing traffic)
+// Phase "e"  : East GREEN only  (cars from east_approach, travelling west)
+// Phase "w"  : West GREEN only  (cars from west_approach, travelling east)
+// East and West are NEVER green at the same time.
+// ────────────────────────────────────────────────────────────────
+const VA_SIGNAL = {
+    buffer:        [],
+    BUFFER_SIZE:   30,          // ~2 s at 15 fps
+    phase:         "ns",        // "ns" | "e" | "w"
+    phaseTimer:    0,
+    YELLOW_FRAMES: 10,          // frames of all-yellow before switching
+    HYSTERESIS:    1.5,         // challenger must be 1.5× current to trigger switch
+    state:  { north: "green", south: "green", east: "red",  west: "red"  },
+    moving: { north: 0, south: 0, east: 0, west: 0 },
+    total:  { north: 0, south: 0, east: 0, west: 0 },
+};
+
+function inferSignalStates(detections) {
+    // ── 1. Tally moving + total vehicles per approach ────────────
+    const moving = { north: 0, south: 0, east: 0, west: 0 };
+    const total  = { north: 0, south: 0, east: 0, west: 0 };
+
+    for (const det of detections) {
+        if (det.class_name === "person") continue;
+        const approach = ZONE_TO_APPROACH[det.zone];
+        if (!approach) continue;
+        total[approach]++;
+        if (det.motion_state === "moving") moving[approach]++;
+    }
+    VA_SIGNAL.moving = moving;
+    VA_SIGNAL.total  = total;
+
+    // ── 2. Push per-phase demand into rolling buffer ─────────────
+    // NS demand = north + south moving (they share one road axis)
+    // E demand  = east moving  (independent leg)
+    // W demand  = west moving  (independent leg)
+    const ns = moving.north + moving.south;
+    const e  = moving.east;
+    const w  = moving.west;
+
+    VA_SIGNAL.buffer.push({ ns, e, w });
+    if (VA_SIGNAL.buffer.length > VA_SIGNAL.BUFFER_SIZE) VA_SIGNAL.buffer.shift();
+
+    // ── 3. Linearly-weighted rolling average (recent = heavier) ──
+    let wNs = 0, wE = 0, wW = 0, wSum = 0;
+    VA_SIGNAL.buffer.forEach((b, i) => {
+        const weight = i + 1;   // oldest frame = weight 1, newest = BUFFER_SIZE
+        wNs  += b.ns * weight;
+        wE   += b.e  * weight;
+        wW   += b.w  * weight;
+        wSum += weight;
+    });
+    const avgNs = wNs / wSum;
+    const avgE  = wE  / wSum;
+    const avgW  = wW  / wSum;
+
+    // ── 4. Demand-responsive phase selection with hysteresis ─────
+    // Only switch when the challenger is HYSTERESIS× busier than the current phase
+    let newPhase = VA_SIGNAL.phase;
+    const H = VA_SIGNAL.HYSTERESIS;
+
+    if (VA_SIGNAL.phase === "ns") {
+        // Switch to E only if E clearly beats both NS and W
+        if (avgE > avgNs * H && avgE >= avgW) newPhase = "e";
+        // Switch to W only if W clearly beats both NS and E
+        else if (avgW > avgNs * H && avgW > avgE) newPhase = "w";
+    } else if (VA_SIGNAL.phase === "e") {
+        if (avgNs > avgE * H)            newPhase = "ns";
+        else if (avgW > avgE * H)        newPhase = "w";
+    } else { // "w"
+        if (avgNs > avgW * H)            newPhase = "ns";
+        else if (avgE > avgW * H)        newPhase = "e";
+    }
+
+    // ── 5. Apply YELLOW transition on every phase change ─────────
+    if (newPhase !== VA_SIGNAL.phase) {
+        VA_SIGNAL.phase      = newPhase;
+        VA_SIGNAL.phaseTimer = VA_SIGNAL.YELLOW_FRAMES;
+    }
+
+    // ── 6. Set signal state — only ONE direction (or NS pair) is green ──
+    if (VA_SIGNAL.phaseTimer > 0) {
+        VA_SIGNAL.phaseTimer--;
+        VA_SIGNAL.state = { north: "yellow", south: "yellow", east: "yellow", west: "yellow" };
+    } else if (VA_SIGNAL.phase === "ns") {
+        VA_SIGNAL.state = { north: "green", south: "green", east: "red",   west: "red"   };
+    } else if (VA_SIGNAL.phase === "e") {
+        VA_SIGNAL.state = { north: "red",   south: "red",   east: "green", west: "red"   };
+    } else { // "w"
+        VA_SIGNAL.state = { north: "red",   south: "red",   east: "red",   west: "green" };
+    }
+}
+
+function renderSignalPanel() {
+    const DIRS  = ["north", "south", "east", "west"];
+    const ABBR  = { north: "n", south: "s", east: "e", west: "w" };
+    const state = VA_SIGNAL.state;
+    const mov   = VA_SIGNAL.moving;
+    const tot   = VA_SIGNAL.total;
+
+    DIRS.forEach(dir => {
+        const a   = ABBR[dir];
+        const col = state[dir]; // "red" | "yellow" | "green"
+
+        // count label
+        const cntEl = document.getElementById(`va-sigcount-${dir}`);
+        if (cntEl) {
+            const pct = tot[dir] > 0 ? Math.round((mov[dir] / tot[dir]) * 100) : 0;
+            cntEl.textContent = `${tot[dir]} veh · ${pct}% moving`;
+        }
+
+        // lights: r=red, y=yellow, g=green
+        const colorMap = { r: "red", y: "yellow", g: "green" };
+        ["r", "y", "g"].forEach(c => {
+            const el = document.getElementById(`va-sigl-${a}-${c}`);
+            if (!el) return;
+            const lightColor = colorMap[c];
+            const active = col === lightColor;
+            el.className = `va-sig-light va-sig-${lightColor} ${active ? "va-sig-active" : "va-sig-dim"}`;
+        });
+    });
+
+    renderDirectionFlow();
+}
+
+function renderDirectionFlow() {
+    const el = document.getElementById("va-direction-flow");
+    if (!el) return;
+    const state  = VA_SIGNAL.state;
+    const mov    = VA_SIGNAL.moving;
+    const tot    = VA_SIGNAL.total;
+    const maxTot = Math.max(...Object.values(tot), 1);
+
+    const ARROWS   = { north: "↑", south: "↓", east: "→", west: "←" };
+    const LABELS   = { north: "Going North", south: "Going South", east: "Going East", west: "Going West" };
+    const LABELS_AR = { north: "شمال", south: "جنوب", east: "شرق", west: "غرب" };
+    const SIG_COLOR = { red: "#FF1744", yellow: "#FFD740", green: "#00E676" };
+
+    el.innerHTML = ["north", "south", "east", "west"].map(dir => {
+        const cnt  = tot[dir];
+        const m    = mov[dir];
+        const pct  = ((cnt / maxTot) * 100).toFixed(1);
+        const col  = state[dir];
+        const fill = SIG_COLOR[col] || "#6B8CAE";
+        return `
+        <div class="va-dirflow-row">
+          <span class="va-dirflow-arrow">${ARROWS[dir]}</span>
+          <span class="va-dirflow-label">${LABELS[dir]} <span class="va-dirflow-ar">${LABELS_AR[dir]}</span></span>
+          <div class="va-dirflow-bar-wrap">
+            <div class="va-dirflow-bar-fill" style="width:${pct}%;background:${fill}"></div>
+          </div>
+          <span class="va-dir-sig-dot" style="background:${fill};box-shadow:0 0 6px ${fill}88"></span>
+          <span class="va-dirflow-count">${cnt} veh</span>
+          <span class="va-dirflow-moving" style="color:${col==='green'?'#00E676':col==='yellow'?'#FFD740':'#FF174499'}">${m} ▶</span>
+        </div>`;
+    }).join("");
 }
 /* ═══════════════════════════════════════════════════════════════
    VIDEO ANALYTICS TAB – Wadi Saqra Traffic Control Room
@@ -305,6 +481,16 @@ async function selectVideo(videoId) {
     // show player section
     VA.els.playerSection.style.display = "grid";
 
+    // show intel panel and reset signal state
+    const intelPanel = document.getElementById("va-intel-panel");
+    if (intelPanel) intelPanel.style.display = "flex";
+    VA_SIGNAL.buffer       = [];
+    VA_SIGNAL.phase        = "ns";
+    VA_SIGNAL.phaseTimer   = 0;
+    VA_SIGNAL.state  = { north: "green", south: "green", east: "red",   west: "red"   };
+    VA_SIGNAL.moving = { north: 0, south: 0, east: 0, west: 0 };
+    VA_SIGNAL.total  = { north: 0, south: 0, east: 0, west: 0 };
+
     // Stop any in-flight overlay before swapping the source
     stopVAOverlay();
     detachVideoHandlers();
@@ -515,6 +701,10 @@ function startVAOverlay(video) {
         if (VA.selectedVideoId && Array.isArray(detections)) {
             updateCameraVehicleCount(detections, VA.selectedVideoId, closestKey);
         }
+
+        // Live signal inference & panel update
+        inferSignalStates(detections);
+        renderSignalPanel();
 
         if (hasBakedOverlay) {
             // Preview mp4 already has YOLO boxes drawn.

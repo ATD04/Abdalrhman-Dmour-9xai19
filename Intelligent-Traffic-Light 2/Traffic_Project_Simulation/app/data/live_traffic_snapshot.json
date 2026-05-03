@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-04-28T16:58:40+03:00",
+  "timestamp": "2026-05-03T16:46:34+03:00",
   "source": "detector_data",
   "center": {
     "lat": 31.964932,
@@ -17,13 +17,13 @@
         "lon": 35.884545
       },
       "distance_m": 1400,
-      "duration_s": 258.8,
+      "duration_s": 252.4,
       "static_duration_s": 175.0,
-      "delay_s": 83.8,
-      "delay_ratio": 0.479,
-      "avg_speed_kmh": 19.5,
+      "delay_s": 77.4,
+      "delay_ratio": 0.442,
+      "avg_speed_kmh": 20.0,
       "free_flow_speed_kmh": 28.8,
-      "speed_ratio": 0.676,
+      "speed_ratio": 0.693,
       "congestion_level": "moderate",
       "polyline": [
         {
@@ -64,14 +64,14 @@
         "lon": 35.884545
       },
       "distance_m": 1400,
-      "duration_s": 316.9,
+      "duration_s": 254.8,
       "static_duration_s": 175.0,
-      "delay_s": 141.9,
-      "delay_ratio": 0.811,
-      "avg_speed_kmh": 15.9,
+      "delay_s": 79.8,
+      "delay_ratio": 0.456,
+      "avg_speed_kmh": 19.8,
       "free_flow_speed_kmh": 28.8,
-      "speed_ratio": 0.552,
-      "congestion_level": "heavy",
+      "speed_ratio": 0.687,
+      "congestion_level": "moderate",
       "polyline": [
         {
           "lat": 31.977523,
@@ -111,13 +111,13 @@
         "lon": 35.884545
       },
       "distance_m": 1600,
-      "duration_s": 324.3,
+      "duration_s": 282.4,
       "static_duration_s": 200.0,
-      "delay_s": 124.3,
-      "delay_ratio": 0.621,
-      "avg_speed_kmh": 17.8,
+      "delay_s": 82.4,
+      "delay_ratio": 0.412,
+      "avg_speed_kmh": 20.4,
       "free_flow_speed_kmh": 28.8,
-      "speed_ratio": 0.617,
+      "speed_ratio": 0.708,
       "congestion_level": "moderate",
       "polyline": [
         {

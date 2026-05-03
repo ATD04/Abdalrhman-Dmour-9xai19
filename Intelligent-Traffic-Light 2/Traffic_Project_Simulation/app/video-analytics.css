@@ -685,3 +685,226 @@
   from { opacity: 0; transform: translateX(20px); }
   to   { opacity: 1; transform: translateX(0); }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   VA INTEL PANEL — Live Counts · Signals · Direction Flow
+   ═══════════════════════════════════════════════════════════════ */
+.va-intel-panel {
+  background: #080C14;
+  border: 1px solid #0A1A2E;
+  border-radius: 10px;
+  margin: 0 24px 24px 24px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  box-shadow: 0 2px 24px rgba(0,0,0,0.5);
+}
+
+.va-intel-section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #3a5068;
+  margin-bottom: 14px;
+}
+
+.va-intel-row { width: 100%; }
+
+.va-intel-row-split {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+/* ── Live Count Cards ──────────────────────────────── */
+.va-count-cards {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.va-count-card {
+  background: #030609;
+  border: 1px solid #0A1A2E;
+  border-radius: 8px;
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 58px;
+}
+
+.va-count-val {
+  font-size: 30px;
+  font-weight: 900;
+  font-family: 'Menlo', 'Roboto Mono', monospace;
+  color: #E8F0FF;
+  line-height: 1.1;
+}
+.va-cv-green  { color: #00E676 !important; }
+.va-cv-red    { color: #FF1744 !important; }
+.va-cv-cyan   { color: #00E5FF !important; }
+.va-cv-orange { color: #ffb347 !important; }
+.va-cv-yellow { color: #FFD740 !important; }
+.va-cv-pink   { color: #f39ae0 !important; }
+.va-cv-muted  { color: #6B8CAE !important; font-size: 22px; }
+
+.va-count-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #3a5068;
+  margin-top: 4px;
+  white-space: nowrap;
+}
+
+.va-count-sep {
+  width: 1px;
+  height: 48px;
+  background: #0A1A2E;
+  margin: 0 4px;
+  flex-shrink: 0;
+}
+
+/* ── Traffic Signal Heads ──────────────────────────── */
+.va-signals-block { }
+
+.va-signals-grid {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+}
+
+.va-signal-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.va-signal-box {
+  background: #111;
+  border: 2px solid #1a1a1a;
+  border-radius: 10px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+
+.va-sig-light {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  transition: opacity 0.25s ease, box-shadow 0.25s ease;
+}
+
+.va-sig-red    { background: #FF1744; }
+.va-sig-yellow { background: #FFD740; }
+.va-sig-green  { background: #00E676; }
+
+.va-sig-dim    { opacity: 0.10; box-shadow: none !important; }
+
+.va-sig-red.va-sig-active {
+  opacity: 1;
+  box-shadow: 0 0 14px 4px rgba(255,23,68,0.75),
+              0 0 28px 8px rgba(255,23,68,0.35);
+}
+.va-sig-yellow.va-sig-active {
+  opacity: 1;
+  box-shadow: 0 0 14px 4px rgba(255,215,64,0.75),
+              0 0 28px 8px rgba(255,215,64,0.35);
+}
+.va-sig-green.va-sig-active {
+  opacity: 1;
+  box-shadow: 0 0 14px 4px rgba(0,230,118,0.75),
+              0 0 28px 8px rgba(0,230,118,0.35);
+}
+
+.va-signal-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #6B8CAE;
+  letter-spacing: 0.06em;
+}
+
+.va-signal-sublabel {
+  font-size: 10px;
+  color: #3a5068;
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ── Direction Flow ────────────────────────────────── */
+.va-dirflow-block { flex: 1; }
+
+.va-dirflow-row {
+  display: grid;
+  grid-template-columns: 22px 150px 1fr 14px 70px 52px;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 0;
+  border-bottom: 1px solid #0A1A2E;
+}
+.va-dirflow-row:last-child { border-bottom: none; }
+
+.va-dirflow-arrow {
+  font-size: 18px;
+  font-weight: 700;
+  color: #00E5FF;
+}
+
+.va-dirflow-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #6B8CAE;
+}
+
+.va-dirflow-ar {
+  font-size: 11px;
+  color: #3a5068;
+  margin-left: 4px;
+}
+
+.va-dirflow-bar-wrap {
+  height: 12px;
+  background: #030609;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.va-dirflow-bar-fill {
+  height: 100%;
+  border-radius: 6px;
+  min-width: 4px;
+  transition: width 0.4s ease-out, background 0.3s;
+}
+
+.va-dir-sig-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.va-dirflow-count {
+  font-size: 13px;
+  font-weight: 700;
+  color: #6B8CAE;
+  text-align: right;
+  font-family: 'Menlo', monospace;
+}
+
+.va-dirflow-moving {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: right;
+  font-family: 'Menlo', monospace;
+}
