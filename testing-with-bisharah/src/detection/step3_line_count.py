@@ -194,6 +194,7 @@ def main():
 
     with _state.lock:
         _state.detection_running = True
+        _state.detection_start_time = datetime.now()
 
     while True:
         ret, frame = cap.read()
@@ -361,6 +362,7 @@ def main():
 
     with _state.lock:
         _state.detection_running = False
+        _state.detection_start_time = None
 
     cap.release()
     cv2.destroyAllWindows()
@@ -385,6 +387,9 @@ if __name__ == "__main__":
     import webbrowser
     import socket
     import uvicorn
+
+    # ── Always run from the project root so relative paths (Data/) work ───────
+    os.chdir(_ROOT)
 
     # ── Check if port 8000 is already taken ───────────────────────────────────
     def _port_free(port):

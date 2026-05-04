@@ -3,6 +3,7 @@ Shared in-process state between the detection thread and FastAPI.
 Both modules import this so they share the same live frame and counts.
 """
 import threading
+from datetime import datetime
 
 # Latest annotated frame (numpy array), updated by detection loop
 latest_frame = None
@@ -25,6 +26,10 @@ live_stats = {
 
 # Whether the detection loop is currently running
 detection_running = False
+
+# When detection started — used by the smart forecaster to compute elapsed time
+# and therefore the current detection rate (vehicles/min per direction).
+detection_start_time: datetime | None = None
 
 # Current video position in seconds (frame_num / fps), reset on each loop.
 # Used to drive signal phase in sync with video instead of wall clock.

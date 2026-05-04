@@ -1,21 +1,47 @@
 {
-  "timestamp": "2026-05-04T12:03:32+03:00",
+  "timestamp": "2026-05-04T16:25:57+03:00",
   "source": "detector_data",
   "demand": {
     "northbound": {
       "google_capacity_veh_h": 220.0,
-      "target_veh_h": 255.78,
-      "pressure_index": 0.08,
-      "speed_ratio": 0.92,
-      "delay_ratio": 0.087,
-      "google_avg_speed_kmh": 26.5,
+      "target_veh_h": 306.69,
+      "pressure_index": 0.295,
+      "speed_ratio": 0.705,
+      "delay_ratio": 0.418,
+      "google_avg_speed_kmh": 20.3,
       "google_free_flow_speed_kmh": 28.8,
       "jam_share": 0.05,
       "slow_share": 0.033,
-      "congestion_level": "free",
+      "congestion_level": "moderate",
       "source": "detector_data"
     },
     "southbound": {
+      "google_capacity_veh_h": 220.0,
+      "target_veh_h": 330.14,
+      "pressure_index": 0.394,
+      "speed_ratio": 0.606,
+      "delay_ratio": 0.651,
+      "google_avg_speed_kmh": 17.4,
+      "google_free_flow_speed_kmh": 28.8,
+      "jam_share": 0.05,
+      "slow_share": 0.033,
+      "congestion_level": "moderate",
+      "source": "detector_data"
+    },
+    "eastbound": {
+      "google_capacity_veh_h": 220.0,
+      "target_veh_h": 333.46,
+      "pressure_index": 0.408,
+      "speed_ratio": 0.592,
+      "delay_ratio": 0.689,
+      "google_avg_speed_kmh": 17.0,
+      "google_free_flow_speed_kmh": 28.8,
+      "jam_share": 0.05,
+      "slow_share": 0.033,
+      "congestion_level": "moderate",
+      "source": "detector_data"
+    },
+    "westbound": {
       "google_capacity_veh_h": 220.0,
       "target_veh_h": 390.77,
       "pressure_index": 0.65,
@@ -26,32 +52,6 @@
       "jam_share": 0.05,
       "slow_share": 0.033,
       "congestion_level": "severe",
-      "source": "detector_data"
-    },
-    "eastbound": {
-      "google_capacity_veh_h": 220.0,
-      "target_veh_h": 334.64,
-      "pressure_index": 0.413,
-      "speed_ratio": 0.587,
-      "delay_ratio": 0.703,
-      "google_avg_speed_kmh": 16.9,
-      "google_free_flow_speed_kmh": 28.8,
-      "jam_share": 0.05,
-      "slow_share": 0.033,
-      "congestion_level": "moderate",
-      "source": "detector_data"
-    },
-    "westbound": {
-      "google_capacity_veh_h": 220.0,
-      "target_veh_h": 343.17,
-      "pressure_index": 0.449,
-      "speed_ratio": 0.551,
-      "delay_ratio": 0.816,
-      "google_avg_speed_kmh": 15.9,
-      "google_free_flow_speed_kmh": 28.8,
-      "jam_share": 0.05,
-      "slow_share": 0.033,
-      "congestion_level": "heavy",
       "source": "detector_data"
     }
   }

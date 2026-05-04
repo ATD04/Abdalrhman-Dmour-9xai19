@@ -183,6 +183,7 @@
     .dir-card[data-d="West"]  .dir-count { color:var(--west);  }
     .dir-unit { font-size:.7rem; color:var(--muted); margin-bottom:.8rem; }
     .fc-rows { display:flex; flex-direction:column; gap:.25rem; border-top:1px solid var(--border); padding-top:.65rem; }
+    .fc-rows-hd { font-size:.6rem; font-weight:600; color:var(--dim); margin-bottom:.2rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
     .fc-row  { display:flex; justify-content:space-between; align-items:center; font-size:.73rem; }
     .fc-lbl  { color:var(--muted); }
     .fc-val  { font-weight:700; }
@@ -204,6 +205,7 @@
     .cong-mod   { color:var(--east);  background:rgba(255,145,0,.12); }
     .cong-heavy { color:var(--south); background:rgba(255,82,82,.12); }
     .cong-meta  { font-size:.7rem; color:var(--muted); text-align:center; }
+    .cong-scale { font-size:.63rem; color:var(--dim); text-align:center; margin-top:.2rem; }
     .signal-list { display:flex; flex-direction:column; gap:.85rem; }
     .sig-item   { display:flex; flex-direction:column; gap:.35rem; }
     .sig-label  { font-size:.68rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
@@ -221,6 +223,213 @@
     ::-webkit-scrollbar { width:4px; }
     ::-webkit-scrollbar-track { background:transparent; }
     ::-webkit-scrollbar-thumb { background:var(--border-hi); border-radius:4px; }
+
+    /* ── ALERT BANNER ────────────────────────────────────────────── */
+    #alert-banner {
+      display:none; padding:.45rem 2rem; font-size:.78rem; font-weight:700;
+      letter-spacing:.5px; text-align:center; transition:all .3s;
+    }
+    #alert-banner.normal   { display:block; background:rgba(0,230,118,.09); color:var(--north); border-bottom:1px solid rgba(0,230,118,.18); }
+    #alert-banner.warning  { display:block; background:rgba(255,145,0,.11); color:var(--east);  border-bottom:1px solid rgba(255,145,0,.24); }
+    #alert-banner.critical { display:block; background:rgba(255,82,82,.11); color:var(--south); border-bottom:1px solid rgba(255,82,82,.22); animation:alertPulse 1.5s infinite; }
+    @keyframes alertPulse { 0%,100%{opacity:1} 50%{opacity:.7} }
+
+    /* ── SIGNAL ADVISOR ──────────────────────────────────────────── */
+    .advisor-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+    .adv-card {
+      background:var(--card); border:1px solid var(--border); border-radius:14px;
+      padding:1rem 1.1rem 1rem 1.3rem; position:relative; overflow:hidden;
+    }
+    .adv-card::before {
+      content:''; position:absolute; left:0; top:0; bottom:0; width:4px; border-radius:14px 0 0 14px;
+    }
+    .adv-ok::before   { background:var(--north); }
+    .adv-med::before  { background:var(--east); }
+    .adv-high::before { background:var(--south); }
+    .adv-low::before  { background:var(--muted); }
+    .adv-dir    { font-size:.63rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:.2rem; }
+    .adv-action { font-size:.84rem; font-weight:800; margin-bottom:.25rem; }
+    .adv-ok    .adv-action { color:var(--north); }
+    .adv-med   .adv-action { color:var(--east); }
+    .adv-high  .adv-action { color:var(--south); }
+    .adv-low   .adv-action { color:var(--muted); }
+    .adv-reason { font-size:.68rem; color:var(--muted); line-height:1.45; }
+    .adv-load  {
+      position:absolute; top:.85rem; right:.85rem;
+      font-size:.65rem; font-weight:700; padding:.18rem .45rem;
+      border-radius:999px; background:rgba(255,255,255,.05); color:var(--muted);
+    }
+    .adv-section-hd { display:flex; justify-content:space-between; align-items:center; margin-bottom:.75rem; }
+
+    /* ── 2D INTERSECTION MAP ─────────────────────────────────────── */
+    .maprow { display:grid; grid-template-columns:280px 1fr; gap:1rem; align-items:stretch; }
+    .map-svg-wrap { display:flex; justify-content:center; align-items:center; height:100%; padding:.5rem 0; }
+    .map-svg-wrap svg { width:220px; height:220px; }
+
+    /* ── CAPACITY BARS ───────────────────────────────────────────── */
+    .cap-row  { display:grid; grid-template-columns:repeat(4,1fr); gap:.65rem; }
+    .cap-item { display:flex; flex-direction:column; gap:.35rem; }
+    .cap-dir  { font-size:.63rem; font-weight:700; letter-spacing:.9px; text-transform:uppercase; color:var(--muted); }
+    .cap-bar-wrap { height:7px; background:var(--border); border-radius:4px; overflow:hidden; }
+    .cap-bar      { height:100%; border-radius:4px; transition:width .5s ease; }
+    .cap-meta     { font-size:.67rem; color:var(--muted); display:flex; justify-content:space-between; }
+
+    /* ── ECONOMIC COST ───────────────────────────────────────────── */
+    .cost-grid { display:grid; grid-template-columns:1fr 1fr; gap:.55rem; margin-bottom:.55rem; }
+    .cost-item { background:rgba(255,255,255,.02); border:1px solid var(--border); border-radius:10px; padding:.65rem .85rem; }
+    .cost-val  { font-size:1.45rem; font-weight:800; }
+    .cost-lbl  { font-size:.6rem; font-weight:600; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-top:.12rem; }
+    .cost-note { font-size:.63rem; color:var(--dim); text-align:center; }
+
+    /* ── ANALYTICS ROW ───────────────────────────────────────────── */
+    .analytics-row { display:grid; grid-template-columns:1.6fr 1fr; gap:1rem; }
+    .heatmap-wrap  { height:200px; position:relative; }
+    .chart-3col    { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; }
+
+    /* ── INCIDENT FORM ───────────────────────────────────────────── */
+    .inc-form { display:flex; flex-direction:column; gap:.45rem; margin-bottom:.65rem; }
+    .inc-form select, .inc-form input[type=text] {
+      background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:8px;
+      color:var(--text); padding:.42rem .6rem; font-size:.72rem; outline:none; font-family:inherit;
+      transition:border-color .2s;
+    }
+    .inc-form select:focus,.inc-form input[type=text]:focus { border-color:var(--border-hi); }
+    .inc-form-row { display:grid; grid-template-columns:1fr 1fr; gap:.45rem; }
+    .btn-report {
+      background:rgba(255,82,82,.1); color:var(--south); border:1px solid rgba(255,82,82,.2);
+      border-radius:8px; padding:.42rem .9rem; font-size:.72rem; font-weight:700;
+      cursor:pointer; transition:all .2s; font-family:inherit; width:100%;
+    }
+    .btn-report:hover { background:rgba(255,82,82,.18); }
+    .btn-export {
+      background:rgba(139,92,246,.1); color:var(--purple); border:1px solid rgba(139,92,246,.2);
+      border-radius:8px; padding:.28rem .75rem; font-size:.69rem; font-weight:700;
+      cursor:pointer; transition:all .2s; font-family:inherit;
+    }
+    .btn-export:hover { background:rgba(139,92,246,.18); }
+    .inc-item { display:flex; gap:.55rem; align-items:flex-start; padding:.45rem .5rem;
+                border-radius:8px; background:rgba(255,255,255,.02); border:1px solid var(--border); }
+    .inc-dot  { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+    .inc-type { font-size:.74rem; font-weight:600; }
+    .inc-meta { font-size:.66rem; color:var(--muted); margin-top:1px; }
+    .inc-scroll { display:flex; flex-direction:column; gap:.4rem; max-height:130px; overflow-y:auto; }
+
+    /* ── CHATBOT ────────────────────────────────────────────────── */
+    #chat-fab {
+      position:fixed; bottom:1.8rem; right:1.8rem; z-index:200;
+      width:54px; height:54px; border-radius:50%; border:none; cursor:pointer;
+      background:var(--purple); color:#fff; font-size:1.4rem;
+      box-shadow:0 4px 20px rgba(139,92,246,.5);
+      display:flex; align-items:center; justify-content:center;
+      transition:transform .2s, box-shadow .2s;
+    }
+    #chat-fab:hover { transform:scale(1.08); box-shadow:0 6px 28px rgba(139,92,246,.7); }
+    #chat-panel {
+      position:fixed; bottom:5rem; right:1.8rem; z-index:199;
+      width:370px; max-height:560px;
+      background:var(--card); border:1px solid var(--border-hi); border-radius:16px;
+      display:flex; flex-direction:column; overflow:hidden;
+      box-shadow:0 12px 48px rgba(0,0,0,.6);
+      transition:opacity .2s, transform .2s;
+    }
+    #chat-panel.hidden { opacity:0; pointer-events:none; transform:translateY(12px); }
+    .chat-header {
+      display:flex; align-items:center; gap:.6rem;
+      padding:.75rem 1rem; border-bottom:1px solid var(--border);
+      background:rgba(139,92,246,.08);
+    }
+    .chat-header-icon { font-size:1.1rem; }
+    .chat-header-title { font-size:.82rem; font-weight:700; flex:1; }
+    .chat-header-sub   { font-size:.65rem; color:var(--muted); }
+    #chat-close {
+      background:none; border:none; color:var(--muted); cursor:pointer;
+      font-size:.9rem; padding:.15rem .3rem; border-radius:4px;
+      transition:color .2s;
+    }
+    #chat-close:hover { color:var(--text); }
+    #chat-messages {
+      flex:1; overflow-y:auto; padding:.75rem 1rem;
+      display:flex; flex-direction:column; gap:.6rem;
+      min-height:200px;
+    }
+    .msg {
+      max-width:88%; padding:.5rem .75rem; border-radius:12px;
+      font-size:.78rem; line-height:1.5; word-break:break-word;
+    }
+    .msg.user {
+      align-self:flex-end;
+      background:var(--purple); color:#fff;
+      border-bottom-right-radius:3px;
+    }
+    .msg.assistant {
+      align-self:flex-start;
+      background:rgba(255,255,255,.05); color:var(--text);
+      border:1px solid var(--border); border-bottom-left-radius:3px;
+    }
+    .msg.system {
+      align-self:center; font-size:.68rem;
+      color:var(--muted); background:none; padding:.2rem .5rem;
+      border-radius:4px;
+    }
+    .msg-tools {
+      font-size:.6rem; color:var(--dim); margin-top:.3rem;
+      display:flex; flex-wrap:wrap; gap:.25rem;
+    }
+    .tool-badge {
+      background:rgba(139,92,246,.15); color:var(--purple);
+      border:1px solid rgba(139,92,246,.25); border-radius:4px;
+      padding:.1rem .35rem; font-size:.6rem;
+    }
+    .msg-spinner {
+      display:flex; gap:4px; align-items:center; padding:.2rem 0;
+    }
+    .msg-spinner span {
+      width:6px; height:6px; border-radius:50%;
+      background:var(--muted); animation:spin-dot 1.2s infinite;
+    }
+    .msg-spinner span:nth-child(2){ animation-delay:.2s; }
+    .msg-spinner span:nth-child(3){ animation-delay:.4s; }
+    @keyframes spin-dot {
+      0%,80%,100%{ opacity:.2; transform:scale(.8); }
+      40%{ opacity:1; transform:scale(1); }
+    }
+    .chat-footer {
+      display:flex; gap:.5rem; padding:.6rem .75rem;
+      border-top:1px solid var(--border); background:var(--surface);
+    }
+    #chat-input {
+      flex:1; background:var(--bg); border:1px solid var(--border);
+      border-radius:8px; color:var(--text); font-size:.8rem;
+      padding:.45rem .65rem; outline:none; resize:none; height:36px;
+      font-family:inherit; line-height:1.4;
+      transition:border-color .2s;
+    }
+    #chat-input:focus { border-color:var(--purple); }
+    #chat-send {
+      background:var(--purple); border:none; border-radius:8px;
+      color:#fff; font-size:.95rem; width:36px; cursor:pointer;
+      display:flex; align-items:center; justify-content:center;
+      transition:background .2s;
+    }
+    #chat-send:hover { background:#7c3aed; }
+    #chat-send:disabled { background:var(--dim); cursor:default; }
+    #chat-reset {
+      background:none; border:none; color:var(--dim); cursor:pointer;
+      font-size:.65rem; padding:.2rem .4rem; border-radius:4px;
+      align-self:flex-end; transition:color .2s;
+    }
+    #chat-reset:hover { color:var(--muted); }
+    /* suggestion chips */
+    .chat-chips {
+      display:flex; flex-wrap:wrap; gap:.35rem;
+      padding:0 1rem .5rem;
+    }
+    .chip {
+      font-size:.65rem; padding:.25rem .55rem; border-radius:999px;
+      background:rgba(255,255,255,.04); border:1px solid var(--border);
+      color:var(--muted); cursor:pointer; transition:all .2s;
+    }
+    .chip:hover { background:rgba(139,92,246,.15); border-color:var(--purple); color:var(--text); }
   </style>
 </head>
 <body>
@@ -236,9 +445,13 @@
   <div class="header-right">
     <span id="badge-api"  class="badge green"><span>●</span> API Connected</span>
     <span id="badge-cong" class="badge green"><span>●</span> Free Flow</span>
+    <button class="btn-export" onclick="exportReport()" title="Export CSV report">⬇ Export</button>
     <span id="ts">–</span>
   </div>
 </header>
+
+<!-- Traffic State Alert Banner -->
+<div id="alert-banner"></div>
 
 <main>
 
@@ -248,14 +461,16 @@
     <div class="card video-card">
       <div class="video-header">
         <span class="video-title">Live Detection Feed</span>
-        <span class="badge red" id="badge-det"><span>●</span> Waiting for video…</span>
+        <span class="badge red" id="badge-det"><span>●</span> No stream</span>
       </div>
       <div class="video-wrap">
         <div class="video-placeholder" id="video-placeholder">
           <div class="icon">🎥</div>
           <div class="hint">
-            Run <code style="background:rgba(255,255,255,.07);padding:.1rem .35rem;border-radius:4px;font-size:.7rem;">
-            python3 src/detection/step3_line_count.py</code> to start the live stream
+            No live video stream detected.<br>
+            Start detection to see the live feed:<br>
+            <code style="background:rgba(255,255,255,.07);padding:.1rem .35rem;border-radius:4px;font-size:.7rem;">
+            python3 src/detection/step3_line_count.py</code>
           </div>
         </div>
         <img id="video-feed" src="" alt="" style="display:none;"
@@ -266,11 +481,11 @@
 
     <div class="card live-counter-card">
       <div class="card-hd">
-        <div class="card-title">Live Vehicle Count</div>
-        <span class="badge purple" style="font-size:.63rem">0.5 s refresh</span>
+        <div class="card-title">Vehicles Crossed · This Session</div>
+        <span class="badge purple" style="font-size:.63rem">Real-time</span>
       </div>
       <div class="lc-total-row">
-        <span class="lc-total-label">Total Detected</span>
+        <span class="lc-total-label">Total Crossed</span>
         <span class="lc-total-num" id="lc-total">0</span>
       </div>
       <div class="lc-dirs">
@@ -301,7 +516,7 @@
       </div>
       <div class="detection-status">
         <div class="det-dot" id="det-dot"></div>
-        <span id="det-status">Detection not running</span>
+        <span id="det-status">Detection not started</span>
       </div>
     </div>
 
@@ -311,7 +526,7 @@
   <div class="stats-bar">
     <div class="stat-cell">
       <span class="stat-num" id="st-visible" style="color:var(--text)">0</span>
-      <span class="stat-lbl">Visible Now</span>
+      <span class="stat-lbl">In Frame Now</span>
     </div>
     <div class="stat-cell">
       <span class="stat-num" id="st-moving" style="color:var(--north)">0</span>
@@ -341,7 +556,7 @@
     <div class="stat-cell divider"></div>
     <div class="stat-cell">
       <span class="stat-num" id="st-session" style="color:var(--text)">0</span>
-      <span class="stat-lbl">Session Tracks</span>
+      <span class="stat-lbl">Unique Vehicles</span>
     </div>
     <div class="stat-cell">
       <span class="stat-num" id="st-conf" style="color:var(--north)">–</span>
@@ -435,46 +650,170 @@
   </div><!-- /sigflow-row -->
   <div class="dir-row">
     <div class="dir-card" data-d="North">
-      <div class="dir-lbl"><span>↑</span> North</div>
+      <div class="dir-lbl"><span>↑</span> North · شمال</div>
       <div class="dir-count" id="cnt-North">0</div>
-      <div class="dir-unit">live count</div>
+      <div class="dir-unit">vehicles crossed</div>
       <div class="fc-rows" id="fc-North"></div>
     </div>
     <div class="dir-card" data-d="South">
-      <div class="dir-lbl"><span>↓</span> South</div>
+      <div class="dir-lbl"><span>↓</span> South · جنوب</div>
       <div class="dir-count" id="cnt-South">0</div>
-      <div class="dir-unit">live count</div>
+      <div class="dir-unit">vehicles crossed</div>
       <div class="fc-rows" id="fc-South"></div>
     </div>
     <div class="dir-card" data-d="East">
-      <div class="dir-lbl"><span>→</span> East</div>
+      <div class="dir-lbl"><span>→</span> East · شرق</div>
       <div class="dir-count" id="cnt-East">0</div>
-      <div class="dir-unit">live count</div>
+      <div class="dir-unit">vehicles crossed</div>
       <div class="fc-rows" id="fc-East"></div>
     </div>
     <div class="dir-card" data-d="West">
-      <div class="dir-lbl"><span>←</span> West</div>
+      <div class="dir-lbl"><span>←</span> West · غرب</div>
       <div class="dir-count" id="cnt-West">0</div>
-      <div class="dir-unit">live count</div>
+      <div class="dir-unit">vehicles crossed</div>
       <div class="fc-rows" id="fc-West"></div>
     </div>
   </div>
 
-  <!-- Charts -->
-  <div class="charts-row">
+  <!-- 2D Intersection Map + Signal Advisor -->
+  <div class="maprow">
     <div class="card">
       <div class="card-hd">
-        <div class="card-title">Vehicle Counts per Direction</div>
+        <div class="card-title">Intersection Map · خريطة التقاطع</div>
+        <span class="badge purple" style="font-size:.63rem">Live</span>
+      </div>
+      <div class="map-svg-wrap">
+        <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+          <!-- Roads -->
+          <rect x="88" y="0"   width="44" height="220" fill="#1a1a2a" rx="2"/>
+          <rect x="0"  y="88"  width="220" height="44" fill="#1a1a2a" rx="2"/>
+          <!-- Intersection center -->
+          <rect x="88" y="88" width="44" height="44" fill="#22223a" rx="3"/>
+          <!-- Road markings (dashed center lines) -->
+          <line x1="110" y1="0"   x2="110" y2="85"  stroke="#2a2a4a" stroke-width="2" stroke-dasharray="8,6"/>
+          <line x1="110" y1="135" x2="110" y2="220" stroke="#2a2a4a" stroke-width="2" stroke-dasharray="8,6"/>
+          <line x1="0"   y1="110" x2="85"  y2="110" stroke="#2a2a4a" stroke-width="2" stroke-dasharray="8,6"/>
+          <line x1="135" y1="110" x2="220" y2="110" stroke="#2a2a4a" stroke-width="2" stroke-dasharray="8,6"/>
+          <!-- Signal dots at each arm -->
+          <circle id="map-sig-North" cx="110" cy="20"  r="9" fill="#ff5252"/>
+          <circle id="map-sig-South" cx="110" cy="200" r="9" fill="#ff5252"/>
+          <circle id="map-sig-East"  cx="200" cy="110" r="9" fill="#ff5252"/>
+          <circle id="map-sig-West"  cx="20"  cy="110" r="9" fill="#ff5252"/>
+          <!-- Direction arrows -->
+          <text x="110" y="48"  text-anchor="middle" font-size="14" fill="#64748b">↑</text>
+          <text x="110" y="185" text-anchor="middle" font-size="14" fill="#64748b">↓</text>
+          <text x="175" y="115" text-anchor="middle" font-size="14" fill="#64748b">→</text>
+          <text x="45"  y="115" text-anchor="middle" font-size="14" fill="#64748b">←</text>
+          <!-- Live count labels -->
+          <text id="map-cnt-North" x="110" y="68"  text-anchor="middle" font-size="11" font-weight="700" fill="#00e676">0</text>
+          <text id="map-cnt-South" x="110" y="165" text-anchor="middle" font-size="11" font-weight="700" fill="#ff5252">0</text>
+          <text id="map-cnt-East"  x="158" y="115" text-anchor="middle" font-size="11" font-weight="700" fill="#ff9100">0</text>
+          <text id="map-cnt-West"  x="62"  y="115" text-anchor="middle" font-size="11" font-weight="700" fill="#448aff">0</text>
+          <!-- Compass -->
+          <text x="110" y="14"  text-anchor="middle" font-size="9"  fill="#334155">N</text>
+          <text x="110" y="217" text-anchor="middle" font-size="9"  fill="#334155">S</text>
+          <text x="214" y="114" text-anchor="middle" font-size="9"  fill="#334155">E</text>
+          <text x="8"   y="114" text-anchor="middle" font-size="9"  fill="#334155">W</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="adv-section-hd">
+        <div class="card-title">Signal Advisor · مستشار الإشارة</div>
+        <span id="adv-state-badge" class="badge green" style="font-size:.63rem">Normal</span>
+      </div>
+      <!-- Capacity bars row -->
+      <div class="cap-row" style="margin-bottom:.85rem;">
+        <div class="cap-item">
+          <div class="cap-dir" style="color:var(--north)">↑ North</div>
+          <div class="cap-bar-wrap"><div class="cap-bar" id="cap-bar-North" style="background:var(--north);width:0%"></div></div>
+          <div class="cap-meta"><span id="cap-pct-North">0%</span><span id="cap-vph-North" style="font-size:.6rem">0 veh/h</span></div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-dir" style="color:var(--south)">↓ South</div>
+          <div class="cap-bar-wrap"><div class="cap-bar" id="cap-bar-South" style="background:var(--south);width:0%"></div></div>
+          <div class="cap-meta"><span id="cap-pct-South">0%</span><span id="cap-vph-South" style="font-size:.6rem">0 veh/h</span></div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-dir" style="color:var(--east)">→ East</div>
+          <div class="cap-bar-wrap"><div class="cap-bar" id="cap-bar-East" style="background:var(--east);width:0%"></div></div>
+          <div class="cap-meta"><span id="cap-pct-East">0%</span><span id="cap-vph-East" style="font-size:.6rem">0 veh/h</span></div>
+        </div>
+        <div class="cap-item">
+          <div class="cap-dir" style="color:var(--west)">← West</div>
+          <div class="cap-bar-wrap"><div class="cap-bar" id="cap-bar-West" style="background:var(--west);width:0%"></div></div>
+          <div class="cap-meta"><span id="cap-pct-West">0%</span><span id="cap-vph-West" style="font-size:.6rem">0 veh/h</span></div>
+        </div>
+      </div>
+      <!-- Advisor cards -->
+      <div class="advisor-row" id="advisor-cards">
+        <div class="adv-card adv-ok"><div class="adv-dir">↑ North</div><div class="adv-action">–</div><div class="adv-reason">Loading…</div></div>
+        <div class="adv-card adv-ok"><div class="adv-dir">↓ South</div><div class="adv-action">–</div><div class="adv-reason">Loading…</div></div>
+        <div class="adv-card adv-ok"><div class="adv-dir">→ East</div><div class="adv-action">–</div><div class="adv-reason">Loading…</div></div>
+        <div class="adv-card adv-ok"><div class="adv-dir">← West</div><div class="adv-action">–</div><div class="adv-reason">Loading…</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts: Counts + Forecast + Past-vs-Future -->
+  <div class="chart-3col">
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Vehicle Counts · عدد المركبات</div>
         <span class="badge purple" style="font-size:.63rem">Live</span>
       </div>
       <div class="chart-box"><canvas id="countsChart"></canvas></div>
     </div>
     <div class="card">
       <div class="card-hd">
-        <div class="card-title">Forecast — Next 60 Min</div>
-        <span class="badge purple" style="font-size:.63rem">XGBoost</span>
+        <div class="card-title">Forecast · التنبؤ (+60 min)</div>
+        <span id="fc-source-badge" class="badge purple" style="font-size:.63rem">Smart Forecast</span>
       </div>
       <div class="chart-box"><canvas id="forecastChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Past vs Future · الماضي والمستقبل</div>
+        <span class="badge purple" style="font-size:.63rem">Comparison</span>
+      </div>
+      <div class="chart-box"><canvas id="comparisonChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Analytics Row: Heatmap + Economic Cost -->
+  <div class="analytics-row">
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Hourly Traffic Heatmap · الخريطة الحرارية بالساعة</div>
+        <span class="badge purple" style="font-size:.63rem">30-day avg</span>
+      </div>
+      <div class="heatmap-wrap"><canvas id="heatmapChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Economic Cost · التكلفة الاقتصادية</div>
+        <span class="badge amber" style="font-size:.63rem">Session Estimate</span>
+      </div>
+      <div class="cost-grid">
+        <div class="cost-item">
+          <div class="cost-val" id="cost-delay" style="color:var(--east)">–</div>
+          <div class="cost-lbl">Total Delay · إجمالي التأخير</div>
+        </div>
+        <div class="cost-item">
+          <div class="cost-val" id="cost-fuel" style="color:var(--south)">–</div>
+          <div class="cost-lbl">Fuel Cost · تكلفة الوقود</div>
+        </div>
+        <div class="cost-item">
+          <div class="cost-val" id="cost-vehicles" style="color:var(--text)">–</div>
+          <div class="cost-lbl">Vehicles · المركبات</div>
+        </div>
+        <div class="cost-item">
+          <div class="cost-val" id="cost-per-veh" style="color:var(--purple)">–</div>
+          <div class="cost-lbl">Cost / Vehicle · تكلفة/مركبة</div>
+        </div>
+      </div>
+      <div class="cost-note" id="cost-note">Based on Google Maps delay × session count</div>
     </div>
   </div>
 
@@ -496,11 +835,12 @@
           </svg>
           <div class="gauge-center">
             <div class="gauge-num" id="gauge-num">–</div>
-            <div class="gauge-sub">congestion</div>
+            <div class="gauge-sub">ratio vs normal</div>
           </div>
         </div>
         <span id="cong-label" class="cong-level cong-free">Free Flow</span>
         <div class="cong-meta" id="cong-meta">Fetching data…</div>
+        <div class="cong-scale">1.0 = normal speed · &gt;1.5 = heavy congestion</div>
       </div>
     </div>
 
@@ -551,13 +891,37 @@
     </div>
 
     <div class="card">
-      <div class="card-hd"><div class="card-title">Recent Events</div></div>
-      <div class="events-scroll" id="events-list">
-        <div class="no-data">No events recorded</div>
+      <div class="card-hd"><div class="card-title">Incident Report · بلاغ حادثة</div></div>
+      <div class="inc-form">
+        <div class="inc-form-row">
+          <select id="inc-dir">
+            <option value="">Direction / الاتجاه</option>
+            <option value="North">↑ North شمال</option>
+            <option value="South">↓ South جنوب</option>
+            <option value="East">→ East شرق</option>
+            <option value="West">← West غرب</option>
+            <option value="All">All Directions</option>
+          </select>
+          <select id="inc-type">
+            <option value="">Type / النوع</option>
+            <option value="Accident">Accident حادث</option>
+            <option value="Breakdown">Breakdown عطل</option>
+            <option value="Congestion">Congestion ازدحام</option>
+            <option value="Roadwork">Roadwork أعمال</option>
+            <option value="Signal Fault">Signal Fault خلل إشارة</option>
+            <option value="Other">Other أخرى</option>
+          </select>
+        </div>
+        <input type="text" id="inc-notes" placeholder="Notes (optional) / ملاحظات" maxlength="120"/>
+        <button class="btn-report" onclick="submitIncident()">🚨 Report Incident · بلّغ عن حادثة</button>
+      </div>
+      <div class="card-title" style="margin-bottom:.45rem;">Recent Reports · التقارير الأخيرة</div>
+      <div class="inc-scroll" id="inc-list">
+        <div class="no-data">No incidents reported</div>
       </div>
     </div>
 
-  </div>
+  </div><!-- /bottom-row -->
 </main>
 
 <script>
@@ -565,11 +929,13 @@
   const API  = window.location.protocol === 'file:' ? 'http://localhost:8000' : '';
   const CLR  = { North:'#00e676', South:'#ff5252', East:'#ff9100', West:'#448aff' };
   const DIRS = ['North','South','East','West'];
+  const DIR_ARROW = { North:'↑', South:'↓', East:'→', West:'←' };
 
   Chart.defaults.color       = '#64748b';
   Chart.defaults.borderColor = '#1c1c2e';
   Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
 
+  // ── Charts ────────────────────────────────────────────────────────────────
   const countsChart = new Chart(document.getElementById('countsChart'), {
     type: 'bar',
     data: {
@@ -581,15 +947,8 @@
     },
     options: {
       responsive:true, maintainAspectRatio:false, animation:{duration:400},
-      plugins: {
-        legend:{display:false},
-        tooltip:{backgroundColor:'#0c0c12',borderColor:'#2a2a40',borderWidth:1,
-                 callbacks:{label:c=>' '+c.parsed.y+' vehicles'}}
-      },
-      scales: {
-        x:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}}},
-        y:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}},beginAtZero:true}
-      }
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#0c0c12',borderColor:'#2a2a40',borderWidth:1,callbacks:{label:c=>' '+c.parsed.y+' vehicles'}}},
+      scales:{x:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}}},y:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}},beginAtZero:true}}
     }
   });
 
@@ -597,27 +956,42 @@
     type: 'bar',
     data: {
       labels: ['+15 min','+30 min','+60 min'],
-      datasets: DIRS.map(d => ({
-        label:d, data:[0,0,0],
-        backgroundColor:CLR[d]+'28', borderColor:CLR[d],
-        borderWidth:2, borderRadius:5, borderSkipped:false
-      }))
+      datasets: DIRS.map(d => ({label:d,data:[0,0,0],backgroundColor:CLR[d]+'28',borderColor:CLR[d],borderWidth:2,borderRadius:5,borderSkipped:false}))
     },
     options: {
       responsive:true, maintainAspectRatio:false, animation:{duration:400},
-      plugins: {
-        legend:{position:'bottom',labels:{color:'#64748b',boxWidth:10,padding:10,font:{size:11}}},
-        tooltip:{backgroundColor:'#0c0c12',borderColor:'#2a2a40',borderWidth:1,
-                 callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y+' veh'}}
-      },
-      scales: {
-        x:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}}},
-        y:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}},beginAtZero:true}
-      }
+      plugins:{legend:{position:'bottom',labels:{color:'#64748b',boxWidth:10,padding:10,font:{size:11}}},tooltip:{backgroundColor:'#0c0c12',borderColor:'#2a2a40',borderWidth:1,callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y+' veh'}}},
+      scales:{x:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}}},y:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}},beginAtZero:true}}
     }
   });
 
-  // Gauge
+  const comparisonChart = new Chart(document.getElementById('comparisonChart'), {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: DIRS.map(d => ({label:d,data:[],borderColor:CLR[d],backgroundColor:CLR[d]+'18',fill:false,tension:.3,pointRadius:4,borderWidth:2}))
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, animation:{duration:600},
+      plugins:{legend:{position:'bottom',labels:{color:'#64748b',boxWidth:10,padding:8,font:{size:10}}},tooltip:{backgroundColor:'#0c0c12',borderColor:'#2a2a40',borderWidth:1}},
+      scales:{x:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:10}}},y:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:10}},beginAtZero:true}}
+    }
+  });
+
+  const heatmapChart = new Chart(document.getElementById('heatmapChart'), {
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: DIRS.map(d => ({label:d,data:[],backgroundColor:CLR[d]+'40',borderColor:CLR[d],borderWidth:1,borderRadius:2,borderSkipped:false}))
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, animation:{duration:600},
+      plugins:{legend:{position:'bottom',labels:{color:'#64748b',boxWidth:10,padding:8,font:{size:10}}},tooltip:{backgroundColor:'#0c0c12',borderColor:'#2a2a40',borderWidth:1,callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y+' veh/h'}}},
+      scales:{x:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:9}},stacked:false},y:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:10}},beginAtZero:true}}
+    }
+  });
+
+  // ── Gauge ─────────────────────────────────────────────────────────────────
   const CIRC = 2*Math.PI*52;
   function updateGauge(ratio) {
     const pct   = Math.min(Math.max((ratio-1)/2,0),1);
@@ -628,14 +1002,11 @@
     document.getElementById('gauge-num').style.color = color;
   }
 
-  // Video stream
+  // ── Video stream ──────────────────────────────────────────────────────────
   let videoLive = false;
-  function tryConnectVideo() {
-    document.getElementById('video-feed').src = API+'/video_feed?t='+Date.now();
-  }
+  function tryConnectVideo() { document.getElementById('video-feed').src = API+'/video_feed?t='+Date.now(); }
   function onVideoLoad() {
-    if (videoLive) return;
-    videoLive = true;
+    if (videoLive) return; videoLive = true;
     document.getElementById('video-feed').style.display = 'block';
     document.getElementById('video-placeholder').style.display = 'none';
     document.getElementById('stream-status').textContent = 'Streaming live';
@@ -646,187 +1017,451 @@
     document.getElementById('video-feed').style.display = 'none';
     document.getElementById('video-placeholder').style.display = 'flex';
     document.getElementById('stream-status').textContent = 'No stream · retrying…';
-    setEl('badge-det','<span>●</span> Waiting for video…','badge red');
+    setEl('badge-det','<span>●</span> No stream','badge red');
     setTimeout(tryConnectVideo, 3000);
   }
   tryConnectVideo();
 
-  // Live counts — 500 ms
+  // ── Live counts — 500 ms ──────────────────────────────────────────────────
   let prev = {North:0,South:0,East:0,West:0};
   async function refreshLive() {
     try {
-      const r = await fetch(API+'/live_counts');
-      if (!r.ok) throw 0;
-      const d = await r.json();
-      const c = d.counts||{};
+      const r = await fetch(API+'/live_counts'); if (!r.ok) throw 0;
+      const d = await r.json(); const c = d.counts||{};
       document.getElementById('lc-total').textContent = d.total||0;
       const mx = Math.max(...Object.values(c),1);
       DIRS.forEach(dir => {
         const v = c[dir]||0;
         const n = document.getElementById('lc-'+dir);
         const b = document.getElementById('lc-bar-'+dir);
-        if (n) n.textContent = v;
-        if (b) b.style.width = ((v/mx)*100).toFixed(1)+'%';
-        if (v > (prev[dir]||0)) {
-          const el = document.getElementById('lci-'+dir);
-          if (el){el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');}
-        }
+        if (n) n.textContent = v; if (b) b.style.width = ((v/mx)*100).toFixed(1)+'%';
+        if (v > (prev[dir]||0)) { const el=document.getElementById('lci-'+dir); if(el){el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');} }
         prev[dir] = v;
-      });
-      // Update direction cards + bar chart from live counts
-      DIRS.forEach(dir => {
-        const el = document.getElementById('cnt-'+dir);
-        if (el) el.textContent = c[dir]??0;
+        const el = document.getElementById('cnt-'+dir); if (el) el.textContent = v;
+        // Update 2D map counts
+        const mc = document.getElementById('map-cnt-'+dir); if (mc) mc.textContent = v;
       });
       countsChart.data.datasets[0].data = DIRS.map(dir => c[dir]??0);
       countsChart.update('none');
-
-      const dot = document.getElementById('det-dot');
-      const lbl = document.getElementById('det-status');
-      if (d.total > 0) {
-        dot.classList.add('active');
-        lbl.textContent = 'Detection active · '+(d.total)+' counted';
-        setEl('badge-det','<span>●</span> Detecting','badge green');
-      } else {
-        dot.classList.remove('active');
-        lbl.textContent = 'Waiting for detection…';
-      }
+      const dot = document.getElementById('det-dot'); const lbl = document.getElementById('det-status');
+      if (d.total > 0) { dot.classList.add('active'); lbl.textContent='Detection running · '+d.total+' vehicles crossed this session'; setEl('badge-det','<span>●</span> Detecting','badge green'); }
+      else             { dot.classList.remove('active'); lbl.textContent='Waiting for detection to start…'; }
     } catch {}
   }
 
-  // Summary — 15 s
+  // ── Summary — 15 s ────────────────────────────────────────────────────────
   async function refreshSummary() {
     try {
-      const r = await fetch(API+'/summary');
-      if (!r.ok) throw 0;
+      const r = await fetch(API+'/summary'); if (!r.ok) throw 0;
       const d = await r.json();
       setEl('badge-api','<span>●</span> API Connected','badge green');
 
+      const meta   = d.forecast_meta||{};
+      const isLive = meta.detection_running && meta.elapsed_min > 0.5;
+      const srcLabel = isLive ? 'Live video + Maps ('+( meta.live_weight_pct||0)+'% live)' : 'Typical Sun/Mon + Maps';
+      const fcBadge = document.getElementById('fc-source-badge');
+      if (fcBadge) { fcBadge.textContent=isLive?'Smart · Live':'Smart · Typical'; fcBadge.className='badge '+(isLive?'green':'purple'); fcBadge.style.fontSize='.63rem'; }
+
       const fc = {};
-      (d.forecasts||[]).forEach(f => {
-        if (!fc[f.direction]) fc[f.direction]={};
-        fc[f.direction][f.horizon_minutes]=f.predicted_count;
+      (d.forecasts||[]).forEach(f=>{ if(!fc[f.direction])fc[f.direction]={}; fc[f.direction][f.horizon_minutes]=f.predicted_count; });
+      DIRS.forEach(dir=>{
+        const el=document.getElementById('fc-'+dir); if (!el) return;
+        el.innerHTML='<div class="fc-rows-hd" title="'+srcLabel+'">'+(isLive?'🟢':'🔵')+' '+srcLabel+'</div>'
+          +[15,30,60].map(h=>'<div class="fc-row"><span class="fc-lbl">+'+h+' min</span><span class="fc-val" style="color:'+CLR[dir]+'">'+(fc[dir]&&fc[dir][h]!=null?'<strong>'+fc[dir][h]+'</strong> vehicles':'–')+'</span></div>').join('');
       });
-      DIRS.forEach(dir => {
-        const el = document.getElementById('fc-'+dir);
-        if (!el) return;
-        el.innerHTML = [15,30,60].map(h =>
-          '<div class="fc-row"><span class="fc-lbl">+'+h+' min</span>'+
-          '<span class="fc-val" style="color:'+CLR[dir]+'">'+
-          (fc[dir]&&fc[dir][h]!=null?'<strong>'+fc[dir][h]+'</strong> vehicles expected':'–')+'</span></div>'
-        ).join('');
-      });
-      forecastChart.data.datasets.forEach((ds,i)=>{
-        const f=fc[DIRS[i]]||{};
-        ds.data=[f[15]??0,f[30]??0,f[60]??0];
-      });
+      forecastChart.data.datasets.forEach((ds,i)=>{ const f=fc[DIRS[i]]||{}; ds.data=[f[15]??0,f[30]??0,f[60]??0]; });
       forecastChart.update('none');
 
-      const cond  = d.conditions||{};
-      const ratio = cond.congestion_ratio??1;
-      document.getElementById('gauge-num').textContent = ratio.toFixed(2);
-      updateGauge(ratio);
-      const lvls = {
-        free_flow:{cls:'cong-free',txt:'Free Flow',b:'badge green'},
-        moderate: {cls:'cong-mod', txt:'Moderate', b:'badge amber'},
-        heavy:    {cls:'cong-heavy',txt:'Heavy Traffic',b:'badge red'}
-      };
-      const lv = lvls[cond.level]||lvls.free_flow;
-      setEl('cong-label',lv.txt,'cong-level '+lv.cls);
-      setEl('badge-cong','<span>●</span> '+lv.txt,lv.b);
-      document.getElementById('cong-meta').textContent =
-        cond.travel_time_normal&&cond.travel_time_traffic
-          ? 'Normal: '+cond.travel_time_normal+'s · With traffic: '+cond.travel_time_traffic+'s'
-          : 'Wadi Saqra, Amman';
-
-      const evs = d.events||[];
-      const evEl = document.getElementById('events-list');
-      evEl.innerHTML = evs.length
-        ? evs.map(e=>'<div class="ev-item">'+
-            '<div class="ev-dot" style="background:'+(CLR[e.direction]||'#64748b')+'"></div>'+
-            '<div><div class="ev-type">'+(e.event_type||'Event')+'</div>'+
-            '<div class="ev-meta">'+(e.direction||'')+' · '+(e.timestamp||'').slice(11,19)+
-            '</div></div></div>').join('')
-        : '<div class="no-data">No events recorded</div>';
-
-      document.getElementById('ts').textContent = 'Updated '+new Date().toLocaleTimeString();
-    } catch {
-      setEl('badge-api','<span>●</span> API Offline','badge red');
-    }
+      const cond=d.conditions||{}; const ratio=cond.congestion_ratio??1;
+      document.getElementById('gauge-num').textContent=ratio.toFixed(2); updateGauge(ratio);
+      const lvls={ free_flow:{cls:'cong-free',txt:'Free Flow',b:'badge green'}, moderate:{cls:'cong-mod',txt:'Moderate',b:'badge amber'}, heavy:{cls:'cong-heavy',txt:'Heavy Traffic',b:'badge red'} };
+      const lv=lvls[cond.level]||lvls.free_flow;
+      setEl('cong-label',lv.txt,'cong-level '+lv.cls); setEl('badge-cong','<span>●</span> '+lv.txt,lv.b);
+      document.getElementById('cong-meta').textContent=cond.travel_time_normal&&cond.travel_time_traffic?'Normal: '+cond.travel_time_normal+'s · With traffic: '+cond.travel_time_traffic+'s':'Wadi Saqra — Arar St corridor';
+    } catch { setEl('badge-api','<span>●</span> API Offline','badge red'); }
   }
 
   function setEl(id,html,cls){const e=document.getElementById(id);if(!e)return;e.innerHTML=html;if(cls)e.className=cls;}
 
-  // ── Live Stats + Signal + Flow — 500 ms ─────────────────────────────────
+  // ── Live Stats + Signal + Flow — 500 ms ───────────────────────────────────
   async function refreshStats() {
     try {
-      const r = await fetch(API+'/live_stats');
-      if (!r.ok) throw 0;
+      const r = await fetch(API+'/live_stats'); if (!r.ok) throw 0;
       const d = await r.json();
+      const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+      set('st-visible',d.visible_now??0); set('st-moving',d.moving??0); set('st-stopped',d.stopped??0);
+      set('st-cars',d.cars??0); set('st-trucks',d.trucks??0); set('st-buses',d.buses??0); set('st-motos',d.motos??0); set('st-session',d.session_tracks??0);
+      const conf=d.avg_confidence??0; const confEl=document.getElementById('st-conf');
+      if (confEl) { confEl.textContent=conf>0?conf.toFixed(0)+'%':'–'; confEl.style.color=conf>=70?'var(--north)':conf>=45?'var(--east)':conf>0?'var(--south)':'var(--muted)'; }
 
-      // Stats bar
-      const set = (id, v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
-      set('st-visible',  d.visible_now    ?? 0);
-      set('st-moving',   d.moving         ?? 0);
-      set('st-stopped',  d.stopped        ?? 0);
-      set('st-cars',     d.cars           ?? 0);
-      set('st-trucks',   d.trucks         ?? 0);
-      set('st-buses',    d.buses          ?? 0);
-      set('st-motos',    d.motos          ?? 0);
-      set('st-session',  d.session_tracks ?? 0);
-      const conf = d.avg_confidence ?? 0;
-      const confEl = document.getElementById('st-conf');
-      if (confEl) {
-        confEl.textContent = conf >= 70 ? 'High' : conf >= 45 ? 'Med' : conf > 0 ? 'Low' : '–';
-        confEl.style.color = conf >= 70 ? 'var(--north)' : conf >= 45 ? 'var(--east)' : 'var(--south)';
-      }
-
-      // Traffic lights — each direction has its own independent state
-      const sigs = d.signals || {};
-      DIRS.forEach(dir => {
-        const state = sigs[dir] || 'red';
-        ['r','y','g'].forEach(c => {
-          const el = document.getElementById('tl-'+dir+'-'+c);
-          if (!el) return;
-          el.classList.remove('on');
-          if ((c==='r'&&state==='red')||(c==='y'&&state==='yellow')||(c==='g'&&state==='green'))
-            el.classList.add('on');
-        });
+      const sigs=d.signals||{};
+      DIRS.forEach(dir=>{
+        const state=sigs[dir]||'red';
+        ['r','y','g'].forEach(c=>{ const el=document.getElementById('tl-'+dir+'-'+c); if(!el)return; el.classList.remove('on'); if((c==='r'&&state==='red')||(c==='y'&&state==='yellow')||(c==='g'&&state==='green'))el.classList.add('on'); });
+        // Update 2D map signal dots
+        const sc=document.getElementById('map-sig-'+dir);
+        if(sc)sc.setAttribute('fill',state==='green'?'#00e676':state==='yellow'?'#ffd600':'#ff5252');
       });
 
-      // Signal duration timer
-      const elapsed   = d.phase_elapsed   ?? 0;
-      const remaining = d.phase_remaining ?? 0;
-      const activeDir = DIRS.find(dir => (sigs[dir]||'red') !== 'red') || null;
-      const timerCls  = activeDir ? ((sigs[activeDir]==='yellow') ? 'sig-timer-ylw' : 'sig-timer-grn') : 'sig-timer-red';
-      const elEl = document.getElementById('sig-elapsed');
-      const rmEl = document.getElementById('sig-remaining');
-      if (elEl) { elEl.textContent = elapsed+'s'; elEl.className = 'sig-timer-val '+timerCls; }
-      if (rmEl) { rmEl.textContent = remaining+'s'; rmEl.className = 'sig-timer-val '+timerCls; }
+      const elapsed=d.phase_elapsed??0; const remaining=d.phase_remaining??0;
+      const activeDir=DIRS.find(dir=>(sigs[dir]||'red')!=='red')||null;
+      const timerCls=activeDir?((sigs[activeDir]==='yellow')?'sig-timer-ylw':'sig-timer-grn'):'sig-timer-red';
+      const elEl=document.getElementById('sig-elapsed'); const rmEl=document.getElementById('sig-remaining');
+      if(elEl){elEl.textContent=elapsed+'s';elEl.className='sig-timer-val '+timerCls;}
+      if(rmEl){rmEl.textContent=remaining+'s';rmEl.className='sig-timer-val '+timerCls;}
 
-      // Direction flow bars — count + signal state dot
-      const lc  = d.live_counts || {};
-      const maxC = Math.max(...Object.values(lc), 1);
-      DIRS.forEach(dir => {
-        const v     = lc[dir] ?? 0;
-        const state = sigs[dir] || 'red';
-        const bar  = document.getElementById('flow-bar-'+dir);
-        const veh  = document.getElementById('flow-veh-'+dir);
-        const dot  = document.getElementById('flow-dot-'+dir);
-        if (bar) bar.style.width = ((v / maxC) * 100).toFixed(1)+'%';
-        if (veh) veh.textContent = v + ' crossed';
-        if (dot) { dot.className = 'flow-sig-dot '+state; }
+      const lc=d.live_counts||{}; const maxC=Math.max(...Object.values(lc),1);
+      DIRS.forEach(dir=>{
+        const v=lc[dir]??0; const state=sigs[dir]||'red';
+        const bar=document.getElementById('flow-bar-'+dir); const veh=document.getElementById('flow-veh-'+dir); const dot=document.getElementById('flow-dot-'+dir);
+        if(bar)bar.style.width=((v/maxC)*100).toFixed(1)+'%'; if(veh)veh.textContent=v+' crossed'; if(dot)dot.className='flow-sig-dot '+state;
       });
-
     } catch {}
   }
 
+  // ── Signal Advisor + Capacity — 10 s ──────────────────────────────────────
+  async function refreshAdvisor() {
+    try {
+      const r = await fetch(API+'/signal/advisor'); if (!r.ok) throw 0;
+      const d = await r.json();
+
+      // Alert banner
+      const banner = document.getElementById('alert-banner');
+      const state  = (d.traffic_state||'Normal').toLowerCase();
+      const MSGS   = { normal:'✅ Traffic Normal · الحركة طبيعية', warning:'⚠️ Warning: Traffic Building Up · تحذير: ازدياد في الحركة', critical:'🚨 Critical: Heavy Congestion — Action Required · ازدحام شديد' };
+      banner.textContent = MSGS[state] || MSGS.normal;
+      banner.className   = state;
+
+      // State badge
+      const sb = document.getElementById('adv-state-badge');
+      if (sb) { const cls={normal:'badge green',warning:'badge amber',critical:'badge red'}; sb.textContent=d.traffic_state||'Normal'; sb.className=cls[state]||'badge green'; }
+
+      // Advisor cards
+      const container = document.getElementById('advisor-cards');
+      if (container && d.recommendations) {
+        const DIR_ICONS = {North:'↑',South:'↓',East:'→',West:'←'};
+        const PRI_CLS   = {ok:'adv-ok',medium:'adv-med',high:'adv-high',low:'adv-low'};
+        container.innerHTML = d.recommendations.map(rec=>`
+          <div class="adv-card ${PRI_CLS[rec.priority]||'adv-ok'}">
+            <div class="adv-dir">${DIR_ICONS[rec.direction]||''} ${rec.direction}</div>
+            <div class="adv-action">${rec.action}</div>
+            <div class="adv-reason">${rec.reason}</div>
+            <span class="adv-load">${rec.load_pct}%</span>
+          </div>`).join('');
+      }
+
+      // Capacity bars (from capacity endpoint)
+      const rc = await fetch(API+'/analytics/capacity'); if (!rc.ok) return;
+      const cap = await rc.json();
+      (cap.directions||[]).forEach(item=>{
+        const bar = document.getElementById('cap-bar-'+item.direction);
+        const pct = document.getElementById('cap-pct-'+item.direction);
+        const vph = document.getElementById('cap-vph-'+item.direction);
+        const w   = Math.min(item.load_pct,150);
+        const col = item.load_pct>90?'var(--south)':item.load_pct>70?'var(--east)':'var(--north)';
+        if(bar){bar.style.width=w+'%';bar.style.background=col;}
+        if(pct)pct.textContent=item.load_pct+'%';
+        if(vph)vph.textContent=item.rate_per_hour+' veh/h';
+      });
+    } catch {}
+  }
+
+  // ── Economic Cost — 30 s ──────────────────────────────────────────────────
+  async function refreshCost() {
+    try {
+      const r = await fetch(API+'/analytics/cost'); if (!r.ok) throw 0;
+      const d = await r.json();
+      const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+      set('cost-delay',   d.total_delay_minutes!=null ? d.total_delay_minutes.toFixed(1)+' min' : '–');
+      set('cost-fuel',    d.estimated_fuel_cost_jod!=null ? d.estimated_fuel_cost_jod.toFixed(2)+' JOD' : '–');
+      set('cost-vehicles',d.total_vehicles_this_session ?? '–');
+      set('cost-per-veh', d.fuel_cost_per_vehicle_fils!=null ? d.fuel_cost_per_vehicle_fils.toFixed(1)+' fils' : '–');
+      const note = document.getElementById('cost-note');
+      if (note && d.delay_per_vehicle_sec!=null) note.textContent='Delay/vehicle: '+d.delay_per_vehicle_sec+'s · Congestion: '+d.congestion_ratio+'x';
+    } catch {}
+  }
+
+  // ── Heatmap — 5 min ───────────────────────────────────────────────────────
+  async function refreshHeatmap() {
+    try {
+      const r = await fetch(API+'/analytics/heatmap'); if (!r.ok) throw 0;
+      const d = await r.json();
+      const hours = (d.hours||[]);
+      // Show every 2 hours to avoid crowding
+      const filtered = hours.filter(h => h.hour % 2 === 0);
+      heatmapChart.data.labels = filtered.map(h=>h.hour+':00');
+      DIRS.forEach((dir,i)=>{ heatmapChart.data.datasets[i].data = filtered.map(h=>h[dir]??0); });
+      heatmapChart.update('none');
+    } catch {}
+  }
+
+  // ── Past vs Future Comparison — 30 s ──────────────────────────────────────
+  async function refreshComparison() {
+    try {
+      const r = await fetch(API+'/analytics/comparison'); if (!r.ok) throw 0;
+      const d = await r.json();
+      const hist = d.historical||[]; const future = d.forecast||[];
+      const all  = [...hist, ...future];
+      comparisonChart.data.labels = all.map(h=>h.label||h.hour+':00');
+      DIRS.forEach((dir,i)=>{ comparisonChart.data.datasets[i].data = all.map(h=>h[dir]??0); });
+      // Mark forecast points dashed
+      comparisonChart.data.datasets.forEach(ds=>{
+        ds.borderDash = [];
+        const splitIdx = hist.length;
+        ds.segment = { borderDash: ctx => ctx.p0DataIndex >= splitIdx-1 ? [5,3] : [] };
+      });
+      comparisonChart.update('none');
+    } catch {}
+  }
+
+  // ── Incidents ─────────────────────────────────────────────────────────────
+  async function refreshIncidents() {
+    try {
+      const r = await fetch(API+'/incidents?limit=10'); if (!r.ok) throw 0;
+      const list = await r.json();
+      const el   = document.getElementById('inc-list');
+      if (!el) return;
+      el.innerHTML = list.length
+        ? list.map(i=>`<div class="inc-item">
+            <div class="inc-dot" style="background:${CLR[i.direction]||'#64748b'}"></div>
+            <div>
+              <div class="inc-type">${i.type||'–'} ${i.direction?'· '+i.direction:''}</div>
+              <div class="inc-meta">${(i.timestamp||'').slice(11,19)}${i.notes?' · '+i.notes:''}</div>
+            </div></div>`).join('')
+        : '<div class="no-data">No incidents reported</div>';
+    } catch {}
+  }
+
+  async function submitIncident() {
+    const dir   = document.getElementById('inc-dir').value;
+    const type  = document.getElementById('inc-type').value;
+    const notes = document.getElementById('inc-notes').value;
+    if (!type) { alert('Please select an incident type.'); return; }
+    const btn = document.querySelector('.btn-report');
+    btn.disabled = true; btn.textContent = 'Submitting…';
+    try {
+      const r = await fetch(API+'/incidents', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ direction: dir||'All', incident_type: type, notes })
+      });
+      if (r.ok) {
+        document.getElementById('inc-dir').value   = '';
+        document.getElementById('inc-type').value  = '';
+        document.getElementById('inc-notes').value = '';
+        await refreshIncidents();
+      }
+    } catch {}
+    btn.disabled = false; btn.textContent = '🚨 Report Incident · بلّغ عن حادثة';
+  }
+
+  // ── Export CSV ────────────────────────────────────────────────────────────
+  async function exportReport() {
+    try {
+      const [counts, cond, inc] = await Promise.all([
+        fetch(API+'/counts?limit=200').then(r=>r.json()),
+        fetch(API+'/conditions?limit=50').then(r=>r.json()),
+        fetch(API+'/incidents?limit=50').then(r=>r.json()),
+      ]);
+      let csv = 'Type,Timestamp,Direction,Count/Value,Extra\n';
+      counts.forEach(row=>{ csv+=`count,${row.timestamp},${row.direction},${row.vehicle_count},hour_${row.hour}\n`; });
+      cond.forEach(row=>{ csv+=`congestion,${row.timestamp},–,${row.congestion_ratio},normal_${row.travel_time_normal}s\n`; });
+      inc.forEach(row=>{ csv+=`incident,${row.timestamp},${row.direction},${row.type},"${row.notes||''}"\n`; });
+      const blob = new Blob([csv], {type:'text/csv'});
+      const a    = document.createElement('a'); a.href=URL.createObjectURL(blob);
+      a.download = 'wadi_saqra_report_'+new Date().toISOString().slice(0,10)+'.csv';
+      a.click();
+    } catch(e) { alert('Export failed: '+e.message); }
+  }
+
+  // ── Boot ──────────────────────────────────────────────────────────────────
   refreshLive();
   refreshStats();
   refreshSummary();
-  setInterval(refreshLive,    500);
-  setInterval(refreshStats,   500);
-  setInterval(refreshSummary, 15000);
+  refreshAdvisor();
+  refreshCost();
+  refreshHeatmap();
+  refreshComparison();
+  refreshIncidents();
+
+  setInterval(refreshLive,        500);
+  setInterval(refreshStats,       500);
+  setInterval(refreshSummary,   15000);
+  setInterval(refreshAdvisor,   10000);
+  setInterval(refreshCost,      30000);
+  setInterval(refreshHeatmap,  300000);
+  setInterval(refreshComparison,30000);
+  setInterval(refreshIncidents, 20000);
+</script>
+<!-- ── CHATBOT WIDGET ─────────────────────────────────────────────────── -->
+<button id="chat-fab" onclick="toggleChat()" title="Ask the traffic assistant">💬</button>
+
+<div id="chat-panel" class="hidden">
+  <div class="chat-header">
+    <span class="chat-header-icon">🚦</span>
+    <div style="flex:1">
+      <div class="chat-header-title">Wadi Saqra Traffic Assistant</div>
+      <div class="chat-header-sub" id="chat-status-lbl">Powered by Claude · Real-time data</div>
+    </div>
+    <button id="chat-close" onclick="toggleChat()" title="Close">✕</button>
+  </div>
+
+  <div id="chat-messages">
+    <div class="msg system">👋 Ask me anything about traffic at this intersection!</div>
+  </div>
+
+  <!-- Suggestion chips -->
+  <div class="chat-chips" id="chat-chips">
+    <span class="chip" onclick="sendChip('How is traffic right now?')">Traffic now?</span>
+    <span class="chip" onclick="sendChip('What is the forecast for the next 30 minutes?')">30-min forecast</span>
+    <span class="chip" onclick="sendChip('Which direction has the most cars?')">Busiest lane?</span>
+    <span class="chip" onclick="sendChip('Is there heavy congestion on Google Maps?')">Congestion?</span>
+    <span class="chip" onclick="sendChip('What is the current signal state?')">Signal state</span>
+    <span class="chip" onclick="sendChip('Show me the peak hours for this intersection.')">Peak hours</span>
+  </div>
+
+  <div class="chat-footer">
+    <textarea id="chat-input" placeholder="Ask about traffic, forecasts, signals…"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+    <button id="chat-send" onclick="sendMessage()" title="Send">➤</button>
+  </div>
+  <div style="display:flex;justify-content:flex-end;padding:.1rem .75rem .45rem;">
+    <button id="chat-reset" onclick="resetChat()">↺ New conversation</button>
+  </div>
+</div>
+
+<script>
+  // ── Chat state ─────────────────────────────────────────────────────────
+  let _chatSession = null;
+  let _chatBusy    = false;
+
+  async function _ensureSession() {
+    if (_chatSession) return _chatSession;
+    try {
+      const r = await fetch(API + '/chat/session');
+      const d = await r.json();
+      _chatSession = d.session_id;
+    } catch { _chatSession = 'local-' + Date.now(); }
+    return _chatSession;
+  }
+
+  function toggleChat() {
+    const panel = document.getElementById('chat-panel');
+    panel.classList.toggle('hidden');
+    if (!panel.classList.contains('hidden')) {
+      document.getElementById('chat-input').focus();
+    }
+  }
+
+  function _cleanText(text) {
+    // Strip any markdown that Claude sends despite instructions
+    return text
+      .replace(/#{1,3}\s*/g, '')          // ## headers
+      .replace(/\*\*(.*?)\*\*/g, '$1')    // **bold**
+      .replace(/\*(.*?)\*/g, '$1')        // *italic*
+      .replace(/^[-•]\s+/gm, '')          // bullet points
+      .replace(/\n{3,}/g, '\n\n')         // excessive blank lines
+      .trim();
+  }
+
+  function _appendMsg(role, text, toolsUsed) {
+    const box = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = 'msg ' + role;
+    div.textContent = text;
+    if (toolsUsed && toolsUsed.length) {
+      const tDiv = document.createElement('div');
+      tDiv.className = 'msg-tools';
+      toolsUsed.forEach(t => {
+        const b = document.createElement('span');
+        b.className = 'tool-badge';
+        b.textContent = '⚙ ' + t.replace(/_/g,' ');
+        tDiv.appendChild(b);
+      });
+      div.appendChild(tDiv);
+    }
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+    return div;
+  }
+
+  function _appendSpinner() {
+    const box = document.getElementById('chat-messages');
+    const div = document.createElement('div');
+    div.className = 'msg assistant';
+    div.id = 'chat-spinner';
+    div.innerHTML = '<div class="msg-spinner"><span></span><span></span><span></span></div>';
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function _removeSpinner() {
+    const s = document.getElementById('chat-spinner');
+    if (s) s.remove();
+  }
+
+  async function sendMessage() {
+    if (_chatBusy) return;
+    const input = document.getElementById('chat-input');
+    const text  = input.value.trim();
+    if (!text) return;
+
+    input.value = '';
+    // Hide chips after first message
+    document.getElementById('chat-chips').style.display = 'none';
+
+    _appendMsg('user', text, null);
+    _chatBusy = true;
+    document.getElementById('chat-send').disabled = true;
+    document.getElementById('chat-status-lbl').textContent = 'Thinking…';
+    _appendSpinner();
+
+    try {
+      const sid = await _ensureSession();
+      const r = await fetch(API + '/chat', {
+        method:  'POST',
+        headers: {'Content-Type': 'application/json'},
+        body:    JSON.stringify({ message: text, session_id: sid }),
+      });
+      _removeSpinner();
+
+      if (!r.ok) {
+        _appendMsg('system', '⚠ API error ' + r.status + ' — is the server running?', null);
+      } else {
+        const d = await r.json();
+        _chatSession = d.session_id;
+        _appendMsg('assistant', _cleanText(d.reply), d.tools_used);
+      }
+    } catch (err) {
+      _removeSpinner();
+      _appendMsg('system', '⚠ Could not reach the API: ' + err.message, null);
+    }
+
+    _chatBusy = false;
+    document.getElementById('chat-send').disabled = false;
+    document.getElementById('chat-status-lbl').textContent = 'Powered by Claude · Real-time data';
+    document.getElementById('chat-input').focus();
+  }
+
+  function sendChip(text) {
+    document.getElementById('chat-input').value = text;
+    sendMessage();
+  }
+
+  async function resetChat() {
+    if (_chatSession) {
+      try {
+        await fetch(API + '/chat/reset', {
+          method:  'POST',
+          headers: {'Content-Type': 'application/json'},
+          body:    JSON.stringify({ session_id: _chatSession }),
+        });
+      } catch {}
+    }
+    _chatSession = null;
+    const box = document.getElementById('chat-messages');
+    box.innerHTML = '<div class="msg system">↺ Conversation cleared. Ask me anything!</div>';
+    document.getElementById('chat-chips').style.display = 'flex';
+  }
 </script>
 </body>
 </html>
