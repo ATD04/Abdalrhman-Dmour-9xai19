@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-05-03T16:46:34+03:00",
+  "timestamp": "2026-05-04T12:02:02+03:00",
   "source": "detector_data",
   "center": {
     "lat": 31.964932,
@@ -17,14 +17,14 @@
         "lon": 35.884545
       },
       "distance_m": 1400,
-      "duration_s": 252.4,
+      "duration_s": 190.2,
       "static_duration_s": 175.0,
-      "delay_s": 77.4,
-      "delay_ratio": 0.442,
-      "avg_speed_kmh": 20.0,
+      "delay_s": 15.2,
+      "delay_ratio": 0.087,
+      "avg_speed_kmh": 26.5,
       "free_flow_speed_kmh": 28.8,
-      "speed_ratio": 0.693,
-      "congestion_level": "moderate",
+      "speed_ratio": 0.92,
+      "congestion_level": "free",
       "polyline": [
         {
           "lat": 31.952341,
@@ -64,14 +64,14 @@
         "lon": 35.884545
       },
       "distance_m": 1400,
-      "duration_s": 254.8,
+      "duration_s": 500.0,
       "static_duration_s": 175.0,
-      "delay_s": 79.8,
-      "delay_ratio": 0.456,
-      "avg_speed_kmh": 19.8,
+      "delay_s": 325.0,
+      "delay_ratio": 1.857,
+      "avg_speed_kmh": 10.1,
       "free_flow_speed_kmh": 28.8,
-      "speed_ratio": 0.687,
-      "congestion_level": "moderate",
+      "speed_ratio": 0.35,
+      "congestion_level": "severe",
       "polyline": [
         {
           "lat": 31.977523,
@@ -111,13 +111,13 @@
         "lon": 35.884545
       },
       "distance_m": 1600,
-      "duration_s": 282.4,
+      "duration_s": 340.6,
       "static_duration_s": 200.0,
-      "delay_s": 82.4,
-      "delay_ratio": 0.412,
-      "avg_speed_kmh": 20.4,
+      "delay_s": 140.6,
+      "delay_ratio": 0.703,
+      "avg_speed_kmh": 16.9,
       "free_flow_speed_kmh": 28.8,
-      "speed_ratio": 0.708,
+      "speed_ratio": 0.587,
       "congestion_level": "moderate",
       "polyline": [
         {
@@ -158,14 +158,14 @@
         "lon": 35.884545
       },
       "distance_m": 1600,
-      "duration_s": 571.4,
+      "duration_s": 363.2,
       "static_duration_s": 200.0,
-      "delay_s": 371.4,
-      "delay_ratio": 1.857,
-      "avg_speed_kmh": 10.1,
+      "delay_s": 163.2,
+      "delay_ratio": 0.816,
+      "avg_speed_kmh": 15.9,
       "free_flow_speed_kmh": 28.8,
-      "speed_ratio": 0.35,
-      "congestion_level": "severe",
+      "speed_ratio": 0.551,
+      "congestion_level": "heavy",
       "polyline": [
         {
           "lat": 31.964931,

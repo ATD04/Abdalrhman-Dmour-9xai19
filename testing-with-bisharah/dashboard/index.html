@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wadi Saqra · Traffic Monitor</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --bg:#000; --surface:#0c0c12; --card:#101018; --border:#1c1c2e; --border-hi:#2a2a40;
+      --north:#00e676; --south:#ff5252; --east:#ff9100; --west:#448aff;
+      --purple:#8b5cf6; --text:#e2e8f0; --muted:#64748b; --dim:#374151;
+    }
+    body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; line-height:1.4; }
+
+    /* Header */
+    header { display:flex; justify-content:space-between; align-items:center; padding:.9rem 2rem;
+             background:rgba(12,12,18,.96); border-bottom:1px solid var(--border);
+             backdrop-filter:blur(12px); position:sticky; top:0; z-index:100; }
+    .logo-wrap  { display:flex; align-items:center; gap:.75rem; }
+    .live-dot   { width:9px; height:9px; border-radius:50%; background:var(--north);
+                  box-shadow:0 0 8px var(--north); animation:livePulse 2s infinite; }
+    @keyframes livePulse { 0%,100%{opacity:1;box-shadow:0 0 8px var(--north)} 50%{opacity:.4;box-shadow:none} }
+    .logo-title { font-size:1rem; font-weight:700; letter-spacing:.3px; }
+    .logo-sub   { font-size:.7rem; color:var(--muted); margin-top:1px; }
+    .header-right { display:flex; align-items:center; gap:1rem; }
+    .badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.72rem; font-weight:600;
+             padding:.28rem .7rem; border-radius:999px; border:1px solid; transition:all .3s; }
+    .badge.green  { color:var(--north); border-color:var(--north); background:rgba(0,230,118,.08); }
+    .badge.amber  { color:var(--east);  border-color:var(--east);  background:rgba(255,145,0,.08); }
+    .badge.red    { color:var(--south); border-color:var(--south); background:rgba(255,82,82,.08); }
+    .badge.purple { color:var(--purple);border-color:var(--purple);background:rgba(139,92,246,.08); }
+    #ts { font-size:.7rem; color:var(--muted); }
+
+    /* Layout */
+    main { padding:1.25rem 2rem; display:flex; flex-direction:column; gap:1.1rem; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.1rem 1.2rem; }
+    .card-hd { display:flex; justify-content:space-between; align-items:center; margin-bottom:.85rem; }
+    .card-title { font-size:.7rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+
+    /* HERO ROW */
+    .hero-row { display:grid; grid-template-columns:1fr 300px; gap:1.1rem; align-items:stretch; }
+
+    /* Video */
+    .video-card { padding:0; overflow:hidden; position:relative; }
+    .video-header { display:flex; justify-content:space-between; align-items:center;
+                    padding:.65rem 1rem; background:rgba(0,0,0,.5); border-bottom:1px solid var(--border); }
+    .video-title  { font-size:.7rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+    .video-wrap   { position:relative; width:100%; background:#050508; aspect-ratio:16/9;
+                    display:flex; align-items:center; justify-content:center; }
+    #video-feed   { width:100%; height:100%; object-fit:cover; display:block; }
+    .video-placeholder { position:absolute; inset:0; display:flex; flex-direction:column;
+                         align-items:center; justify-content:center; gap:.6rem; color:var(--muted); }
+    .video-placeholder .icon { font-size:2.5rem; opacity:.3; }
+    .video-placeholder .hint { font-size:.72rem; text-align:center; padding:0 1.5rem; }
+    #stream-status { position:absolute; bottom:8px; left:10px; font-size:.63rem; color:var(--muted);
+                     background:rgba(0,0,0,.65); padding:.2rem .5rem; border-radius:4px; }
+
+    /* Live counter */
+    .live-counter-card { display:flex; flex-direction:column; }
+    .live-counter-card .card-hd { margin-bottom:.5rem; }
+    .lc-total-row { display:flex; justify-content:space-between; align-items:baseline;
+                    margin-bottom:.8rem; padding-bottom:.7rem; border-bottom:1px solid var(--border); }
+    .lc-total-label { font-size:.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
+    .lc-total-num   { font-size:2.4rem; font-weight:800; color:var(--text); }
+    .lc-dirs { display:flex; flex-direction:column; gap:.5rem; flex:1; }
+    .lc-item { display:flex; align-items:center; gap:.7rem; padding:.5rem .65rem; border-radius:10px;
+               border:1px solid var(--border); background:rgba(255,255,255,.02); transition:border-color .3s; }
+    .lc-item.pulse { animation:countPulse .4s ease; }
+    @keyframes countPulse { 0%{transform:scale(1)} 40%{transform:scale(1.03)} 100%{transform:scale(1)} }
+    .lc-arrow { font-size:1rem; width:18px; text-align:center; }
+    .lc-name  { font-size:.72rem; font-weight:600; color:var(--muted); flex:1; }
+    .lc-bar-wrap { flex:2; height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
+    .lc-bar  { height:100%; border-radius:3px; transition:width .4s ease; width:0%; }
+    .lc-num  { font-size:1.35rem; font-weight:800; min-width:36px; text-align:right; transition:color .3s; }
+    .lc-item[data-d="North"] .lc-num,.lc-item[data-d="North"] .lc-bar { color:var(--north); background:var(--north); }
+    .lc-item[data-d="South"] .lc-num,.lc-item[data-d="South"] .lc-bar { color:var(--south); background:var(--south); }
+    .lc-item[data-d="East"]  .lc-num,.lc-item[data-d="East"]  .lc-bar { color:var(--east);  background:var(--east);  }
+    .lc-item[data-d="West"]  .lc-num,.lc-item[data-d="West"]  .lc-bar { color:var(--west);  background:var(--west);  }
+    .detection-status { display:flex; align-items:center; gap:.4rem; margin-top:.7rem; padding-top:.6rem;
+                        border-top:1px solid var(--border); font-size:.68rem; color:var(--muted); }
+    .det-dot { width:7px; height:7px; border-radius:50%; background:var(--dim); transition:background .3s,box-shadow .3s; }
+    .det-dot.active { background:var(--north); box-shadow:0 0 6px var(--north); animation:livePulse 1.5s infinite; }
+
+    /* ── STATS BAR ─────────────────────────────────────────────────── */
+    .stats-bar {
+      display:flex; align-items:stretch; gap:0;
+      background:var(--card); border:1px solid var(--border); border-radius:14px;
+      overflow:hidden;
+    }
+    .stat-cell {
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      gap:.15rem; padding:.65rem .9rem; flex:1;
+      border-right:1px solid var(--border);
+      transition:background .2s;
+    }
+    .stat-cell:last-child { border-right:none; }
+    .stat-cell:hover { background:rgba(255,255,255,.03); }
+    .stat-num  { font-size:1.6rem; font-weight:800; line-height:1; }
+    .stat-lbl  { font-size:.6rem; font-weight:600; text-transform:uppercase; letter-spacing:.9px; color:var(--muted); }
+    .stat-cell.divider { flex:0; padding:0; min-width:1px; background:var(--border); }
+
+    /* ── SIGNAL + FLOW ROW ─────────────────────────────────────────── */
+    .sigflow-row { display:grid; grid-template-columns:260px 1fr; gap:1.1rem; align-items:stretch; }
+
+    /* Traffic lights */
+    .signal-lights { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; }
+    .tl-item { display:flex; flex-direction:column; align-items:center; gap:.4rem; }
+    .tl-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); }
+    .tl-body  {
+      width:36px; background:#0a0a14; border:1px solid var(--border);
+      border-radius:8px; padding:5px; display:flex; flex-direction:column;
+      align-items:center; gap:5px;
+    }
+    .tl-bulb {
+      width:20px; height:20px; border-radius:50%;
+      transition:background .4s, box-shadow .4s;
+    }
+    .tl-bulb.r { background:#1a0404; }
+    .tl-bulb.r.on { background:#ff5252; box-shadow:0 0 10px #ff5252; }
+    .tl-bulb.y { background:#1a1200; }
+    .tl-bulb.y.on { background:#ffd600; box-shadow:0 0 10px #ffd600; }
+    .tl-bulb.g { background:#001a08; }
+    .tl-bulb.g.on { background:#00e676; box-shadow:0 0 10px #00e676; }
+    .tl-dir-lbl { font-size:.6rem; color:var(--muted); }
+    /* Signal duration timer */
+    .sig-timer {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-top:.7rem; padding-top:.6rem; border-top:1px solid var(--border);
+      font-size:.65rem; color:var(--muted);
+    }
+    .sig-timer-val { font-size:1.05rem; font-weight:800; }
+    .sig-timer-grn { color:var(--north); }
+    .sig-timer-ylw { color:#ffd600; }
+    .sig-timer-red { color:var(--south); }
+
+    /* Direction flow bars */
+    .flow-rows { display:flex; flex-direction:column; gap:.55rem; }
+    .flow-row {
+      display:grid;
+      grid-template-columns: 80px 1fr 38px 38px;
+      align-items:center; gap:.7rem;
+    }
+    .flow-sig-dot {
+      width:10px; height:10px; border-radius:50%; background:var(--dim);
+      transition:background .4s, box-shadow .4s; flex-shrink:0;
+    }
+    .flow-sig-dot.green  { background:#00e676; box-shadow:0 0 6px #00e676; }
+    .flow-sig-dot.yellow { background:#ffd600; box-shadow:0 0 6px #ffd600; }
+    .flow-sig-dot.red    { background:#ff5252; }
+    .flow-dir-lbl { font-size:.72rem; font-weight:700; color:var(--muted); }
+    .flow-bar-wrap { height:10px; background:var(--border); border-radius:5px; overflow:hidden; }
+    .flow-bar { height:100%; border-radius:5px; transition:width .5s ease; width:0%; }
+    .flow-veh { font-size:.8rem; font-weight:700; text-align:right; }
+    .flow-crossing {
+      display:flex; align-items:center; justify-content:flex-end; gap:.25rem;
+      font-size:.72rem; font-weight:600; color:var(--muted);
+    }
+    .flow-row[data-d="North"] .flow-bar,.flow-row[data-d="North"] .flow-veh { background:var(--north); color:var(--north); }
+    .flow-row[data-d="South"] .flow-bar,.flow-row[data-d="South"] .flow-veh { background:var(--south); color:var(--south); }
+    .flow-row[data-d="East"]  .flow-bar,.flow-row[data-d="East"]  .flow-veh { background:var(--east);  color:var(--east);  }
+    .flow-row[data-d="West"]  .flow-bar,.flow-row[data-d="West"]  .flow-veh { background:var(--west);  color:var(--west);  }
+
+    /* Direction summary cards */
+    .dir-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
+    .dir-card { background:var(--card); border:1px solid var(--border); border-radius:14px;
+                padding:1.1rem 1.15rem 1rem; position:relative; overflow:hidden;
+                transition:transform .2s,border-color .2s; }
+    .dir-card:hover { transform:translateY(-3px); border-color:var(--border-hi); }
+    .dir-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:14px 14px 0 0; }
+    .dir-card::after  { content:''; position:absolute; bottom:-30px; right:-20px;
+                        width:90px; height:90px; border-radius:50%; opacity:.06; filter:blur(20px); }
+    .dir-card[data-d="North"]::before,.dir-card[data-d="North"]::after { background:var(--north); }
+    .dir-card[data-d="South"]::before,.dir-card[data-d="South"]::after { background:var(--south); }
+    .dir-card[data-d="East"]::before, .dir-card[data-d="East"]::after  { background:var(--east);  }
+    .dir-card[data-d="West"]::before, .dir-card[data-d="West"]::after  { background:var(--west);  }
+    .dir-lbl   { font-size:.68rem; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); margin-bottom:.4rem; }
+    .dir-count { font-size:2.5rem; font-weight:800; line-height:1; margin-bottom:.1rem; }
+    .dir-card[data-d="North"] .dir-count { color:var(--north); }
+    .dir-card[data-d="South"] .dir-count { color:var(--south); }
+    .dir-card[data-d="East"]  .dir-count { color:var(--east);  }
+    .dir-card[data-d="West"]  .dir-count { color:var(--west);  }
+    .dir-unit { font-size:.7rem; color:var(--muted); margin-bottom:.8rem; }
+    .fc-rows { display:flex; flex-direction:column; gap:.25rem; border-top:1px solid var(--border); padding-top:.65rem; }
+    .fc-row  { display:flex; justify-content:space-between; align-items:center; font-size:.73rem; }
+    .fc-lbl  { color:var(--muted); }
+    .fc-val  { font-weight:700; }
+
+    /* Charts */
+    .charts-row { display:grid; grid-template-columns:1.5fr 1fr; gap:1rem; }
+    .chart-box  { position:relative; height:210px; }
+
+    /* Bottom */
+    .bottom-row { display:grid; grid-template-columns:1fr 1.1fr 1fr; gap:1rem; }
+    .gauge-wrap { display:flex; flex-direction:column; align-items:center; gap:.65rem; padding-top:.25rem; }
+    .gauge-svg-wrap { position:relative; width:130px; height:130px; }
+    .gauge-svg-wrap svg { transform:rotate(-90deg); }
+    .gauge-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none; }
+    .gauge-num  { font-size:1.65rem; font-weight:800; }
+    .gauge-sub  { font-size:.6rem; color:var(--muted); margin-top:1px; }
+    .cong-level { font-size:.78rem; font-weight:700; padding:.28rem .85rem; border-radius:999px; }
+    .cong-free  { color:var(--north); background:rgba(0,230,118,.12); }
+    .cong-mod   { color:var(--east);  background:rgba(255,145,0,.12); }
+    .cong-heavy { color:var(--south); background:rgba(255,82,82,.12); }
+    .cong-meta  { font-size:.7rem; color:var(--muted); text-align:center; }
+    .signal-list { display:flex; flex-direction:column; gap:.85rem; }
+    .sig-item   { display:flex; flex-direction:column; gap:.35rem; }
+    .sig-label  { font-size:.68rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
+    .sig-bar    { display:flex; height:10px; border-radius:5px; overflow:hidden; gap:2px; }
+    .seg { border-radius:2px; }
+    .seg-g { background:var(--north); } .seg-y { background:#ffd600; } .seg-r { background:var(--south); }
+    .sig-timing { font-size:.68rem; color:var(--dim); }
+    .events-scroll { display:flex; flex-direction:column; gap:.5rem; max-height:160px; overflow-y:auto; }
+    .ev-item { display:flex; gap:.6rem; align-items:flex-start; padding:.5rem .55rem; border-radius:8px;
+               background:rgba(255,255,255,.02); border:1px solid var(--border); }
+    .ev-dot  { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+    .ev-type { font-size:.76rem; font-weight:600; }
+    .ev-meta { font-size:.68rem; color:var(--muted); margin-top:1px; }
+    .no-data { color:var(--muted); font-size:.76rem; text-align:center; padding:.7rem 0; }
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-track { background:transparent; }
+    ::-webkit-scrollbar-thumb { background:var(--border-hi); border-radius:4px; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo-wrap">
+    <div class="live-dot"></div>
+    <div>
+      <div class="logo-title">Wadi Saqra Traffic Monitor</div>
+      <div class="logo-sub">Amman Intersection · AI-Powered Real-Time Analysis</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <span id="badge-api"  class="badge green"><span>●</span> API Connected</span>
+    <span id="badge-cong" class="badge green"><span>●</span> Free Flow</span>
+    <span id="ts">–</span>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO: Live Video + Live Counter -->
+  <div class="hero-row">
+
+    <div class="card video-card">
+      <div class="video-header">
+        <span class="video-title">Live Detection Feed</span>
+        <span class="badge red" id="badge-det"><span>●</span> Waiting for video…</span>
+      </div>
+      <div class="video-wrap">
+        <div class="video-placeholder" id="video-placeholder">
+          <div class="icon">🎥</div>
+          <div class="hint">
+            Run <code style="background:rgba(255,255,255,.07);padding:.1rem .35rem;border-radius:4px;font-size:.7rem;">
+            python3 src/detection/step3_line_count.py</code> to start the live stream
+          </div>
+        </div>
+        <img id="video-feed" src="" alt="" style="display:none;"
+             onload="onVideoLoad()" onerror="onVideoError()" />
+        <span id="stream-status">Connecting…</span>
+      </div>
+    </div>
+
+    <div class="card live-counter-card">
+      <div class="card-hd">
+        <div class="card-title">Live Vehicle Count</div>
+        <span class="badge purple" style="font-size:.63rem">0.5 s refresh</span>
+      </div>
+      <div class="lc-total-row">
+        <span class="lc-total-label">Total Detected</span>
+        <span class="lc-total-num" id="lc-total">0</span>
+      </div>
+      <div class="lc-dirs">
+        <div class="lc-item" data-d="North" id="lci-North">
+          <span class="lc-arrow" style="color:var(--north)">↑</span>
+          <span class="lc-name">North</span>
+          <div class="lc-bar-wrap"><div class="lc-bar" id="lc-bar-North"></div></div>
+          <span class="lc-num" id="lc-North">0</span>
+        </div>
+        <div class="lc-item" data-d="South" id="lci-South">
+          <span class="lc-arrow" style="color:var(--south)">↓</span>
+          <span class="lc-name">South</span>
+          <div class="lc-bar-wrap"><div class="lc-bar" id="lc-bar-South"></div></div>
+          <span class="lc-num" id="lc-South">0</span>
+        </div>
+        <div class="lc-item" data-d="East" id="lci-East">
+          <span class="lc-arrow" style="color:var(--east)">→</span>
+          <span class="lc-name">East</span>
+          <div class="lc-bar-wrap"><div class="lc-bar" id="lc-bar-East"></div></div>
+          <span class="lc-num" id="lc-East">0</span>
+        </div>
+        <div class="lc-item" data-d="West" id="lci-West">
+          <span class="lc-arrow" style="color:var(--west)">←</span>
+          <span class="lc-name">West</span>
+          <div class="lc-bar-wrap"><div class="lc-bar" id="lc-bar-West"></div></div>
+          <span class="lc-num" id="lc-West">0</span>
+        </div>
+      </div>
+      <div class="detection-status">
+        <div class="det-dot" id="det-dot"></div>
+        <span id="det-status">Detection not running</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- STATS BAR -->
+  <div class="stats-bar">
+    <div class="stat-cell">
+      <span class="stat-num" id="st-visible" style="color:var(--text)">0</span>
+      <span class="stat-lbl">Visible Now</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-num" id="st-moving" style="color:var(--north)">0</span>
+      <span class="stat-lbl">Moving ▶</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-num" id="st-stopped" style="color:var(--south)">0</span>
+      <span class="stat-lbl">Stopped ■</span>
+    </div>
+    <div class="stat-cell divider"></div>
+    <div class="stat-cell">
+      <span class="stat-num" id="st-cars" style="color:var(--west)">0</span>
+      <span class="stat-lbl">Cars</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-num" id="st-trucks" style="color:var(--east)">0</span>
+      <span class="stat-lbl">Trucks</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-num" id="st-buses" style="color:var(--purple)">0</span>
+      <span class="stat-lbl">Buses</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-num" id="st-motos" style="color:var(--muted)">0</span>
+      <span class="stat-lbl">Motos</span>
+    </div>
+    <div class="stat-cell divider"></div>
+    <div class="stat-cell">
+      <span class="stat-num" id="st-session" style="color:var(--text)">0</span>
+      <span class="stat-lbl">Session Tracks</span>
+    </div>
+    <div class="stat-cell">
+      <span class="stat-num" id="st-conf" style="color:var(--north)">–</span>
+      <span class="stat-lbl">AI Confidence</span>
+    </div>
+  </div>
+
+  <!-- SIGNAL STATE + DIRECTION FLOW -->
+  <div class="sigflow-row">
+
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Live Signal State · حالة الإشارة</div>
+      </div>
+      <div class="signal-lights">
+        <div class="tl-item">
+          <div class="tl-label">↑ North</div>
+          <div class="tl-body">
+            <div class="tl-bulb r" id="tl-North-r"></div>
+            <div class="tl-bulb y" id="tl-North-y"></div>
+            <div class="tl-bulb g" id="tl-North-g"></div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-label">↓ South</div>
+          <div class="tl-body">
+            <div class="tl-bulb r" id="tl-South-r"></div>
+            <div class="tl-bulb y" id="tl-South-y"></div>
+            <div class="tl-bulb g" id="tl-South-g"></div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-label">→ East</div>
+          <div class="tl-body">
+            <div class="tl-bulb r" id="tl-East-r"></div>
+            <div class="tl-bulb y" id="tl-East-y"></div>
+            <div class="tl-bulb g" id="tl-East-g"></div>
+          </div>
+        </div>
+        <div class="tl-item">
+          <div class="tl-label">← West</div>
+          <div class="tl-body">
+            <div class="tl-bulb r" id="tl-West-r"></div>
+            <div class="tl-bulb y" id="tl-West-y"></div>
+            <div class="tl-bulb g" id="tl-West-g"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Duration timer -->
+      <div class="sig-timer">
+        <span>Active for</span>
+        <span id="sig-elapsed" class="sig-timer-val">–</span>
+        <span>Remaining</span>
+        <span id="sig-remaining" class="sig-timer-val">–</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Direction Flow · تدفق الحركة</div>
+        <span class="badge purple" style="font-size:.63rem">Live</span>
+      </div>
+      <div class="flow-rows">
+        <div class="flow-row" data-d="North">
+          <span class="flow-dir-lbl">↑ Going North شمال</span>
+          <div class="flow-bar-wrap"><div class="flow-bar" id="flow-bar-North"></div></div>
+          <span class="flow-veh" id="flow-veh-North" style="font-size:.72rem"></span>
+          <span class="flow-sig-dot" id="flow-dot-North"></span>
+        </div>
+        <div class="flow-row" data-d="South">
+          <span class="flow-dir-lbl">↓ Going South جنوب</span>
+          <div class="flow-bar-wrap"><div class="flow-bar" id="flow-bar-South"></div></div>
+          <span class="flow-veh" id="flow-veh-South" style="font-size:.72rem"></span>
+          <span class="flow-sig-dot" id="flow-dot-South"></span>
+        </div>
+        <div class="flow-row" data-d="East">
+          <span class="flow-dir-lbl">→ Going East شرق</span>
+          <div class="flow-bar-wrap"><div class="flow-bar" id="flow-bar-East"></div></div>
+          <span class="flow-veh" id="flow-veh-East" style="font-size:.72rem"></span>
+          <span class="flow-sig-dot" id="flow-dot-East"></span>
+        </div>
+        <div class="flow-row" data-d="West">
+          <span class="flow-dir-lbl">← Going West غرب</span>
+          <div class="flow-bar-wrap"><div class="flow-bar" id="flow-bar-West"></div></div>
+          <span class="flow-veh" id="flow-veh-West" style="font-size:.72rem"></span>
+          <span class="flow-sig-dot" id="flow-dot-West"></span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /sigflow-row -->
+  <div class="dir-row">
+    <div class="dir-card" data-d="North">
+      <div class="dir-lbl"><span>↑</span> North</div>
+      <div class="dir-count" id="cnt-North">0</div>
+      <div class="dir-unit">live count</div>
+      <div class="fc-rows" id="fc-North"></div>
+    </div>
+    <div class="dir-card" data-d="South">
+      <div class="dir-lbl"><span>↓</span> South</div>
+      <div class="dir-count" id="cnt-South">0</div>
+      <div class="dir-unit">live count</div>
+      <div class="fc-rows" id="fc-South"></div>
+    </div>
+    <div class="dir-card" data-d="East">
+      <div class="dir-lbl"><span>→</span> East</div>
+      <div class="dir-count" id="cnt-East">0</div>
+      <div class="dir-unit">live count</div>
+      <div class="fc-rows" id="fc-East"></div>
+    </div>
+    <div class="dir-card" data-d="West">
+      <div class="dir-lbl"><span>←</span> West</div>
+      <div class="dir-count" id="cnt-West">0</div>
+      <div class="dir-unit">live count</div>
+      <div class="fc-rows" id="fc-West"></div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="charts-row">
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Vehicle Counts per Direction</div>
+        <span class="badge purple" style="font-size:.63rem">Live</span>
+      </div>
+      <div class="chart-box"><canvas id="countsChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Forecast — Next 60 Min</div>
+        <span class="badge purple" style="font-size:.63rem">XGBoost</span>
+      </div>
+      <div class="chart-box"><canvas id="forecastChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Bottom Row -->
+  <div class="bottom-row">
+
+    <div class="card">
+      <div class="card-hd">
+        <div class="card-title">Traffic Congestion</div>
+        <span class="badge green" style="font-size:.63rem">Google Maps</span>
+      </div>
+      <div class="gauge-wrap">
+        <div class="gauge-svg-wrap">
+          <svg width="130" height="130" viewBox="0 0 130 130">
+            <circle cx="65" cy="65" r="52" fill="none" stroke="#1a1a2e" stroke-width="10"/>
+            <circle id="gauge-arc" cx="65" cy="65" r="52" fill="none" stroke="#00e676"
+                    stroke-width="10" stroke-dasharray="326.7" stroke-dashoffset="326.7"
+                    stroke-linecap="round" style="transition:stroke-dashoffset .6s,stroke .6s"/>
+          </svg>
+          <div class="gauge-center">
+            <div class="gauge-num" id="gauge-num">–</div>
+            <div class="gauge-sub">congestion</div>
+          </div>
+        </div>
+        <span id="cong-label" class="cong-level cong-free">Free Flow</span>
+        <div class="cong-meta" id="cong-meta">Fetching data…</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Signal Timing</div></div>
+      <div class="signal-list">
+        <div class="sig-item">
+          <div class="sig-label">North / South</div>
+          <div class="sig-bar">
+            <div class="seg seg-g" style="flex:30"></div>
+            <div class="seg seg-y" style="flex:5"></div>
+            <div class="seg seg-r" style="flex:74"></div>
+          </div>
+          <div class="sig-timing">Green 30 s · Yellow 5 s · Red 74 s</div>
+        </div>
+        <div class="sig-item">
+          <div class="sig-label">East (separate from West)</div>
+          <div class="sig-bar">
+            <div class="seg seg-r" style="flex:35"></div>
+            <div class="seg seg-g" style="flex:35"></div>
+            <div class="seg seg-y" style="flex:5"></div>
+            <div class="seg seg-r" style="flex:34"></div>
+          </div>
+          <div class="sig-timing">Red 35 s · Green 35 s · Yellow 5 s · Red 34 s</div>
+        </div>
+        <div class="sig-item">
+          <div class="sig-label">West (separate from East)</div>
+          <div class="sig-bar">
+            <div class="seg seg-r" style="flex:75"></div>
+            <div class="seg seg-g" style="flex:29"></div>
+            <div class="seg seg-y" style="flex:5"></div>
+          </div>
+          <div class="sig-timing">Red 75 s · Green 29 s · Yellow 5 s</div>
+        </div>
+        <div class="sig-item">
+          <div class="sig-label">Full Cycle</div>
+          <div class="sig-bar" style="height:12px;">
+            <div class="seg seg-g" style="flex:30;border-radius:4px 0 0 4px"></div>
+            <div class="seg seg-y" style="flex:5"></div>
+            <div class="seg seg-g" style="flex:35"></div>
+            <div class="seg seg-y" style="flex:5"></div>
+            <div class="seg seg-g" style="flex:29"></div>
+            <div class="seg seg-y" style="flex:5;border-radius:0 4px 4px 0"></div>
+          </div>
+          <div class="sig-timing">N/S → East → West · Total 109 s</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-hd"><div class="card-title">Recent Events</div></div>
+      <div class="events-scroll" id="events-list">
+        <div class="no-data">No events recorded</div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+  // Works whether opened from file:// or served from http://localhost:8000
+  const API  = window.location.protocol === 'file:' ? 'http://localhost:8000' : '';
+  const CLR  = { North:'#00e676', South:'#ff5252', East:'#ff9100', West:'#448aff' };
+  const DIRS = ['North','South','East','West'];
+
+  Chart.defaults.color       = '#64748b';
+  Chart.defaults.borderColor = '#1c1c2e';
+  Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+
+  const countsChart = new Chart(document.getElementById('countsChart'), {
+    type: 'bar',
+    data: {
+      labels: DIRS,
+      datasets: [{ label:'Total Vehicles', data:[0,0,0,0],
+        backgroundColor: DIRS.map(d => CLR[d]+'25'),
+        borderColor: DIRS.map(d => CLR[d]),
+        borderWidth:2, borderRadius:7, borderSkipped:false }]
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, animation:{duration:400},
+      plugins: {
+        legend:{display:false},
+        tooltip:{backgroundColor:'#0c0c12',borderColor:'#2a2a40',borderWidth:1,
+                 callbacks:{label:c=>' '+c.parsed.y+' vehicles'}}
+      },
+      scales: {
+        x:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}}},
+        y:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}},beginAtZero:true}
+      }
+    }
+  });
+
+  const forecastChart = new Chart(document.getElementById('forecastChart'), {
+    type: 'bar',
+    data: {
+      labels: ['+15 min','+30 min','+60 min'],
+      datasets: DIRS.map(d => ({
+        label:d, data:[0,0,0],
+        backgroundColor:CLR[d]+'28', borderColor:CLR[d],
+        borderWidth:2, borderRadius:5, borderSkipped:false
+      }))
+    },
+    options: {
+      responsive:true, maintainAspectRatio:false, animation:{duration:400},
+      plugins: {
+        legend:{position:'bottom',labels:{color:'#64748b',boxWidth:10,padding:10,font:{size:11}}},
+        tooltip:{backgroundColor:'#0c0c12',borderColor:'#2a2a40',borderWidth:1,
+                 callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y+' veh'}}
+      },
+      scales: {
+        x:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}}},
+        y:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}},beginAtZero:true}
+      }
+    }
+  });
+
+  // Gauge
+  const CIRC = 2*Math.PI*52;
+  function updateGauge(ratio) {
+    const pct   = Math.min(Math.max((ratio-1)/2,0),1);
+    const color = pct<0.3?'#00e676':pct<0.65?'#ff9100':'#ff5252';
+    const arc   = document.getElementById('gauge-arc');
+    arc.style.strokeDashoffset = (CIRC*(1-pct)).toFixed(1);
+    arc.setAttribute('stroke',color);
+    document.getElementById('gauge-num').style.color = color;
+  }
+
+  // Video stream
+  let videoLive = false;
+  function tryConnectVideo() {
+    document.getElementById('video-feed').src = API+'/video_feed?t='+Date.now();
+  }
+  function onVideoLoad() {
+    if (videoLive) return;
+    videoLive = true;
+    document.getElementById('video-feed').style.display = 'block';
+    document.getElementById('video-placeholder').style.display = 'none';
+    document.getElementById('stream-status').textContent = 'Streaming live';
+    setEl('badge-det','<span>●</span> Detecting','badge green');
+  }
+  function onVideoError() {
+    videoLive = false;
+    document.getElementById('video-feed').style.display = 'none';
+    document.getElementById('video-placeholder').style.display = 'flex';
+    document.getElementById('stream-status').textContent = 'No stream · retrying…';
+    setEl('badge-det','<span>●</span> Waiting for video…','badge red');
+    setTimeout(tryConnectVideo, 3000);
+  }
+  tryConnectVideo();
+
+  // Live counts — 500 ms
+  let prev = {North:0,South:0,East:0,West:0};
+  async function refreshLive() {
+    try {
+      const r = await fetch(API+'/live_counts');
+      if (!r.ok) throw 0;
+      const d = await r.json();
+      const c = d.counts||{};
+      document.getElementById('lc-total').textContent = d.total||0;
+      const mx = Math.max(...Object.values(c),1);
+      DIRS.forEach(dir => {
+        const v = c[dir]||0;
+        const n = document.getElementById('lc-'+dir);
+        const b = document.getElementById('lc-bar-'+dir);
+        if (n) n.textContent = v;
+        if (b) b.style.width = ((v/mx)*100).toFixed(1)+'%';
+        if (v > (prev[dir]||0)) {
+          const el = document.getElementById('lci-'+dir);
+          if (el){el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');}
+        }
+        prev[dir] = v;
+      });
+      // Update direction cards + bar chart from live counts
+      DIRS.forEach(dir => {
+        const el = document.getElementById('cnt-'+dir);
+        if (el) el.textContent = c[dir]??0;
+      });
+      countsChart.data.datasets[0].data = DIRS.map(dir => c[dir]??0);
+      countsChart.update('none');
+
+      const dot = document.getElementById('det-dot');
+      const lbl = document.getElementById('det-status');
+      if (d.total > 0) {
+        dot.classList.add('active');
+        lbl.textContent = 'Detection active · '+(d.total)+' counted';
+        setEl('badge-det','<span>●</span> Detecting','badge green');
+      } else {
+        dot.classList.remove('active');
+        lbl.textContent = 'Waiting for detection…';
+      }
+    } catch {}
+  }
+
+  // Summary — 15 s
+  async function refreshSummary() {
+    try {
+      const r = await fetch(API+'/summary');
+      if (!r.ok) throw 0;
+      const d = await r.json();
+      setEl('badge-api','<span>●</span> API Connected','badge green');
+
+      const fc = {};
+      (d.forecasts||[]).forEach(f => {
+        if (!fc[f.direction]) fc[f.direction]={};
+        fc[f.direction][f.horizon_minutes]=f.predicted_count;
+      });
+      DIRS.forEach(dir => {
+        const el = document.getElementById('fc-'+dir);
+        if (!el) return;
+        el.innerHTML = [15,30,60].map(h =>
+          '<div class="fc-row"><span class="fc-lbl">+'+h+' min</span>'+
+          '<span class="fc-val" style="color:'+CLR[dir]+'">'+
+          (fc[dir]&&fc[dir][h]!=null?'<strong>'+fc[dir][h]+'</strong> vehicles expected':'–')+'</span></div>'
+        ).join('');
+      });
+      forecastChart.data.datasets.forEach((ds,i)=>{
+        const f=fc[DIRS[i]]||{};
+        ds.data=[f[15]??0,f[30]??0,f[60]??0];
+      });
+      forecastChart.update('none');
+
+      const cond  = d.conditions||{};
+      const ratio = cond.congestion_ratio??1;
+      document.getElementById('gauge-num').textContent = ratio.toFixed(2);
+      updateGauge(ratio);
+      const lvls = {
+        free_flow:{cls:'cong-free',txt:'Free Flow',b:'badge green'},
+        moderate: {cls:'cong-mod', txt:'Moderate', b:'badge amber'},
+        heavy:    {cls:'cong-heavy',txt:'Heavy Traffic',b:'badge red'}
+      };
+      const lv = lvls[cond.level]||lvls.free_flow;
+      setEl('cong-label',lv.txt,'cong-level '+lv.cls);
+      setEl('badge-cong','<span>●</span> '+lv.txt,lv.b);
+      document.getElementById('cong-meta').textContent =
+        cond.travel_time_normal&&cond.travel_time_traffic
+          ? 'Normal: '+cond.travel_time_normal+'s · With traffic: '+cond.travel_time_traffic+'s'
+          : 'Wadi Saqra, Amman';
+
+      const evs = d.events||[];
+      const evEl = document.getElementById('events-list');
+      evEl.innerHTML = evs.length
+        ? evs.map(e=>'<div class="ev-item">'+
+            '<div class="ev-dot" style="background:'+(CLR[e.direction]||'#64748b')+'"></div>'+
+            '<div><div class="ev-type">'+(e.event_type||'Event')+'</div>'+
+            '<div class="ev-meta">'+(e.direction||'')+' · '+(e.timestamp||'').slice(11,19)+
+            '</div></div></div>').join('')
+        : '<div class="no-data">No events recorded</div>';
+
+      document.getElementById('ts').textContent = 'Updated '+new Date().toLocaleTimeString();
+    } catch {
+      setEl('badge-api','<span>●</span> API Offline','badge red');
+    }
+  }
+
+  function setEl(id,html,cls){const e=document.getElementById(id);if(!e)return;e.innerHTML=html;if(cls)e.className=cls;}
+
+  // ── Live Stats + Signal + Flow — 500 ms ─────────────────────────────────
+  async function refreshStats() {
+    try {
+      const r = await fetch(API+'/live_stats');
+      if (!r.ok) throw 0;
+      const d = await r.json();
+
+      // Stats bar
+      const set = (id, v) => { const e=document.getElementById(id); if(e) e.textContent=v; };
+      set('st-visible',  d.visible_now    ?? 0);
+      set('st-moving',   d.moving         ?? 0);
+      set('st-stopped',  d.stopped        ?? 0);
+      set('st-cars',     d.cars           ?? 0);
+      set('st-trucks',   d.trucks         ?? 0);
+      set('st-buses',    d.buses          ?? 0);
+      set('st-motos',    d.motos          ?? 0);
+      set('st-session',  d.session_tracks ?? 0);
+      const conf = d.avg_confidence ?? 0;
+      const confEl = document.getElementById('st-conf');
+      if (confEl) {
+        confEl.textContent = conf >= 70 ? 'High' : conf >= 45 ? 'Med' : conf > 0 ? 'Low' : '–';
+        confEl.style.color = conf >= 70 ? 'var(--north)' : conf >= 45 ? 'var(--east)' : 'var(--south)';
+      }
+
+      // Traffic lights — each direction has its own independent state
+      const sigs = d.signals || {};
+      DIRS.forEach(dir => {
+        const state = sigs[dir] || 'red';
+        ['r','y','g'].forEach(c => {
+          const el = document.getElementById('tl-'+dir+'-'+c);
+          if (!el) return;
+          el.classList.remove('on');
+          if ((c==='r'&&state==='red')||(c==='y'&&state==='yellow')||(c==='g'&&state==='green'))
+            el.classList.add('on');
+        });
+      });
+
+      // Signal duration timer
+      const elapsed   = d.phase_elapsed   ?? 0;
+      const remaining = d.phase_remaining ?? 0;
+      const activeDir = DIRS.find(dir => (sigs[dir]||'red') !== 'red') || null;
+      const timerCls  = activeDir ? ((sigs[activeDir]==='yellow') ? 'sig-timer-ylw' : 'sig-timer-grn') : 'sig-timer-red';
+      const elEl = document.getElementById('sig-elapsed');
+      const rmEl = document.getElementById('sig-remaining');
+      if (elEl) { elEl.textContent = elapsed+'s'; elEl.className = 'sig-timer-val '+timerCls; }
+      if (rmEl) { rmEl.textContent = remaining+'s'; rmEl.className = 'sig-timer-val '+timerCls; }
+
+      // Direction flow bars — count + signal state dot
+      const lc  = d.live_counts || {};
+      const maxC = Math.max(...Object.values(lc), 1);
+      DIRS.forEach(dir => {
+        const v     = lc[dir] ?? 0;
+        const state = sigs[dir] || 'red';
+        const bar  = document.getElementById('flow-bar-'+dir);
+        const veh  = document.getElementById('flow-veh-'+dir);
+        const dot  = document.getElementById('flow-dot-'+dir);
+        if (bar) bar.style.width = ((v / maxC) * 100).toFixed(1)+'%';
+        if (veh) veh.textContent = v + ' crossed';
+        if (dot) { dot.className = 'flow-sig-dot '+state; }
+      });
+
+    } catch {}
+  }
+
+  refreshLive();
+  refreshStats();
+  refreshSummary();
+  setInterval(refreshLive,    500);
+  setInterval(refreshStats,   500);
+  setInterval(refreshSummary, 15000);
+</script>
+</body>
+</html>
