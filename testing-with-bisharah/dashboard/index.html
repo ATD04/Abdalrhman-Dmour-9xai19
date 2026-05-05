@@ -245,6 +245,105 @@
     .chat-chips { display:flex; flex-wrap:wrap; gap:5px; padding:0 14px 8px; }
     .chip { font-size:11px; padding:4px 9px; border-radius:20px; background:rgba(255,255,255,.04); border:1px solid var(--border); color:var(--muted); cursor:pointer; transition:all .2s; }
     .chip:hover { border-color:var(--purple); color:var(--text); }
+
+    /* ═══════════════════════════════════════════
+       ANIMATIONS & VISUAL ENHANCEMENTS
+    ═══════════════════════════════════════════ */
+
+    /* Staggered section fade-up on load */
+    @keyframes fadeUp { from { opacity:0; transform:translateY(18px); } to { opacity:1; transform:none; } }
+    main > div { animation: fadeUp .45s ease both; }
+    main > div:nth-child(1){ animation-delay:.04s; } main > div:nth-child(2){ animation-delay:.09s; }
+    main > div:nth-child(3){ animation-delay:.14s; } main > div:nth-child(4){ animation-delay:.19s; }
+    main > div:nth-child(5){ animation-delay:.24s; } main > div:nth-child(6){ animation-delay:.29s; }
+    main > div:nth-child(7){ animation-delay:.34s; } main > div:nth-child(8){ animation-delay:.39s; }
+
+    /* Card hover lift */
+    .card { transition: border-color .2s, box-shadow .2s, transform .2s; }
+    .card:hover { transform:translateY(-2px); box-shadow:0 6px 28px rgba(0,0,0,.55); border-color:#2e2e2e; }
+
+    /* Direction card directional glow */
+    .dir-card { transition: transform .2s, box-shadow .2s; }
+    .dir-card[data-d="North"]:hover { transform:translateY(-2px); box-shadow:0 4px 20px rgba(0,230,118,.14); }
+    .dir-card[data-d="South"]:hover { transform:translateY(-2px); box-shadow:0 4px 20px rgba(255,82,82,.14);  }
+    .dir-card[data-d="East"]:hover  { transform:translateY(-2px); box-shadow:0 4px 20px rgba(255,145,0,.14);  }
+    .dir-card[data-d="West"]:hover  { transform:translateY(-2px); box-shadow:0 4px 20px rgba(68,138,255,.14); }
+
+    /* Header title moving gradient shimmer */
+    @keyframes headerShimmer { to { background-position: 200% center; } }
+    .header-title {
+      background: linear-gradient(90deg, #e2e8f0 20%, #a78bfa 50%, #e2e8f0 80%);
+      background-size: 200% auto;
+      -webkit-background-clip: text; background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: headerShimmer 5s linear infinite;
+    }
+
+    /* Section label accent bar */
+    .section-label { position:relative; padding-left:10px; }
+    .section-label::before {
+      content:''; position:absolute; left:0; top:50%; transform:translateY(-50%);
+      width:3px; height:100%; border-radius:2px;
+      background: linear-gradient(180deg, var(--purple) 0%, rgba(167,139,250,0) 100%);
+    }
+
+    /* Traffic light enhanced glow */
+    .tl-bulb.r.on { animation: tlGlowR 2s ease infinite; }
+    .tl-bulb.g.on { animation: tlGlowG 1.5s ease infinite; }
+    .tl-bulb.y.on { animation: tlGlowY .8s ease infinite; }
+    @keyframes tlGlowR { 0%,100%{box-shadow:0 0 10px #ff5252;} 50%{box-shadow:0 0 20px #ff5252,0 0 32px rgba(255,82,82,.3);} }
+    @keyframes tlGlowG { 0%,100%{box-shadow:0 0 10px #00e676;} 50%{box-shadow:0 0 20px #00e676,0 0 32px rgba(0,230,118,.3);} }
+    @keyframes tlGlowY { 0%,100%{box-shadow:0 0 10px #ffd600;} 50%{box-shadow:0 0 20px #ffd600,0 0 32px rgba(255,214,0,.3);} }
+
+    /* Gauge arc breathing */
+    @keyframes gaugeBreath { 0%,100%{opacity:1;} 50%{opacity:.7;} }
+    #gauge-arc { animation: gaugeBreath 2.5s ease infinite; }
+
+    /* Chat FAB gentle float */
+    @keyframes fabFloat { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-5px);} }
+    #chat-fab { animation: fabFloat 3.5s ease-in-out infinite; }
+    #chat-fab:hover { animation:none; transform:scale(1.1) !important; }
+
+    /* Live dot pulse ring */
+    @keyframes livePulse { 0%{transform:scale(1);box-shadow:0 0 0 0 rgba(0,230,118,.55);} 70%{transform:scale(1.15);box-shadow:0 0 0 9px rgba(0,230,118,0);} 100%{transform:scale(1);} }
+    .live-dot { animation: livePulse 2s ease infinite; }
+
+    /* Alert banner critical sweep */
+    @keyframes critSweep { 0%{background-position:-100% 0;} 100%{background-position:200% 0;} }
+    #alert-banner.critical {
+      background: linear-gradient(90deg,rgba(255,82,82,.08) 0%,rgba(255,82,82,.22) 50%,rgba(255,82,82,.08) 100%) !important;
+      background-size: 200% 100% !important;
+      animation: critSweep 2s linear infinite !important;
+    }
+
+    /* Stat cell hover highlight */
+    .stat-cell { transition: background .2s; }
+    .stat-cell:hover { background: rgba(255,255,255,.025); }
+
+    /* Cost item hover */
+    .cost-item { transition: transform .2s, border-color .2s, box-shadow .2s; }
+    .cost-item:hover { transform:translateY(-2px); border-color:#2e2e2e; box-shadow:0 4px 14px rgba(0,0,0,.45); }
+
+    /* Incident items slide in */
+    @keyframes incSlide { from{opacity:0;transform:translateX(-8px);} to{opacity:1;transform:none;} }
+    .inc-item { animation: incSlide .3s ease both; }
+
+    /* Number pop on data update */
+    @keyframes numPop { 0%{transform:scale(1.22);} 100%{transform:scale(1);} }
+    .num-pop { display:inline-block; animation: numPop .22s ease both !important; }
+
+    /* Map signal dots pulse */
+    @keyframes mapDotPulse { 0%,100%{opacity:1;} 50%{opacity:.55;} }
+    #map-sig-North,#map-sig-South,#map-sig-East,#map-sig-West { animation: mapDotPulse 2s ease infinite; }
+
+    /* Flow bar moving shine */
+    .flow-bar { position:relative; overflow:hidden; }
+    .flow-bar::after { content:''; position:absolute; top:0; left:-60%; width:50%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.22),transparent); animation:barShine 3s ease-in-out infinite; }
+    @keyframes barShine { 0%{left:-60%;} 100%{left:160%;} }
+
+    /* Capacity bar shine */
+    .cap-bar { position:relative; overflow:hidden; }
+    .cap-bar::after { content:''; position:absolute; top:0; left:-60%; width:50%; height:100%; background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent); animation:barShine 4s ease-in-out infinite; }
   </style>
 </head>
 <body>
@@ -617,10 +716,10 @@
       DIRS.forEach(dir=>{
         const v=c[dir]||0;
         const n=document.getElementById('lc-'+dir);const b=document.getElementById('lc-bar-'+dir);
-        if(n)n.textContent=v;if(b)b.style.width=((v/mx)*100).toFixed(1)+'%';
+        if(n&&n.textContent!==String(v)){n.textContent=v;numPop(n);}if(b)b.style.width=((v/mx)*100).toFixed(1)+'%';
         if(v>(prev[dir]||0)){const el=document.getElementById('lci-'+dir);if(el){el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');}}
         prev[dir]=v;
-        const el=document.getElementById('cnt-'+dir);if(el)el.textContent=v;
+        const el=document.getElementById('cnt-'+dir);if(el&&el.textContent!==String(v)){el.textContent=v;numPop(el);}
         const mc=document.getElementById('map-cnt-'+dir);if(mc)mc.textContent=v;
       });
       countsChart.data.datasets[0].data=DIRS.map(dir=>c[dir]??0);countsChart.update('none');
@@ -654,11 +753,12 @@
   }
 
   function setEl(id,html,cls){const e=document.getElementById(id);if(!e)return;e.innerHTML=html;if(cls)e.className=cls;}
+  function numPop(el){if(!el)return;el.classList.remove('num-pop');void el.offsetWidth;el.classList.add('num-pop');}
 
   async function refreshStats(){
     try{
       const r=await fetch(API+'/live_stats');if(!r.ok)throw 0;const d=await r.json();
-      const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+      const set=(id,v)=>{const e=document.getElementById(id);if(e&&e.textContent!==String(v)){e.textContent=v;numPop(e);};};
       set('st-visible',d.visible_now??0);set('st-moving',d.moving??0);set('st-stopped',d.stopped??0);
       set('st-cars',d.cars??0);set('st-trucks',d.trucks??0);set('st-buses',d.buses??0);set('st-session',d.session_tracks??0);
       const conf=d.avg_confidence??0;const confEl=document.getElementById('st-conf');
@@ -707,7 +807,7 @@
   async function refreshCost(){
     try{
       const r=await fetch(API+'/analytics/cost');if(!r.ok)throw 0;const d=await r.json();
-      const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
+      const set=(id,v)=>{const e=document.getElementById(id);if(e&&e.textContent!==String(v)){e.textContent=v;numPop(e);}};;
       set('cost-delay',d.total_delay_minutes!=null?d.total_delay_minutes.toFixed(1)+' min':'\u2013');
       set('cost-fuel',d.estimated_fuel_cost_jod!=null?d.estimated_fuel_cost_jod.toFixed(2)+' JOD':'\u2013');
       set('cost-vehicles',d.total_vehicles_this_session??'\u2013');
