@@ -1,905 +1,5 @@
 [
   {
-    "wall_time": "2026-05-04T16:20:25+03:00",
-    "sim_time_s": 16410.0,
-    "vehicle_count": 63,
-    "total_queue_m": 75.0,
-    "avg_network_speed_kmh": 15.3,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 300.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 52.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 9.5
-      },
-      "eastbound": {
-        "queue_m": 22.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 2.5
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 49.4
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:27+03:00",
-    "sim_time_s": 16411.0,
-    "vehicle_count": 64,
-    "total_queue_m": 67.5,
-    "avg_network_speed_kmh": 32.1,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 64.8
-      },
-      "southbound": {
-        "queue_m": 52.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 9.3
-      },
-      "eastbound": {
-        "queue_m": 15.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 4.7
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 49.5
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:27+03:00",
-    "sim_time_s": 16412.0,
-    "vehicle_count": 64,
-    "total_queue_m": 67.5,
-    "avg_network_speed_kmh": 29.3,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 50.6
-      },
-      "southbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 9.7
-      },
-      "eastbound": {
-        "queue_m": 7.5,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 7.4
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 49.5
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:28+03:00",
-    "sim_time_s": 16413.0,
-    "vehicle_count": 64,
-    "total_queue_m": 60.0,
-    "avg_network_speed_kmh": 25.1,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 42.1
-      },
-      "southbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 10.1
-      },
-      "eastbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 7.6
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 384.0,
-        "avg_speed_kmh": 40.8
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:29+03:00",
-    "sim_time_s": 16414.0,
-    "vehicle_count": 64,
-    "total_queue_m": 60.0,
-    "avg_network_speed_kmh": 22.9,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 45.7
-      },
-      "southbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 13.8
-      },
-      "eastbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 7.2
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 384.0,
-        "avg_speed_kmh": 24.9
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:30+03:00",
-    "sim_time_s": 16415.0,
-    "vehicle_count": 65,
-    "total_queue_m": 60.0,
-    "avg_network_speed_kmh": 17.3,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 48.8
-      },
-      "southbound": {
-        "queue_m": 52.5,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 13.9
-      },
-      "eastbound": {
-        "queue_m": 7.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 6.6
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 384.0,
-        "avg_speed_kmh": 0.0
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:31+03:00",
-    "sim_time_s": 16416.0,
-    "vehicle_count": 65,
-    "total_queue_m": 75.0,
-    "avg_network_speed_kmh": 18.3,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 54.4
-      },
-      "southbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 13.5
-      },
-      "eastbound": {
-        "queue_m": 15.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 5.2
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 384.0,
-        "avg_speed_kmh": 0.0
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:32+03:00",
-    "sim_time_s": 16417.0,
-    "vehicle_count": 65,
-    "total_queue_m": 75.0,
-    "avg_network_speed_kmh": 15.4,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 12.3
-      },
-      "eastbound": {
-        "queue_m": 15.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 5.4
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 44.0
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:33+03:00",
-    "sim_time_s": 16418.0,
-    "vehicle_count": 66,
-    "total_queue_m": 82.5,
-    "avg_network_speed_kmh": 15.0,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 300.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 13.6
-      },
-      "eastbound": {
-        "queue_m": 22.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 5.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 41.5
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:34+03:00",
-    "sim_time_s": 16419.0,
-    "vehicle_count": 67,
-    "total_queue_m": 82.5,
-    "avg_network_speed_kmh": 14.0,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 300.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 52.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 10.5
-      },
-      "eastbound": {
-        "queue_m": 30.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 4.7
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 40.8
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:35+03:00",
-    "sim_time_s": 16420.0,
-    "vehicle_count": 67,
-    "total_queue_m": 105.0,
-    "avg_network_speed_kmh": 13.9,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 300.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 67.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 12.1
-      },
-      "eastbound": {
-        "queue_m": 37.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 2.5
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 40.9
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:36+03:00",
-    "sim_time_s": 16421.0,
-    "vehicle_count": 67,
-    "total_queue_m": 112.5,
-    "avg_network_speed_kmh": 13.4,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 300.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 67.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 11.3
-      },
-      "eastbound": {
-        "queue_m": 45.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 0.9
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 41.2
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:37+03:00",
-    "sim_time_s": 16422.0,
-    "vehicle_count": 67,
-    "total_queue_m": 120.0,
-    "avg_network_speed_kmh": 13.9,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 300.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 67.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 13.6
-      },
-      "eastbound": {
-        "queue_m": 52.5,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 0.4
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 384.0,
-        "avg_speed_kmh": 41.8
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:38+03:00",
-    "sim_time_s": 16423.0,
-    "vehicle_count": 68,
-    "total_queue_m": 127.5,
-    "avg_network_speed_kmh": 28.5,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 64.8
-      },
-      "southbound": {
-        "queue_m": 75.0,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 12.8
-      },
-      "eastbound": {
-        "queue_m": 52.5,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 0.3
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 384.0,
-        "avg_speed_kmh": 36.0
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:39+03:00",
-    "sim_time_s": 16424.0,
-    "vehicle_count": 68,
-    "total_queue_m": 142.5,
-    "avg_network_speed_kmh": 24.7,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 61.6
-      },
-      "southbound": {
-        "queue_m": 82.5,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 12.5
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 384.0,
-        "avg_speed_kmh": 24.6
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:40+03:00",
-    "sim_time_s": 16425.0,
-    "vehicle_count": 68,
-    "total_queue_m": 135.0,
-    "avg_network_speed_kmh": 3.8,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 75.0,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 15.3
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 384.0,
-        "avg_speed_kmh": 0.0
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:41+03:00",
-    "sim_time_s": 16426.0,
-    "vehicle_count": 69,
-    "total_queue_m": 135.0,
-    "avg_network_speed_kmh": 16.0,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 75.0,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 14.0
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 50.0
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:42+03:00",
-    "sim_time_s": 16427.0,
-    "vehicle_count": 69,
-    "total_queue_m": 142.5,
-    "avg_network_speed_kmh": 15.2,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 82.5,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 12.4
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 48.4
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:43+03:00",
-    "sim_time_s": 16428.0,
-    "vehicle_count": 70,
-    "total_queue_m": 142.5,
-    "avg_network_speed_kmh": 15.8,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 82.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 13.6
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 49.8
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:44+03:00",
-    "sim_time_s": 16429.0,
-    "vehicle_count": 69,
-    "total_queue_m": 150.0,
-    "avg_network_speed_kmh": 14.6,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 300.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 90.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 11.2
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 47.2
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:45+03:00",
-    "sim_time_s": 16430.0,
-    "vehicle_count": 69,
-    "total_queue_m": 157.5,
-    "avg_network_speed_kmh": 14.4,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 300.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 97.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 8.3
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 49.1
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:46+03:00",
-    "sim_time_s": 16431.0,
-    "vehicle_count": 69,
-    "total_queue_m": 157.5,
-    "avg_network_speed_kmh": 11.6,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 300.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 97.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 6.4
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 384.0,
-        "avg_speed_kmh": 39.9
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:47+03:00",
-    "sim_time_s": 16432.0,
-    "vehicle_count": 69,
-    "total_queue_m": 157.5,
-    "avg_network_speed_kmh": 7.8,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 300.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 97.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 4.7
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 384.0,
-        "avg_speed_kmh": 26.5
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:48+03:00",
-    "sim_time_s": 16433.0,
-    "vehicle_count": 69,
-    "total_queue_m": 165.0,
-    "avg_network_speed_kmh": 1.7,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 300.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 105.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 6.9
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 384.0,
-        "avg_speed_kmh": 0.0
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:49+03:00",
-    "sim_time_s": 16434.0,
-    "vehicle_count": 68,
-    "total_queue_m": 165.0,
-    "avg_network_speed_kmh": 1.7,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 300.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 105.0,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 6.7
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 384.0,
-        "avg_speed_kmh": 0.0
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:50+03:00",
-    "sim_time_s": 16435.0,
-    "vehicle_count": 69,
-    "total_queue_m": 165.0,
-    "avg_network_speed_kmh": 18.6,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 64.8
-      },
-      "southbound": {
-        "queue_m": 105.0,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 9.4
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 384.0,
-        "avg_speed_kmh": 0.0
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:51+03:00",
-    "sim_time_s": 16436.0,
-    "vehicle_count": 69,
-    "total_queue_m": 172.5,
-    "avg_network_speed_kmh": 32.6,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 62.9
-      },
-      "southbound": {
-        "queue_m": 112.5,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 6.8
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 60.6
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:52+03:00",
-    "sim_time_s": 16437.0,
-    "vehicle_count": 69,
-    "total_queue_m": 172.5,
-    "avg_network_speed_kmh": 17.8,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 112.5,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 11.3
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 59.9
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:53+03:00",
-    "sim_time_s": 16438.0,
-    "vehicle_count": 69,
-    "total_queue_m": 172.5,
-    "avg_network_speed_kmh": 17.0,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 112.5,
-        "flow_veh_h": 324.0,
-        "avg_speed_kmh": 10.7
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 57.3
-      }
-    }
-  },
-  {
-    "wall_time": "2026-05-04T16:20:54+03:00",
-    "sim_time_s": 16439.0,
-    "vehicle_count": 70,
-    "total_queue_m": 172.5,
-    "avg_network_speed_kmh": 17.6,
-    "dominant_queue_direction": "southbound",
-    "per_direction": {
-      "northbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 312.0,
-        "avg_speed_kmh": 0.0
-      },
-      "southbound": {
-        "queue_m": 112.5,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 11.3
-      },
-      "eastbound": {
-        "queue_m": 60.0,
-        "flow_veh_h": 336.0,
-        "avg_speed_kmh": 0.0
-      },
-      "westbound": {
-        "queue_m": 0.0,
-        "flow_veh_h": 396.0,
-        "avg_speed_kmh": 59.3
-      }
-    }
-  },
-  {
     "wall_time": "2026-05-04T16:20:55+03:00",
     "sim_time_s": 16440.0,
     "vehicle_count": 70,
@@ -17996,6 +17096,906 @@
         "queue_m": 0.0,
         "flow_veh_h": 396.0,
         "avg_speed_kmh": 47.7
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:27+03:00",
+    "sim_time_s": 17010.0,
+    "vehicle_count": 59,
+    "total_queue_m": 67.5,
+    "avg_network_speed_kmh": 30.0,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 64.8
+      },
+      "southbound": {
+        "queue_m": 45.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 8.4
+      },
+      "eastbound": {
+        "queue_m": 22.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 1.8
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 45.1
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:28+03:00",
+    "sim_time_s": 17011.0,
+    "vehicle_count": 59,
+    "total_queue_m": 67.5,
+    "avg_network_speed_kmh": 30.7,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 63.1
+      },
+      "southbound": {
+        "queue_m": 52.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 8.9
+      },
+      "eastbound": {
+        "queue_m": 15.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 3.6
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 47.3
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:29+03:00",
+    "sim_time_s": 17012.0,
+    "vehicle_count": 59,
+    "total_queue_m": 37.5,
+    "avg_network_speed_kmh": 14.7,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 30.0,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 7.5
+      },
+      "eastbound": {
+        "queue_m": 7.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 3.9
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 384.0,
+        "avg_speed_kmh": 47.3
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:30+03:00",
+    "sim_time_s": 17013.0,
+    "vehicle_count": 59,
+    "total_queue_m": 45.0,
+    "avg_network_speed_kmh": 21.5,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 38.0
+      },
+      "southbound": {
+        "queue_m": 45.0,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 9.9
+      },
+      "eastbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 7.3
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 384.0,
+        "avg_speed_kmh": 30.7
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:31+03:00",
+    "sim_time_s": 17014.0,
+    "vehicle_count": 59,
+    "total_queue_m": 60.0,
+    "avg_network_speed_kmh": 20.0,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 44.1
+      },
+      "southbound": {
+        "queue_m": 60.0,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 8.2
+      },
+      "eastbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 9.5
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 384.0,
+        "avg_speed_kmh": 18.3
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:32+03:00",
+    "sim_time_s": 17015.0,
+    "vehicle_count": 59,
+    "total_queue_m": 52.5,
+    "avg_network_speed_kmh": 17.7,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 48.2
+      },
+      "southbound": {
+        "queue_m": 52.5,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 8.7
+      },
+      "eastbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 13.8
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 384.0,
+        "avg_speed_kmh": 0.0
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:33+03:00",
+    "sim_time_s": 17016.0,
+    "vehicle_count": 61,
+    "total_queue_m": 60.0,
+    "avg_network_speed_kmh": 17.9,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 300.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 60.0,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 6.7
+      },
+      "eastbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 10.8
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 53.9
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:34+03:00",
+    "sim_time_s": 17017.0,
+    "vehicle_count": 61,
+    "total_queue_m": 60.0,
+    "avg_network_speed_kmh": 26.1,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 300.0,
+        "avg_speed_kmh": 33.4
+      },
+      "southbound": {
+        "queue_m": 60.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 9.6
+      },
+      "eastbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 9.8
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 51.8
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:35+03:00",
+    "sim_time_s": 17018.0,
+    "vehicle_count": 61,
+    "total_queue_m": 60.0,
+    "avg_network_speed_kmh": 26.3,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 300.0,
+        "avg_speed_kmh": 37.2
+      },
+      "southbound": {
+        "queue_m": 60.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 9.0
+      },
+      "eastbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 9.1
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 49.9
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:36+03:00",
+    "sim_time_s": 17019.0,
+    "vehicle_count": 61,
+    "total_queue_m": 75.0,
+    "avg_network_speed_kmh": 27.8,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 300.0,
+        "avg_speed_kmh": 42.0
+      },
+      "southbound": {
+        "queue_m": 67.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 9.0
+      },
+      "eastbound": {
+        "queue_m": 7.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 7.0
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 53.0
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:37+03:00",
+    "sim_time_s": 17020.0,
+    "vehicle_count": 62,
+    "total_queue_m": 82.5,
+    "avg_network_speed_kmh": 27.2,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 300.0,
+        "avg_speed_kmh": 46.3
+      },
+      "southbound": {
+        "queue_m": 67.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 6.2
+      },
+      "eastbound": {
+        "queue_m": 15.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 5.4
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 50.8
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:38+03:00",
+    "sim_time_s": 17021.0,
+    "vehicle_count": 63,
+    "total_queue_m": 90.0,
+    "avg_network_speed_kmh": 27.9,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 64.8
+      },
+      "southbound": {
+        "queue_m": 75.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 5.4
+      },
+      "eastbound": {
+        "queue_m": 15.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 5.0
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 384.0,
+        "avg_speed_kmh": 36.3
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:39+03:00",
+    "sim_time_s": 17022.0,
+    "vehicle_count": 63,
+    "total_queue_m": 97.5,
+    "avg_network_speed_kmh": 23.3,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 61.2
+      },
+      "southbound": {
+        "queue_m": 82.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 5.4
+      },
+      "eastbound": {
+        "queue_m": 15.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 3.3
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 384.0,
+        "avg_speed_kmh": 23.4
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:40+03:00",
+    "sim_time_s": 17023.0,
+    "vehicle_count": 64,
+    "total_queue_m": 105.0,
+    "avg_network_speed_kmh": 1.6,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 82.5,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 4.9
+      },
+      "eastbound": {
+        "queue_m": 22.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 1.6
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 384.0,
+        "avg_speed_kmh": 0.0
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:41+03:00",
+    "sim_time_s": 17024.0,
+    "vehicle_count": 64,
+    "total_queue_m": 120.0,
+    "avg_network_speed_kmh": 1.2,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 90.0,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 4.2
+      },
+      "eastbound": {
+        "queue_m": 30.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 0.8
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 384.0,
+        "avg_speed_kmh": 0.0
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:42+03:00",
+    "sim_time_s": 17025.0,
+    "vehicle_count": 65,
+    "total_queue_m": 127.5,
+    "avg_network_speed_kmh": 13.8,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 97.5,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 4.0
+      },
+      "eastbound": {
+        "queue_m": 30.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 0.6
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 50.7
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:43+03:00",
+    "sim_time_s": 17026.0,
+    "vehicle_count": 65,
+    "total_queue_m": 135.0,
+    "avg_network_speed_kmh": 13.4,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 97.5,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 3.7
+      },
+      "eastbound": {
+        "queue_m": 37.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 0.5
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 49.2
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:44+03:00",
+    "sim_time_s": 17027.0,
+    "vehicle_count": 65,
+    "total_queue_m": 150.0,
+    "avg_network_speed_kmh": 13.5,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 105.0,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 3.7
+      },
+      "eastbound": {
+        "queue_m": 45.0,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 0.2
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 50.3
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:45+03:00",
+    "sim_time_s": 17028.0,
+    "vehicle_count": 65,
+    "total_queue_m": 165.0,
+    "avg_network_speed_kmh": 14.0,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 300.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 112.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 6.7
+      },
+      "eastbound": {
+        "queue_m": 52.5,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 0.0
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 49.1
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:46+03:00",
+    "sim_time_s": 17029.0,
+    "vehicle_count": 65,
+    "total_queue_m": 165.0,
+    "avg_network_speed_kmh": 12.8,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 300.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 112.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 3.6
+      },
+      "eastbound": {
+        "queue_m": 52.5,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 0.0
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 47.7
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:47+03:00",
+    "sim_time_s": 17030.0,
+    "vehicle_count": 65,
+    "total_queue_m": 172.5,
+    "avg_network_speed_kmh": 11.5,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 300.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 120.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 3.4
+      },
+      "eastbound": {
+        "queue_m": 52.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 0.0
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 384.0,
+        "avg_speed_kmh": 42.6
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:48+03:00",
+    "sim_time_s": 17031.0,
+    "vehicle_count": 65,
+    "total_queue_m": 180.0,
+    "avg_network_speed_kmh": 7.4,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 300.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 127.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 3.4
+      },
+      "eastbound": {
+        "queue_m": 52.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 0.0
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 384.0,
+        "avg_speed_kmh": 26.4
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:49+03:00",
+    "sim_time_s": 17032.0,
+    "vehicle_count": 65,
+    "total_queue_m": 187.5,
+    "avg_network_speed_kmh": 0.8,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 300.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 135.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 3.3
+      },
+      "eastbound": {
+        "queue_m": 52.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 0.0
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 384.0,
+        "avg_speed_kmh": 0.0
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:50+03:00",
+    "sim_time_s": 17033.0,
+    "vehicle_count": 66,
+    "total_queue_m": 187.5,
+    "avg_network_speed_kmh": 17.0,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 64.8
+      },
+      "southbound": {
+        "queue_m": 135.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 3.3
+      },
+      "eastbound": {
+        "queue_m": 52.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 0.0
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 384.0,
+        "avg_speed_kmh": 0.0
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:51+03:00",
+    "sim_time_s": 17034.0,
+    "vehicle_count": 67,
+    "total_queue_m": 187.5,
+    "avg_network_speed_kmh": 27.4,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 61.3
+      },
+      "southbound": {
+        "queue_m": 135.0,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 3.3
+      },
+      "eastbound": {
+        "queue_m": 52.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 0.0
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 44.9
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:52+03:00",
+    "sim_time_s": 17035.0,
+    "vehicle_count": 66,
+    "total_queue_m": 187.5,
+    "avg_network_speed_kmh": 11.4,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 135.0,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 3.4
+      },
+      "eastbound": {
+        "queue_m": 52.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 0.0
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 42.4
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:53+03:00",
+    "sim_time_s": 17036.0,
+    "vehicle_count": 66,
+    "total_queue_m": 187.5,
+    "avg_network_speed_kmh": 11.5,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 135.0,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 3.3
+      },
+      "eastbound": {
+        "queue_m": 52.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 0.0
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 42.9
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:54+03:00",
+    "sim_time_s": 17037.0,
+    "vehicle_count": 66,
+    "total_queue_m": 187.5,
+    "avg_network_speed_kmh": 11.6,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 135.0,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 3.4
+      },
+      "eastbound": {
+        "queue_m": 52.5,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 0.0
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 42.9
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:55+03:00",
+    "sim_time_s": 17038.0,
+    "vehicle_count": 67,
+    "total_queue_m": 187.5,
+    "avg_network_speed_kmh": 12.8,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 135.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 6.4
+      },
+      "eastbound": {
+        "queue_m": 52.5,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 0.0
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 44.6
+      }
+    }
+  },
+  {
+    "wall_time": "2026-05-04T16:30:56+03:00",
+    "sim_time_s": 17039.0,
+    "vehicle_count": 67,
+    "total_queue_m": 187.5,
+    "avg_network_speed_kmh": 12.8,
+    "dominant_queue_direction": "southbound",
+    "per_direction": {
+      "northbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 312.0,
+        "avg_speed_kmh": 0.0
+      },
+      "southbound": {
+        "queue_m": 135.0,
+        "flow_veh_h": 336.0,
+        "avg_speed_kmh": 6.2
+      },
+      "eastbound": {
+        "queue_m": 52.5,
+        "flow_veh_h": 324.0,
+        "avg_speed_kmh": 0.0
+      },
+      "westbound": {
+        "queue_m": 0.0,
+        "flow_veh_h": 396.0,
+        "avg_speed_kmh": 44.8
       }
     }
   }

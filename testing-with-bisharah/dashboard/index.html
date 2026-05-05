@@ -8,1460 +8,810 @@
   <style>
     *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
     :root {
-      --bg:#000; --surface:#0c0c12; --card:#101018; --border:#1c1c2e; --border-hi:#2a2a40;
-      --north:#00e676; --south:#ff5252; --east:#ff9100; --west:#448aff;
-      --purple:#8b5cf6; --text:#e2e8f0; --muted:#64748b; --dim:#374151;
+      --bg:      #000000;
+      --surface: #0d0d0d;
+      --card:    #111111;
+      --border:  #222222;
+      --north:   #00e676;
+      --south:   #ff5252;
+      --east:    #ff9100;
+      --west:    #448aff;
+      --purple:  #a78bfa;
+      --text:    #e2e8f0;
+      --muted:   #6b7280;
+      --dim:     #374151;
     }
-    body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; min-height:100vh; line-height:1.4; }
+    body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; font-size:14px; line-height:1.6; }
 
-    /* Header */
-    header { display:flex; justify-content:space-between; align-items:center; padding:.9rem 2rem;
-             background:rgba(12,12,18,.96); border-bottom:1px solid var(--border);
-             backdrop-filter:blur(12px); position:sticky; top:0; z-index:100; }
-    .logo-wrap  { display:flex; align-items:center; gap:.75rem; }
-    .live-dot   { width:9px; height:9px; border-radius:50%; background:var(--north);
-                  box-shadow:0 0 8px var(--north); animation:livePulse 2s infinite; }
-    @keyframes livePulse { 0%,100%{opacity:1;box-shadow:0 0 8px var(--north)} 50%{opacity:.4;box-shadow:none} }
-    .logo-title { font-size:1rem; font-weight:700; letter-spacing:.3px; }
-    .logo-sub   { font-size:.7rem; color:var(--muted); margin-top:1px; }
-    .header-right { display:flex; align-items:center; gap:1rem; }
-    .badge { display:inline-flex; align-items:center; gap:.35rem; font-size:.72rem; font-weight:600;
-             padding:.28rem .7rem; border-radius:999px; border:1px solid; transition:all .3s; }
+    /* HEADER */
+    header { display:flex; justify-content:space-between; align-items:center; padding:14px 24px; background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; }
+    .header-left { display:flex; align-items:center; gap:10px; }
+    .live-dot { width:10px; height:10px; border-radius:50%; background:var(--north); box-shadow:0 0 8px var(--north); animation:pulse 2s infinite; flex-shrink:0; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .header-title { font-size:16px; font-weight:700; }
+    .header-sub   { font-size:12px; color:var(--muted); }
+    .header-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+    .badge { display:inline-flex; align-items:center; gap:5px; font-size:12px; font-weight:600; padding:4px 10px; border-radius:20px; border:1px solid; }
     .badge.green  { color:var(--north); border-color:var(--north); background:rgba(0,230,118,.08); }
     .badge.amber  { color:var(--east);  border-color:var(--east);  background:rgba(255,145,0,.08); }
     .badge.red    { color:var(--south); border-color:var(--south); background:rgba(255,82,82,.08); }
-    .badge.purple { color:var(--purple);border-color:var(--purple);background:rgba(139,92,246,.08); }
-    #ts { font-size:.7rem; color:var(--muted); }
+    .badge.purple { color:var(--purple);border-color:var(--purple);background:rgba(167,139,250,.08); }
+    .btn { font-size:12px; font-weight:600; padding:5px 14px; border-radius:8px; cursor:pointer; border:1px solid; font-family:inherit; transition:opacity .2s; }
+    .btn:hover { opacity:.8; }
+    .btn-purple { color:var(--purple); border-color:var(--purple); background:rgba(167,139,250,.1); }
+    #ts { font-size:12px; color:var(--muted); }
 
-    /* Layout */
-    main { padding:1.25rem 2rem; display:flex; flex-direction:column; gap:1.1rem; }
-    .card { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:1.1rem 1.2rem; }
-    .card-hd { display:flex; justify-content:space-between; align-items:center; margin-bottom:.85rem; }
-    .card-title { font-size:.7rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+    /* ALERT BANNER */
+    #alert-banner { display:none; padding:8px 24px; font-size:14px; font-weight:700; text-align:center; }
+    #alert-banner.normal   { display:block; background:rgba(0,230,118,.08);  color:var(--north); border-bottom:1px solid rgba(0,230,118,.15); }
+    #alert-banner.warning  { display:block; background:rgba(255,145,0,.1);   color:var(--east);  border-bottom:1px solid rgba(255,145,0,.2); }
+    #alert-banner.critical { display:block; background:rgba(255,82,82,.1);   color:var(--south); border-bottom:1px solid rgba(255,82,82,.2); animation:pulse 1.5s infinite; }
 
-    /* HERO ROW */
-    .hero-row { display:grid; grid-template-columns:1fr 300px; gap:1.1rem; align-items:stretch; }
+    /* LAYOUT */
+    main { padding:20px 24px; display:flex; flex-direction:column; gap:20px; }
+    .section-label { font-size:11px; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); margin-bottom:10px; }
+    .card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:16px 18px; }
+    .card-title { font-size:13px; font-weight:700; margin-bottom:14px; color:var(--text); }
+    .card-head { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
+    .card-head .card-title { margin-bottom:0; }
+    .col-2 { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    .col-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; }
+    .col-4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:14px; }
 
-    /* Video */
-    .video-card { padding:0; overflow:hidden; position:relative; }
-    .video-header { display:flex; justify-content:space-between; align-items:center;
-                    padding:.65rem 1rem; background:rgba(0,0,0,.5); border-bottom:1px solid var(--border); }
-    .video-title  { font-size:.7rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
-    .video-wrap   { position:relative; width:100%; background:#050508; aspect-ratio:16/9;
-                    display:flex; align-items:center; justify-content:center; }
-    #video-feed   { width:100%; height:100%; object-fit:cover; display:block; }
-    .video-placeholder { position:absolute; inset:0; display:flex; flex-direction:column;
-                         align-items:center; justify-content:center; gap:.6rem; color:var(--muted); }
-    .video-placeholder .icon { font-size:2.5rem; opacity:.3; }
-    .video-placeholder .hint { font-size:.72rem; text-align:center; padding:0 1.5rem; }
-    #stream-status { position:absolute; bottom:8px; left:10px; font-size:.63rem; color:var(--muted);
-                     background:rgba(0,0,0,.65); padding:.2rem .5rem; border-radius:4px; }
-
-    /* Live counter */
-    .live-counter-card { display:flex; flex-direction:column; }
-    .live-counter-card .card-hd { margin-bottom:.5rem; }
-    .lc-total-row { display:flex; justify-content:space-between; align-items:baseline;
-                    margin-bottom:.8rem; padding-bottom:.7rem; border-bottom:1px solid var(--border); }
-    .lc-total-label { font-size:.68rem; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
-    .lc-total-num   { font-size:2.4rem; font-weight:800; color:var(--text); }
-    .lc-dirs { display:flex; flex-direction:column; gap:.5rem; flex:1; }
-    .lc-item { display:flex; align-items:center; gap:.7rem; padding:.5rem .65rem; border-radius:10px;
-               border:1px solid var(--border); background:rgba(255,255,255,.02); transition:border-color .3s; }
-    .lc-item.pulse { animation:countPulse .4s ease; }
-    @keyframes countPulse { 0%{transform:scale(1)} 40%{transform:scale(1.03)} 100%{transform:scale(1)} }
-    .lc-arrow { font-size:1rem; width:18px; text-align:center; }
-    .lc-name  { font-size:.72rem; font-weight:600; color:var(--muted); flex:1; }
-    .lc-bar-wrap { flex:2; height:5px; background:var(--border); border-radius:3px; overflow:hidden; }
-    .lc-bar  { height:100%; border-radius:3px; transition:width .4s ease; width:0%; }
-    .lc-num  { font-size:1.35rem; font-weight:800; min-width:36px; text-align:right; transition:color .3s; }
-    .lc-item[data-d="North"] .lc-num,.lc-item[data-d="North"] .lc-bar { color:var(--north); background:var(--north); }
-    .lc-item[data-d="South"] .lc-num,.lc-item[data-d="South"] .lc-bar { color:var(--south); background:var(--south); }
-    .lc-item[data-d="East"]  .lc-num,.lc-item[data-d="East"]  .lc-bar { color:var(--east);  background:var(--east);  }
-    .lc-item[data-d="West"]  .lc-num,.lc-item[data-d="West"]  .lc-bar { color:var(--west);  background:var(--west);  }
-    .detection-status { display:flex; align-items:center; gap:.4rem; margin-top:.7rem; padding-top:.6rem;
-                        border-top:1px solid var(--border); font-size:.68rem; color:var(--muted); }
-    .det-dot { width:7px; height:7px; border-radius:50%; background:var(--dim); transition:background .3s,box-shadow .3s; }
-    .det-dot.active { background:var(--north); box-shadow:0 0 6px var(--north); animation:livePulse 1.5s infinite; }
-
-    /* ── STATS BAR ─────────────────────────────────────────────────── */
-    .stats-bar {
-      display:flex; align-items:stretch; gap:0;
-      background:var(--card); border:1px solid var(--border); border-radius:14px;
-      overflow:hidden;
-    }
-    .stat-cell {
-      display:flex; flex-direction:column; align-items:center; justify-content:center;
-      gap:.15rem; padding:.65rem .9rem; flex:1;
-      border-right:1px solid var(--border);
-      transition:background .2s;
-    }
+    /* STATS BAR */
+    .stats-bar { display:flex; background:var(--card); border:1px solid var(--border); border-radius:12px; overflow:hidden; }
+    .stat-cell { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:12px 8px; border-right:1px solid var(--border); }
     .stat-cell:last-child { border-right:none; }
-    .stat-cell:hover { background:rgba(255,255,255,.03); }
-    .stat-num  { font-size:1.6rem; font-weight:800; line-height:1; }
-    .stat-lbl  { font-size:.6rem; font-weight:600; text-transform:uppercase; letter-spacing:.9px; color:var(--muted); }
-    .stat-cell.divider { flex:0; padding:0; min-width:1px; background:var(--border); }
+    .stat-num { font-size:22px; font-weight:800; line-height:1; }
+    .stat-lbl { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; }
 
-    /* ── SIGNAL + FLOW ROW ─────────────────────────────────────────── */
-    .sigflow-row { display:grid; grid-template-columns:260px 1fr; gap:1.1rem; align-items:stretch; }
+    /* DIRECTION CARDS */
+    .dir-card { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:14px 16px; border-top:3px solid; }
+    .dir-card[data-d="North"] { border-top-color:var(--north); }
+    .dir-card[data-d="South"] { border-top-color:var(--south); }
+    .dir-card[data-d="East"]  { border-top-color:var(--east);  }
+    .dir-card[data-d="West"]  { border-top-color:var(--west);  }
+    .dir-label { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
+    .dir-count { font-size:38px; font-weight:800; line-height:1.1; margin:4px 0 2px; }
+    .dir-card[data-d="North"] .dir-count { color:var(--north); }
+    .dir-card[data-d="South"] .dir-count { color:var(--south); }
+    .dir-card[data-d="East"]  .dir-count { color:var(--east);  }
+    .dir-card[data-d="West"]  .dir-count { color:var(--west);  }
+    .dir-unit  { font-size:12px; color:var(--muted); margin-bottom:10px; }
+    .fc-rows   { border-top:1px solid var(--border); padding-top:8px; display:flex; flex-direction:column; gap:4px; }
+    .fc-row    { display:flex; justify-content:space-between; font-size:12px; }
+    .fc-lbl    { color:var(--muted); }
+    .fc-val    { font-weight:700; }
+    .fc-src    { font-size:11px; color:var(--dim); margin-bottom:4px; }
 
-    /* Traffic lights */
-    .signal-lights { display:grid; grid-template-columns:1fr 1fr; gap:.7rem; }
-    .tl-item { display:flex; flex-direction:column; align-items:center; gap:.4rem; }
-    .tl-label { font-size:.65rem; font-weight:700; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); }
-    .tl-body  {
-      width:36px; background:#0a0a14; border:1px solid var(--border);
-      border-radius:8px; padding:5px; display:flex; flex-direction:column;
-      align-items:center; gap:5px;
-    }
-    .tl-bulb {
-      width:20px; height:20px; border-radius:50%;
-      transition:background .4s, box-shadow .4s;
-    }
-    .tl-bulb.r { background:#1a0404; }
-    .tl-bulb.r.on { background:#ff5252; box-shadow:0 0 10px #ff5252; }
-    .tl-bulb.y { background:#1a1200; }
-    .tl-bulb.y.on { background:#ffd600; box-shadow:0 0 10px #ffd600; }
-    .tl-bulb.g { background:#001a08; }
-    .tl-bulb.g.on { background:#00e676; box-shadow:0 0 10px #00e676; }
-    .tl-dir-lbl { font-size:.6rem; color:var(--muted); }
-    /* Signal duration timer */
-    .sig-timer {
-      display:flex; justify-content:space-between; align-items:center;
-      margin-top:.7rem; padding-top:.6rem; border-top:1px solid var(--border);
-      font-size:.65rem; color:var(--muted);
-    }
-    .sig-timer-val { font-size:1.05rem; font-weight:800; }
-    .sig-timer-grn { color:var(--north); }
-    .sig-timer-ylw { color:#ffd600; }
-    .sig-timer-red { color:var(--south); }
+    /* LIVE COUNTER */
+    .total-row { display:flex; justify-content:space-between; align-items:center; padding-bottom:12px; margin-bottom:12px; border-bottom:1px solid var(--border); }
+    .total-label { font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; }
+    .total-num { font-size:36px; font-weight:800; }
+    .lc-item { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; border:1px solid var(--border); margin-bottom:6px; }
+    .lc-item.pulse { animation:countPulse .4s ease; }
+    @keyframes countPulse { 0%{background:rgba(255,255,255,0)} 40%{background:rgba(255,255,255,.04)} 100%{background:rgba(255,255,255,0)} }
+    .lc-arrow { font-size:16px; width:20px; text-align:center; flex-shrink:0; }
+    .lc-name  { font-size:13px; font-weight:600; width:50px; }
+    .lc-bar-wrap { flex:1; height:6px; background:var(--border); border-radius:3px; overflow:hidden; }
+    .lc-bar  { height:100%; border-radius:3px; transition:width .4s ease; width:0%; }
+    .lc-num  { font-size:18px; font-weight:800; min-width:36px; text-align:right; }
+    .lc-item[data-d="North"] .lc-num { color:var(--north); } .lc-item[data-d="North"] .lc-bar { background:var(--north); }
+    .lc-item[data-d="South"] .lc-num { color:var(--south); } .lc-item[data-d="South"] .lc-bar { background:var(--south); }
+    .lc-item[data-d="East"]  .lc-num { color:var(--east);  } .lc-item[data-d="East"]  .lc-bar { background:var(--east);  }
+    .lc-item[data-d="West"]  .lc-num { color:var(--west);  } .lc-item[data-d="West"]  .lc-bar { background:var(--west);  }
+    .det-status { display:flex; align-items:center; gap:6px; margin-top:10px; font-size:12px; color:var(--muted); }
+    .det-dot { width:8px; height:8px; border-radius:50%; background:var(--dim); transition:background .3s; }
+    .det-dot.active { background:var(--north); box-shadow:0 0 6px var(--north); animation:pulse 1.5s infinite; }
 
-    /* Direction flow bars */
-    .flow-rows { display:flex; flex-direction:column; gap:.55rem; }
-    .flow-row {
-      display:grid;
-      grid-template-columns: 80px 1fr 38px 38px;
-      align-items:center; gap:.7rem;
-    }
-    .flow-sig-dot {
-      width:10px; height:10px; border-radius:50%; background:var(--dim);
-      transition:background .4s, box-shadow .4s; flex-shrink:0;
-    }
-    .flow-sig-dot.green  { background:#00e676; box-shadow:0 0 6px #00e676; }
-    .flow-sig-dot.yellow { background:#ffd600; box-shadow:0 0 6px #ffd600; }
-    .flow-sig-dot.red    { background:#ff5252; }
-    .flow-dir-lbl { font-size:.72rem; font-weight:700; color:var(--muted); }
+    /* VIDEO */
+    .video-wrap { position:relative; background:#050508; border-radius:8px; aspect-ratio:16/9; overflow:hidden; display:flex; align-items:center; justify-content:center; }
+    #video-feed { width:100%; height:100%; object-fit:cover; display:none; }
+    .video-placeholder { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; color:var(--muted); padding:20px; text-align:center; }
+    .video-placeholder .icon { font-size:32px; opacity:.3; }
+    .video-placeholder p { font-size:13px; }
+    .video-placeholder code { background:rgba(255,255,255,.07); padding:2px 6px; border-radius:4px; font-size:11px; color:var(--text); }
+    #stream-status { position:absolute; bottom:8px; left:10px; font-size:11px; color:var(--muted); background:rgba(0,0,0,.6); padding:2px 8px; border-radius:4px; }
+
+    /* SIGNAL LIGHTS */
+    .signal-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .tl-item { display:flex; flex-direction:column; align-items:center; gap:6px; }
+    .tl-label { font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; }
+    .tl-body  { width:40px; background:#0a0a14; border:1px solid var(--border); border-radius:8px; padding:6px; display:flex; flex-direction:column; align-items:center; gap:5px; }
+    .tl-bulb  { width:22px; height:22px; border-radius:50%; transition:background .3s, box-shadow .3s; }
+    .tl-bulb.r     { background:#1a0404; } .tl-bulb.r.on  { background:#ff5252; box-shadow:0 0 10px #ff5252; }
+    .tl-bulb.y     { background:#1a1200; } .tl-bulb.y.on  { background:#ffd600; box-shadow:0 0 10px #ffd600; }
+    .tl-bulb.g     { background:#001a08; } .tl-bulb.g.on  { background:#00e676; box-shadow:0 0 10px #00e676; }
+    .sig-timer { margin-top:12px; padding-top:10px; border-top:1px solid var(--border); display:flex; justify-content:space-between; font-size:12px; color:var(--muted); }
+    .sig-timer-val { font-size:16px; font-weight:800; }
+
+    /* FLOW BARS */
+    .flow-rows { display:flex; flex-direction:column; gap:10px; }
+    .flow-row  { display:grid; grid-template-columns:120px 1fr 70px 12px; gap:10px; align-items:center; }
+    .flow-dir-lbl { font-size:13px; font-weight:600; color:var(--muted); }
     .flow-bar-wrap { height:10px; background:var(--border); border-radius:5px; overflow:hidden; }
     .flow-bar { height:100%; border-radius:5px; transition:width .5s ease; width:0%; }
-    .flow-veh { font-size:.8rem; font-weight:700; text-align:right; }
-    .flow-crossing {
-      display:flex; align-items:center; justify-content:flex-end; gap:.25rem;
-      font-size:.72rem; font-weight:600; color:var(--muted);
-    }
+    .flow-veh { font-size:12px; font-weight:700; text-align:right; }
+    .flow-dot { width:10px; height:10px; border-radius:50%; background:var(--south); transition:background .4s; }
+    .flow-dot.green  { background:#00e676; box-shadow:0 0 6px #00e676; }
+    .flow-dot.yellow { background:#ffd600; }
     .flow-row[data-d="North"] .flow-bar,.flow-row[data-d="North"] .flow-veh { background:var(--north); color:var(--north); }
     .flow-row[data-d="South"] .flow-bar,.flow-row[data-d="South"] .flow-veh { background:var(--south); color:var(--south); }
     .flow-row[data-d="East"]  .flow-bar,.flow-row[data-d="East"]  .flow-veh { background:var(--east);  color:var(--east);  }
     .flow-row[data-d="West"]  .flow-bar,.flow-row[data-d="West"]  .flow-veh { background:var(--west);  color:var(--west);  }
 
-    /* Direction summary cards */
-    .dir-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
-    .dir-card { background:var(--card); border:1px solid var(--border); border-radius:14px;
-                padding:1.1rem 1.15rem 1rem; position:relative; overflow:hidden;
-                transition:transform .2s,border-color .2s; }
-    .dir-card:hover { transform:translateY(-3px); border-color:var(--border-hi); }
-    .dir-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; border-radius:14px 14px 0 0; }
-    .dir-card::after  { content:''; position:absolute; bottom:-30px; right:-20px;
-                        width:90px; height:90px; border-radius:50%; opacity:.06; filter:blur(20px); }
-    .dir-card[data-d="North"]::before,.dir-card[data-d="North"]::after { background:var(--north); }
-    .dir-card[data-d="South"]::before,.dir-card[data-d="South"]::after { background:var(--south); }
-    .dir-card[data-d="East"]::before, .dir-card[data-d="East"]::after  { background:var(--east);  }
-    .dir-card[data-d="West"]::before, .dir-card[data-d="West"]::after  { background:var(--west);  }
-    .dir-lbl   { font-size:.68rem; font-weight:700; letter-spacing:1.2px; text-transform:uppercase; color:var(--muted); margin-bottom:.4rem; }
-    .dir-count { font-size:2.5rem; font-weight:800; line-height:1; margin-bottom:.1rem; }
-    .dir-card[data-d="North"] .dir-count { color:var(--north); }
-    .dir-card[data-d="South"] .dir-count { color:var(--south); }
-    .dir-card[data-d="East"]  .dir-count { color:var(--east);  }
-    .dir-card[data-d="West"]  .dir-count { color:var(--west);  }
-    .dir-unit { font-size:.7rem; color:var(--muted); margin-bottom:.8rem; }
-    .fc-rows { display:flex; flex-direction:column; gap:.25rem; border-top:1px solid var(--border); padding-top:.65rem; }
-    .fc-rows-hd { font-size:.6rem; font-weight:600; color:var(--dim); margin-bottom:.2rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .fc-row  { display:flex; justify-content:space-between; align-items:center; font-size:.73rem; }
-    .fc-lbl  { color:var(--muted); }
-    .fc-val  { font-weight:700; }
+    /* MAP */
+    .map-center { display:flex; justify-content:center; align-items:center; padding:8px 0; }
+    .map-center svg { width:100%; max-width:460px; height:auto; }
 
-    /* Charts */
-    .charts-row { display:grid; grid-template-columns:1.5fr 1fr; gap:1rem; }
-    .chart-box  { position:relative; height:210px; }
+    /* ADVISOR */
+    .adv-card { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:12px 14px 12px 16px; position:relative; border-left:4px solid; }
+    .adv-ok   { border-left-color:var(--north); }
+    .adv-med  { border-left-color:var(--east);  }
+    .adv-high { border-left-color:var(--south); }
+    .adv-low  { border-left-color:var(--muted); }
+    .adv-dir    { font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:3px; }
+    .adv-action { font-size:14px; font-weight:800; margin-bottom:4px; }
+    .adv-ok   .adv-action { color:var(--north); } .adv-med  .adv-action { color:var(--east);  }
+    .adv-high .adv-action { color:var(--south); } .adv-low  .adv-action { color:var(--muted); }
+    .adv-reason { font-size:12px; color:var(--muted); line-height:1.5; }
+    .adv-load { position:absolute; top:10px; right:10px; font-size:11px; font-weight:700; background:rgba(255,255,255,.05); color:var(--muted); padding:2px 6px; border-radius:20px; }
 
-    /* Bottom */
-    .bottom-row { display:grid; grid-template-columns:1fr 1.1fr 1fr; gap:1rem; }
-    .gauge-wrap { display:flex; flex-direction:column; align-items:center; gap:.65rem; padding-top:.25rem; }
+    /* CAPACITY */
+    .cap-row  { display:flex; flex-direction:column; gap:10px; }
+    .cap-item { display:flex; flex-direction:column; gap:4px; }
+    .cap-dir  { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; }
+    .cap-bar-wrap { height:8px; background:var(--border); border-radius:4px; overflow:hidden; }
+    .cap-bar  { height:100%; border-radius:4px; transition:width .5s ease; }
+    .cap-meta { display:flex; justify-content:space-between; font-size:12px; color:var(--muted); }
+
+    /* CHARTS */
+    .chart-box { position:relative; height:220px; }
+
+    /* GAUGE */
+    .gauge-wrap { display:flex; flex-direction:column; align-items:center; gap:10px; padding:8px 0; }
     .gauge-svg-wrap { position:relative; width:130px; height:130px; }
     .gauge-svg-wrap svg { transform:rotate(-90deg); }
-    .gauge-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; pointer-events:none; }
-    .gauge-num  { font-size:1.65rem; font-weight:800; }
-    .gauge-sub  { font-size:.6rem; color:var(--muted); margin-top:1px; }
-    .cong-level { font-size:.78rem; font-weight:700; padding:.28rem .85rem; border-radius:999px; }
-    .cong-free  { color:var(--north); background:rgba(0,230,118,.12); }
-    .cong-mod   { color:var(--east);  background:rgba(255,145,0,.12); }
-    .cong-heavy { color:var(--south); background:rgba(255,82,82,.12); }
-    .cong-meta  { font-size:.7rem; color:var(--muted); text-align:center; }
-    .cong-scale { font-size:.63rem; color:var(--dim); text-align:center; margin-top:.2rem; }
-    .signal-list { display:flex; flex-direction:column; gap:.85rem; }
-    .sig-item   { display:flex; flex-direction:column; gap:.35rem; }
-    .sig-label  { font-size:.68rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
-    .sig-bar    { display:flex; height:10px; border-radius:5px; overflow:hidden; gap:2px; }
+    .gauge-center { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); text-align:center; }
+    .gauge-num { font-size:26px; font-weight:800; }
+    .gauge-sub { font-size:11px; color:var(--muted); }
+    .cong-level { font-size:13px; font-weight:700; padding:4px 14px; border-radius:20px; }
+    .cong-free  { color:var(--north); background:rgba(0,230,118,.1); }
+    .cong-mod   { color:var(--east);  background:rgba(255,145,0,.1); }
+    .cong-heavy { color:var(--south); background:rgba(255,82,82,.1); }
+    .cong-meta  { font-size:12px; color:var(--muted); text-align:center; }
+    .cong-scale { font-size:11px; color:var(--dim); text-align:center; }
+
+    /* SIGNAL TIMING */
+    .signal-list { display:flex; flex-direction:column; gap:14px; }
+    .sig-item    { display:flex; flex-direction:column; gap:5px; }
+    .sig-label   { font-size:13px; font-weight:700; }
+    .sig-bar     { display:flex; height:10px; border-radius:5px; overflow:hidden; gap:2px; }
     .seg { border-radius:2px; }
     .seg-g { background:var(--north); } .seg-y { background:#ffd600; } .seg-r { background:var(--south); }
-    .sig-timing { font-size:.68rem; color:var(--dim); }
-    .events-scroll { display:flex; flex-direction:column; gap:.5rem; max-height:160px; overflow-y:auto; }
-    .ev-item { display:flex; gap:.6rem; align-items:flex-start; padding:.5rem .55rem; border-radius:8px;
-               background:rgba(255,255,255,.02); border:1px solid var(--border); }
-    .ev-dot  { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:3px; }
-    .ev-type { font-size:.76rem; font-weight:600; }
-    .ev-meta { font-size:.68rem; color:var(--muted); margin-top:1px; }
-    .no-data { color:var(--muted); font-size:.76rem; text-align:center; padding:.7rem 0; }
+    .sig-timing  { font-size:12px; color:var(--muted); }
+
+    /* ECONOMIC COST */
+    .cost-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .cost-item { background:rgba(255,255,255,.02); border:1px solid var(--border); border-radius:10px; padding:12px 14px; }
+    .cost-val { font-size:22px; font-weight:800; }
+    .cost-lbl { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.6px; color:var(--muted); margin-top:2px; }
+    .cost-note { font-size:11px; color:var(--dim); margin-top:8px; }
+
+    /* INCIDENT FORM */
+    .inc-form { display:flex; flex-direction:column; gap:8px; margin-bottom:14px; }
+    .inc-row  { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .inc-form select, .inc-form input[type=text] { background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:8px 10px; font-size:13px; outline:none; font-family:inherit; transition:border-color .2s; }
+    .inc-form select:focus,.inc-form input[type=text]:focus { border-color:#444; }
+    .btn-report { background:rgba(255,82,82,.1); color:var(--south); border:1px solid rgba(255,82,82,.2); border-radius:8px; padding:8px 14px; font-size:13px; font-weight:700; cursor:pointer; transition:opacity .2s; font-family:inherit; width:100%; }
+    .btn-report:hover { opacity:.8; }
+    .inc-scroll { display:flex; flex-direction:column; gap:6px; max-height:140px; overflow-y:auto; }
+    .inc-item { display:flex; gap:8px; align-items:flex-start; padding:8px 10px; border-radius:8px; background:rgba(255,255,255,.02); border:1px solid var(--border); }
+    .inc-dot  { width:8px; height:8px; border-radius:50%; flex-shrink:0; margin-top:4px; }
+    .inc-type { font-size:13px; font-weight:600; }
+    .inc-meta { font-size:12px; color:var(--muted); }
+    .no-data  { font-size:13px; color:var(--muted); padding:10px 0; text-align:center; }
     ::-webkit-scrollbar { width:4px; }
-    ::-webkit-scrollbar-track { background:transparent; }
-    ::-webkit-scrollbar-thumb { background:var(--border-hi); border-radius:4px; }
+    ::-webkit-scrollbar-thumb { background:#333; border-radius:4px; }
 
-    /* ── ALERT BANNER ────────────────────────────────────────────── */
-    #alert-banner {
-      display:none; padding:.45rem 2rem; font-size:.78rem; font-weight:700;
-      letter-spacing:.5px; text-align:center; transition:all .3s;
-    }
-    #alert-banner.normal   { display:block; background:rgba(0,230,118,.09); color:var(--north); border-bottom:1px solid rgba(0,230,118,.18); }
-    #alert-banner.warning  { display:block; background:rgba(255,145,0,.11); color:var(--east);  border-bottom:1px solid rgba(255,145,0,.24); }
-    #alert-banner.critical { display:block; background:rgba(255,82,82,.11); color:var(--south); border-bottom:1px solid rgba(255,82,82,.22); animation:alertPulse 1.5s infinite; }
-    @keyframes alertPulse { 0%,100%{opacity:1} 50%{opacity:.7} }
-
-    /* ── SIGNAL ADVISOR ──────────────────────────────────────────── */
-    .advisor-row { display:grid; grid-template-columns:repeat(4,1fr); gap:1rem; }
-    .adv-card {
-      background:var(--card); border:1px solid var(--border); border-radius:14px;
-      padding:1rem 1.1rem 1rem 1.3rem; position:relative; overflow:hidden;
-    }
-    .adv-card::before {
-      content:''; position:absolute; left:0; top:0; bottom:0; width:4px; border-radius:14px 0 0 14px;
-    }
-    .adv-ok::before   { background:var(--north); }
-    .adv-med::before  { background:var(--east); }
-    .adv-high::before { background:var(--south); }
-    .adv-low::before  { background:var(--muted); }
-    .adv-dir    { font-size:.63rem; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--muted); margin-bottom:.2rem; }
-    .adv-action { font-size:.84rem; font-weight:800; margin-bottom:.25rem; }
-    .adv-ok    .adv-action { color:var(--north); }
-    .adv-med   .adv-action { color:var(--east); }
-    .adv-high  .adv-action { color:var(--south); }
-    .adv-low   .adv-action { color:var(--muted); }
-    .adv-reason { font-size:.68rem; color:var(--muted); line-height:1.45; }
-    .adv-load  {
-      position:absolute; top:.85rem; right:.85rem;
-      font-size:.65rem; font-weight:700; padding:.18rem .45rem;
-      border-radius:999px; background:rgba(255,255,255,.05); color:var(--muted);
-    }
-    .adv-section-hd { display:flex; justify-content:space-between; align-items:center; margin-bottom:.75rem; }
-
-    /* ── 2D INTERSECTION MAP ─────────────────────────────────────── */
-    .maprow { display:grid; grid-template-columns:280px 1fr; gap:1rem; align-items:stretch; }
-    .map-svg-wrap { display:flex; justify-content:center; align-items:center; height:100%; padding:.5rem 0; }
-    .map-svg-wrap svg { width:220px; height:220px; }
-
-    /* ── CAPACITY BARS ───────────────────────────────────────────── */
-    .cap-row  { display:grid; grid-template-columns:repeat(4,1fr); gap:.65rem; }
-    .cap-item { display:flex; flex-direction:column; gap:.35rem; }
-    .cap-dir  { font-size:.63rem; font-weight:700; letter-spacing:.9px; text-transform:uppercase; color:var(--muted); }
-    .cap-bar-wrap { height:7px; background:var(--border); border-radius:4px; overflow:hidden; }
-    .cap-bar      { height:100%; border-radius:4px; transition:width .5s ease; }
-    .cap-meta     { font-size:.67rem; color:var(--muted); display:flex; justify-content:space-between; }
-
-    /* ── ECONOMIC COST ───────────────────────────────────────────── */
-    .cost-grid { display:grid; grid-template-columns:1fr 1fr; gap:.55rem; margin-bottom:.55rem; }
-    .cost-item { background:rgba(255,255,255,.02); border:1px solid var(--border); border-radius:10px; padding:.65rem .85rem; }
-    .cost-val  { font-size:1.45rem; font-weight:800; }
-    .cost-lbl  { font-size:.6rem; font-weight:600; text-transform:uppercase; letter-spacing:.8px; color:var(--muted); margin-top:.12rem; }
-    .cost-note { font-size:.63rem; color:var(--dim); text-align:center; }
-
-    /* ── ANALYTICS ROW ───────────────────────────────────────────── */
-    .analytics-row { display:grid; grid-template-columns:1.6fr 1fr; gap:1rem; }
-    .heatmap-wrap  { height:200px; position:relative; }
-    .chart-3col    { display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem; }
-
-    /* ── INCIDENT FORM ───────────────────────────────────────────── */
-    .inc-form { display:flex; flex-direction:column; gap:.45rem; margin-bottom:.65rem; }
-    .inc-form select, .inc-form input[type=text] {
-      background:rgba(255,255,255,.04); border:1px solid var(--border); border-radius:8px;
-      color:var(--text); padding:.42rem .6rem; font-size:.72rem; outline:none; font-family:inherit;
-      transition:border-color .2s;
-    }
-    .inc-form select:focus,.inc-form input[type=text]:focus { border-color:var(--border-hi); }
-    .inc-form-row { display:grid; grid-template-columns:1fr 1fr; gap:.45rem; }
-    .btn-report {
-      background:rgba(255,82,82,.1); color:var(--south); border:1px solid rgba(255,82,82,.2);
-      border-radius:8px; padding:.42rem .9rem; font-size:.72rem; font-weight:700;
-      cursor:pointer; transition:all .2s; font-family:inherit; width:100%;
-    }
-    .btn-report:hover { background:rgba(255,82,82,.18); }
-    .btn-export {
-      background:rgba(139,92,246,.1); color:var(--purple); border:1px solid rgba(139,92,246,.2);
-      border-radius:8px; padding:.28rem .75rem; font-size:.69rem; font-weight:700;
-      cursor:pointer; transition:all .2s; font-family:inherit;
-    }
-    .btn-export:hover { background:rgba(139,92,246,.18); }
-    .inc-item { display:flex; gap:.55rem; align-items:flex-start; padding:.45rem .5rem;
-                border-radius:8px; background:rgba(255,255,255,.02); border:1px solid var(--border); }
-    .inc-dot  { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:3px; }
-    .inc-type { font-size:.74rem; font-weight:600; }
-    .inc-meta { font-size:.66rem; color:var(--muted); margin-top:1px; }
-    .inc-scroll { display:flex; flex-direction:column; gap:.4rem; max-height:130px; overflow-y:auto; }
-
-    /* ── CHATBOT ────────────────────────────────────────────────── */
-    #chat-fab {
-      position:fixed; bottom:1.8rem; right:1.8rem; z-index:200;
-      width:54px; height:54px; border-radius:50%; border:none; cursor:pointer;
-      background:var(--purple); color:#fff; font-size:1.4rem;
-      box-shadow:0 4px 20px rgba(139,92,246,.5);
-      display:flex; align-items:center; justify-content:center;
-      transition:transform .2s, box-shadow .2s;
-    }
-    #chat-fab:hover { transform:scale(1.08); box-shadow:0 6px 28px rgba(139,92,246,.7); }
-    #chat-panel {
-      position:fixed; bottom:5rem; right:1.8rem; z-index:199;
-      width:370px; max-height:560px;
-      background:var(--card); border:1px solid var(--border-hi); border-radius:16px;
-      display:flex; flex-direction:column; overflow:hidden;
-      box-shadow:0 12px 48px rgba(0,0,0,.6);
-      transition:opacity .2s, transform .2s;
-    }
-    #chat-panel.hidden { opacity:0; pointer-events:none; transform:translateY(12px); }
-    .chat-header {
-      display:flex; align-items:center; gap:.6rem;
-      padding:.75rem 1rem; border-bottom:1px solid var(--border);
-      background:rgba(139,92,246,.08);
-    }
-    .chat-header-icon { font-size:1.1rem; }
-    .chat-header-title { font-size:.82rem; font-weight:700; flex:1; }
-    .chat-header-sub   { font-size:.65rem; color:var(--muted); }
-    #chat-close {
-      background:none; border:none; color:var(--muted); cursor:pointer;
-      font-size:.9rem; padding:.15rem .3rem; border-radius:4px;
-      transition:color .2s;
-    }
-    #chat-close:hover { color:var(--text); }
-    #chat-messages {
-      flex:1; overflow-y:auto; padding:.75rem 1rem;
-      display:flex; flex-direction:column; gap:.6rem;
-      min-height:200px;
-    }
-    .msg {
-      max-width:88%; padding:.5rem .75rem; border-radius:12px;
-      font-size:.78rem; line-height:1.5; word-break:break-word;
-    }
-    .msg.user {
-      align-self:flex-end;
-      background:var(--purple); color:#fff;
-      border-bottom-right-radius:3px;
-    }
-    .msg.assistant {
-      align-self:flex-start;
-      background:rgba(255,255,255,.05); color:var(--text);
-      border:1px solid var(--border); border-bottom-left-radius:3px;
-    }
-    .msg.system {
-      align-self:center; font-size:.68rem;
-      color:var(--muted); background:none; padding:.2rem .5rem;
-      border-radius:4px;
-    }
-    .msg-tools {
-      font-size:.6rem; color:var(--dim); margin-top:.3rem;
-      display:flex; flex-wrap:wrap; gap:.25rem;
-    }
-    .tool-badge {
-      background:rgba(139,92,246,.15); color:var(--purple);
-      border:1px solid rgba(139,92,246,.25); border-radius:4px;
-      padding:.1rem .35rem; font-size:.6rem;
-    }
-    .msg-spinner {
-      display:flex; gap:4px; align-items:center; padding:.2rem 0;
-    }
-    .msg-spinner span {
-      width:6px; height:6px; border-radius:50%;
-      background:var(--muted); animation:spin-dot 1.2s infinite;
-    }
+    /* CHATBOT */
+    #chat-fab { position:fixed; bottom:24px; right:24px; z-index:200; width:54px; height:54px; border-radius:50%; border:none; cursor:pointer; background:var(--purple); color:#fff; font-size:22px; box-shadow:0 4px 20px rgba(167,139,250,.4); display:flex; align-items:center; justify-content:center; transition:transform .2s; }
+    #chat-fab:hover { transform:scale(1.08); }
+    #chat-panel { position:fixed; bottom:90px; right:24px; z-index:199; width:360px; max-height:540px; background:var(--card); border:1px solid #333; border-radius:16px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 12px 48px rgba(0,0,0,.7); transition:opacity .2s, transform .2s; }
+    #chat-panel.hidden { opacity:0; pointer-events:none; transform:translateY(10px); }
+    .chat-header { display:flex; align-items:center; gap:8px; padding:12px 16px; border-bottom:1px solid var(--border); }
+    .chat-header-title { font-size:14px; font-weight:700; flex:1; }
+    .chat-header-sub   { font-size:11px; color:var(--muted); }
+    #chat-close { background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; padding:2px 6px; border-radius:4px; }
+    #chat-messages { flex:1; overflow-y:auto; padding:12px 14px; display:flex; flex-direction:column; gap:8px; min-height:180px; }
+    .msg { max-width:88%; padding:8px 12px; border-radius:12px; font-size:13px; line-height:1.5; word-break:break-word; }
+    .msg.user      { align-self:flex-end; background:var(--purple); color:#fff; border-bottom-right-radius:3px; }
+    .msg.assistant { align-self:flex-start; background:rgba(255,255,255,.05); border:1px solid var(--border); border-bottom-left-radius:3px; }
+    .msg.system    { align-self:center; font-size:12px; color:var(--muted); }
+    .msg-tools { font-size:11px; color:var(--dim); margin-top:4px; display:flex; flex-wrap:wrap; gap:4px; }
+    .tool-badge { background:rgba(167,139,250,.15); color:var(--purple); border:1px solid rgba(167,139,250,.25); border-radius:4px; padding:1px 6px; font-size:11px; }
+    .msg-spinner { display:flex; gap:4px; align-items:center; padding:2px 0; }
+    .msg-spinner span { width:6px; height:6px; border-radius:50%; background:var(--muted); animation:spin-dot 1.2s infinite; }
     .msg-spinner span:nth-child(2){ animation-delay:.2s; }
     .msg-spinner span:nth-child(3){ animation-delay:.4s; }
-    @keyframes spin-dot {
-      0%,80%,100%{ opacity:.2; transform:scale(.8); }
-      40%{ opacity:1; transform:scale(1); }
-    }
-    .chat-footer {
-      display:flex; gap:.5rem; padding:.6rem .75rem;
-      border-top:1px solid var(--border); background:var(--surface);
-    }
-    #chat-input {
-      flex:1; background:var(--bg); border:1px solid var(--border);
-      border-radius:8px; color:var(--text); font-size:.8rem;
-      padding:.45rem .65rem; outline:none; resize:none; height:36px;
-      font-family:inherit; line-height:1.4;
-      transition:border-color .2s;
-    }
-    #chat-input:focus { border-color:var(--purple); }
-    #chat-send {
-      background:var(--purple); border:none; border-radius:8px;
-      color:#fff; font-size:.95rem; width:36px; cursor:pointer;
-      display:flex; align-items:center; justify-content:center;
-      transition:background .2s;
-    }
-    #chat-send:hover { background:#7c3aed; }
-    #chat-send:disabled { background:var(--dim); cursor:default; }
-    #chat-reset {
-      background:none; border:none; color:var(--dim); cursor:pointer;
-      font-size:.65rem; padding:.2rem .4rem; border-radius:4px;
-      align-self:flex-end; transition:color .2s;
-    }
-    #chat-reset:hover { color:var(--muted); }
-    /* suggestion chips */
-    .chat-chips {
-      display:flex; flex-wrap:wrap; gap:.35rem;
-      padding:0 1rem .5rem;
-    }
-    .chip {
-      font-size:.65rem; padding:.25rem .55rem; border-radius:999px;
-      background:rgba(255,255,255,.04); border:1px solid var(--border);
-      color:var(--muted); cursor:pointer; transition:all .2s;
-    }
-    .chip:hover { background:rgba(139,92,246,.15); border-color:var(--purple); color:var(--text); }
+    @keyframes spin-dot { 0%,80%,100%{opacity:.2;transform:scale(.8)} 40%{opacity:1;transform:scale(1)} }
+    .chat-footer { display:flex; gap:8px; padding:8px 12px; border-top:1px solid var(--border); background:var(--surface); }
+    #chat-input { flex:1; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; padding:7px 10px; outline:none; resize:none; height:36px; font-family:inherit; line-height:1.4; transition:border-color .2s; }
+    #chat-input:focus { border-color:#555; }
+    #chat-send { background:var(--purple); border:none; border-radius:8px; color:#fff; font-size:16px; width:36px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:opacity .2s; }
+    #chat-send:hover { opacity:.85; }
+    #chat-send:disabled { opacity:.4; cursor:default; }
+    #chat-reset { background:none; border:none; color:var(--dim); cursor:pointer; font-size:11px; padding:2px 8px 6px; align-self:flex-end; }
+    .chat-chips { display:flex; flex-wrap:wrap; gap:5px; padding:0 14px 8px; }
+    .chip { font-size:11px; padding:4px 9px; border-radius:20px; background:rgba(255,255,255,.04); border:1px solid var(--border); color:var(--muted); cursor:pointer; transition:all .2s; }
+    .chip:hover { border-color:var(--purple); color:var(--text); }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="logo-wrap">
+  <div class="header-left">
     <div class="live-dot"></div>
     <div>
-      <div class="logo-title">Wadi Saqra Traffic Monitor</div>
-      <div class="logo-sub">Amman Intersection · AI-Powered Real-Time Analysis</div>
+      <div class="header-title">Wadi Saqra Traffic Monitor</div>
+      <div class="header-sub">Amman Intersection · AI-Powered Real-Time Analysis</div>
     </div>
   </div>
   <div class="header-right">
-    <span id="badge-api"  class="badge green"><span>●</span> API Connected</span>
-    <span id="badge-cong" class="badge green"><span>●</span> Free Flow</span>
-    <button class="btn-export" onclick="exportReport()" title="Export CSV report">⬇ Export</button>
-    <span id="ts">–</span>
+    <span id="badge-api"  class="badge green">&#x25cf; API Connected</span>
+    <span id="badge-cong" class="badge green">&#x25cf; Free Flow</span>
+    <button class="btn btn-purple" onclick="exportReport()">&#x2B07; Export CSV</button>
+    <span id="ts">&#x2013;</span>
   </div>
 </header>
 
-<!-- Traffic State Alert Banner -->
 <div id="alert-banner"></div>
 
 <main>
 
-  <!-- HERO: Live Video + Live Counter -->
-  <div class="hero-row">
-
-    <div class="card video-card">
-      <div class="video-header">
-        <span class="video-title">Live Detection Feed</span>
-        <span class="badge red" id="badge-det"><span>●</span> No stream</span>
-      </div>
-      <div class="video-wrap">
-        <div class="video-placeholder" id="video-placeholder">
-          <div class="icon">🎥</div>
-          <div class="hint">
-            No live video stream detected.<br>
-            Start detection to see the live feed:<br>
-            <code style="background:rgba(255,255,255,.07);padding:.1rem .35rem;border-radius:4px;font-size:.7rem;">
-            python3 src/detection/step3_line_count.py</code>
-          </div>
-        </div>
-        <img id="video-feed" src="" alt="" style="display:none;"
-             onload="onVideoLoad()" onerror="onVideoError()" />
-        <span id="stream-status">Connecting…</span>
-      </div>
+  <!-- 1. LIVE STATUS BAR -->
+  <div>
+    <div class="section-label">Live Status</div>
+    <div class="stats-bar">
+      <div class="stat-cell"><span class="stat-num" id="st-visible" style="color:var(--text)">0</span><span class="stat-lbl">In Frame</span></div>
+      <div class="stat-cell"><span class="stat-num" id="st-moving"  style="color:var(--north)">0</span><span class="stat-lbl">Moving</span></div>
+      <div class="stat-cell"><span class="stat-num" id="st-stopped" style="color:var(--south)">0</span><span class="stat-lbl">Stopped</span></div>
+      <div class="stat-cell"><span class="stat-num" id="st-cars"    style="color:var(--west)">0</span><span class="stat-lbl">Cars</span></div>
+      <div class="stat-cell"><span class="stat-num" id="st-trucks"  style="color:var(--east)">0</span><span class="stat-lbl">Trucks</span></div>
+      <div class="stat-cell"><span class="stat-num" id="st-buses"   style="color:var(--purple)">0</span><span class="stat-lbl">Buses</span></div>
+      <div class="stat-cell"><span class="stat-num" id="st-session" style="color:var(--text)">0</span><span class="stat-lbl">Total Unique</span></div>
+      <div class="stat-cell"><span class="stat-num" id="st-conf"    style="color:var(--north)">&#x2013;</span><span class="stat-lbl">AI Confidence</span></div>
     </div>
+  </div>
 
-    <div class="card live-counter-card">
-      <div class="card-hd">
-        <div class="card-title">Vehicles Crossed · This Session</div>
-        <span class="badge purple" style="font-size:.63rem">Real-time</span>
+  <!-- 2. DETECTION FEED + LIVE COUNTS -->
+  <div>
+    <div class="section-label">Detection Feed &amp; Vehicle Counts</div>
+    <div class="col-2">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Live Detection Feed</div>
+          <span class="badge red" id="badge-det">&#x25cf; No Stream</span>
+        </div>
+        <div class="video-wrap">
+          <div class="video-placeholder" id="video-placeholder">
+            <div class="icon">&#x1F3A5;</div>
+            <p>No live video stream detected.</p>
+            <p>Start detection to see the live feed:<br><code>python3 src/detection/step3_line_count.py</code></p>
+          </div>
+          <img id="video-feed" src="" alt="" onload="onVideoLoad()" onerror="onVideoError()" />
+          <span id="stream-status">Connecting&hellip;</span>
+        </div>
       </div>
-      <div class="lc-total-row">
-        <span class="lc-total-label">Total Crossed</span>
-        <span class="lc-total-num" id="lc-total">0</span>
-      </div>
-      <div class="lc-dirs">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Vehicles Crossed This Session</div>
+          <span class="badge purple">Real-time</span>
+        </div>
+        <div class="total-row">
+          <span class="total-label">Total Crossed</span>
+          <span class="total-num" id="lc-total">0</span>
+        </div>
         <div class="lc-item" data-d="North" id="lci-North">
-          <span class="lc-arrow" style="color:var(--north)">↑</span>
+          <span class="lc-arrow" style="color:var(--north)">&#x2191;</span>
           <span class="lc-name">North</span>
           <div class="lc-bar-wrap"><div class="lc-bar" id="lc-bar-North"></div></div>
           <span class="lc-num" id="lc-North">0</span>
         </div>
         <div class="lc-item" data-d="South" id="lci-South">
-          <span class="lc-arrow" style="color:var(--south)">↓</span>
+          <span class="lc-arrow" style="color:var(--south)">&#x2193;</span>
           <span class="lc-name">South</span>
           <div class="lc-bar-wrap"><div class="lc-bar" id="lc-bar-South"></div></div>
           <span class="lc-num" id="lc-South">0</span>
         </div>
         <div class="lc-item" data-d="East" id="lci-East">
-          <span class="lc-arrow" style="color:var(--east)">→</span>
+          <span class="lc-arrow" style="color:var(--east)">&#x2192;</span>
           <span class="lc-name">East</span>
           <div class="lc-bar-wrap"><div class="lc-bar" id="lc-bar-East"></div></div>
           <span class="lc-num" id="lc-East">0</span>
         </div>
         <div class="lc-item" data-d="West" id="lci-West">
-          <span class="lc-arrow" style="color:var(--west)">←</span>
+          <span class="lc-arrow" style="color:var(--west)">&#x2190;</span>
           <span class="lc-name">West</span>
           <div class="lc-bar-wrap"><div class="lc-bar" id="lc-bar-West"></div></div>
           <span class="lc-num" id="lc-West">0</span>
         </div>
-      </div>
-      <div class="detection-status">
-        <div class="det-dot" id="det-dot"></div>
-        <span id="det-status">Detection not started</span>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- STATS BAR -->
-  <div class="stats-bar">
-    <div class="stat-cell">
-      <span class="stat-num" id="st-visible" style="color:var(--text)">0</span>
-      <span class="stat-lbl">In Frame Now</span>
-    </div>
-    <div class="stat-cell">
-      <span class="stat-num" id="st-moving" style="color:var(--north)">0</span>
-      <span class="stat-lbl">Moving ▶</span>
-    </div>
-    <div class="stat-cell">
-      <span class="stat-num" id="st-stopped" style="color:var(--south)">0</span>
-      <span class="stat-lbl">Stopped ■</span>
-    </div>
-    <div class="stat-cell divider"></div>
-    <div class="stat-cell">
-      <span class="stat-num" id="st-cars" style="color:var(--west)">0</span>
-      <span class="stat-lbl">Cars</span>
-    </div>
-    <div class="stat-cell">
-      <span class="stat-num" id="st-trucks" style="color:var(--east)">0</span>
-      <span class="stat-lbl">Trucks</span>
-    </div>
-    <div class="stat-cell">
-      <span class="stat-num" id="st-buses" style="color:var(--purple)">0</span>
-      <span class="stat-lbl">Buses</span>
-    </div>
-    <div class="stat-cell">
-      <span class="stat-num" id="st-motos" style="color:var(--muted)">0</span>
-      <span class="stat-lbl">Motos</span>
-    </div>
-    <div class="stat-cell divider"></div>
-    <div class="stat-cell">
-      <span class="stat-num" id="st-session" style="color:var(--text)">0</span>
-      <span class="stat-lbl">Unique Vehicles</span>
-    </div>
-    <div class="stat-cell">
-      <span class="stat-num" id="st-conf" style="color:var(--north)">–</span>
-      <span class="stat-lbl">AI Confidence</span>
-    </div>
-  </div>
-
-  <!-- SIGNAL STATE + DIRECTION FLOW -->
-  <div class="sigflow-row">
-
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title">Live Signal State · حالة الإشارة</div>
-      </div>
-      <div class="signal-lights">
-        <div class="tl-item">
-          <div class="tl-label">↑ North</div>
-          <div class="tl-body">
-            <div class="tl-bulb r" id="tl-North-r"></div>
-            <div class="tl-bulb y" id="tl-North-y"></div>
-            <div class="tl-bulb g" id="tl-North-g"></div>
-          </div>
+        <div class="det-status">
+          <div class="det-dot" id="det-dot"></div>
+          <span id="det-status">Detection not started</span>
         </div>
-        <div class="tl-item">
-          <div class="tl-label">↓ South</div>
-          <div class="tl-body">
-            <div class="tl-bulb r" id="tl-South-r"></div>
-            <div class="tl-bulb y" id="tl-South-y"></div>
-            <div class="tl-bulb g" id="tl-South-g"></div>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-label">→ East</div>
-          <div class="tl-body">
-            <div class="tl-bulb r" id="tl-East-r"></div>
-            <div class="tl-bulb y" id="tl-East-y"></div>
-            <div class="tl-bulb g" id="tl-East-g"></div>
-          </div>
-        </div>
-        <div class="tl-item">
-          <div class="tl-label">← West</div>
-          <div class="tl-body">
-            <div class="tl-bulb r" id="tl-West-r"></div>
-            <div class="tl-bulb y" id="tl-West-y"></div>
-            <div class="tl-bulb g" id="tl-West-g"></div>
-          </div>
-        </div>
-      </div>
-      <!-- Duration timer -->
-      <div class="sig-timer">
-        <span>Active for</span>
-        <span id="sig-elapsed" class="sig-timer-val">–</span>
-        <span>Remaining</span>
-        <span id="sig-remaining" class="sig-timer-val">–</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title">Direction Flow · تدفق الحركة</div>
-        <span class="badge purple" style="font-size:.63rem">Live</span>
-      </div>
-      <div class="flow-rows">
-        <div class="flow-row" data-d="North">
-          <span class="flow-dir-lbl">↑ Going North شمال</span>
-          <div class="flow-bar-wrap"><div class="flow-bar" id="flow-bar-North"></div></div>
-          <span class="flow-veh" id="flow-veh-North" style="font-size:.72rem"></span>
-          <span class="flow-sig-dot" id="flow-dot-North"></span>
-        </div>
-        <div class="flow-row" data-d="South">
-          <span class="flow-dir-lbl">↓ Going South جنوب</span>
-          <div class="flow-bar-wrap"><div class="flow-bar" id="flow-bar-South"></div></div>
-          <span class="flow-veh" id="flow-veh-South" style="font-size:.72rem"></span>
-          <span class="flow-sig-dot" id="flow-dot-South"></span>
-        </div>
-        <div class="flow-row" data-d="East">
-          <span class="flow-dir-lbl">→ Going East شرق</span>
-          <div class="flow-bar-wrap"><div class="flow-bar" id="flow-bar-East"></div></div>
-          <span class="flow-veh" id="flow-veh-East" style="font-size:.72rem"></span>
-          <span class="flow-sig-dot" id="flow-dot-East"></span>
-        </div>
-        <div class="flow-row" data-d="West">
-          <span class="flow-dir-lbl">← Going West غرب</span>
-          <div class="flow-bar-wrap"><div class="flow-bar" id="flow-bar-West"></div></div>
-          <span class="flow-veh" id="flow-veh-West" style="font-size:.72rem"></span>
-          <span class="flow-sig-dot" id="flow-dot-West"></span>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /sigflow-row -->
-  <div class="dir-row">
-    <div class="dir-card" data-d="North">
-      <div class="dir-lbl"><span>↑</span> North · شمال</div>
-      <div class="dir-count" id="cnt-North">0</div>
-      <div class="dir-unit">vehicles crossed</div>
-      <div class="fc-rows" id="fc-North"></div>
-    </div>
-    <div class="dir-card" data-d="South">
-      <div class="dir-lbl"><span>↓</span> South · جنوب</div>
-      <div class="dir-count" id="cnt-South">0</div>
-      <div class="dir-unit">vehicles crossed</div>
-      <div class="fc-rows" id="fc-South"></div>
-    </div>
-    <div class="dir-card" data-d="East">
-      <div class="dir-lbl"><span>→</span> East · شرق</div>
-      <div class="dir-count" id="cnt-East">0</div>
-      <div class="dir-unit">vehicles crossed</div>
-      <div class="fc-rows" id="fc-East"></div>
-    </div>
-    <div class="dir-card" data-d="West">
-      <div class="dir-lbl"><span>←</span> West · غرب</div>
-      <div class="dir-count" id="cnt-West">0</div>
-      <div class="dir-unit">vehicles crossed</div>
-      <div class="fc-rows" id="fc-West"></div>
-    </div>
-  </div>
-
-  <!-- 2D Intersection Map + Signal Advisor -->
-  <div class="maprow">
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title">Intersection Map · خريطة التقاطع</div>
-        <span class="badge purple" style="font-size:.63rem">Live</span>
-      </div>
-      <div class="map-svg-wrap">
-        <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
-          <!-- Roads -->
-          <rect x="88" y="0"   width="44" height="220" fill="#1a1a2a" rx="2"/>
-          <rect x="0"  y="88"  width="220" height="44" fill="#1a1a2a" rx="2"/>
-          <!-- Intersection center -->
-          <rect x="88" y="88" width="44" height="44" fill="#22223a" rx="3"/>
-          <!-- Road markings (dashed center lines) -->
-          <line x1="110" y1="0"   x2="110" y2="85"  stroke="#2a2a4a" stroke-width="2" stroke-dasharray="8,6"/>
-          <line x1="110" y1="135" x2="110" y2="220" stroke="#2a2a4a" stroke-width="2" stroke-dasharray="8,6"/>
-          <line x1="0"   y1="110" x2="85"  y2="110" stroke="#2a2a4a" stroke-width="2" stroke-dasharray="8,6"/>
-          <line x1="135" y1="110" x2="220" y2="110" stroke="#2a2a4a" stroke-width="2" stroke-dasharray="8,6"/>
-          <!-- Signal dots at each arm -->
-          <circle id="map-sig-North" cx="110" cy="20"  r="9" fill="#ff5252"/>
-          <circle id="map-sig-South" cx="110" cy="200" r="9" fill="#ff5252"/>
-          <circle id="map-sig-East"  cx="200" cy="110" r="9" fill="#ff5252"/>
-          <circle id="map-sig-West"  cx="20"  cy="110" r="9" fill="#ff5252"/>
-          <!-- Direction arrows -->
-          <text x="110" y="48"  text-anchor="middle" font-size="14" fill="#64748b">↑</text>
-          <text x="110" y="185" text-anchor="middle" font-size="14" fill="#64748b">↓</text>
-          <text x="175" y="115" text-anchor="middle" font-size="14" fill="#64748b">→</text>
-          <text x="45"  y="115" text-anchor="middle" font-size="14" fill="#64748b">←</text>
-          <!-- Live count labels -->
-          <text id="map-cnt-North" x="110" y="68"  text-anchor="middle" font-size="11" font-weight="700" fill="#00e676">0</text>
-          <text id="map-cnt-South" x="110" y="165" text-anchor="middle" font-size="11" font-weight="700" fill="#ff5252">0</text>
-          <text id="map-cnt-East"  x="158" y="115" text-anchor="middle" font-size="11" font-weight="700" fill="#ff9100">0</text>
-          <text id="map-cnt-West"  x="62"  y="115" text-anchor="middle" font-size="11" font-weight="700" fill="#448aff">0</text>
-          <!-- Compass -->
-          <text x="110" y="14"  text-anchor="middle" font-size="9"  fill="#334155">N</text>
-          <text x="110" y="217" text-anchor="middle" font-size="9"  fill="#334155">S</text>
-          <text x="214" y="114" text-anchor="middle" font-size="9"  fill="#334155">E</text>
-          <text x="8"   y="114" text-anchor="middle" font-size="9"  fill="#334155">W</text>
-        </svg>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="adv-section-hd">
-        <div class="card-title">Signal Advisor · مستشار الإشارة</div>
-        <span id="adv-state-badge" class="badge green" style="font-size:.63rem">Normal</span>
-      </div>
-      <!-- Capacity bars row -->
-      <div class="cap-row" style="margin-bottom:.85rem;">
-        <div class="cap-item">
-          <div class="cap-dir" style="color:var(--north)">↑ North</div>
-          <div class="cap-bar-wrap"><div class="cap-bar" id="cap-bar-North" style="background:var(--north);width:0%"></div></div>
-          <div class="cap-meta"><span id="cap-pct-North">0%</span><span id="cap-vph-North" style="font-size:.6rem">0 veh/h</span></div>
-        </div>
-        <div class="cap-item">
-          <div class="cap-dir" style="color:var(--south)">↓ South</div>
-          <div class="cap-bar-wrap"><div class="cap-bar" id="cap-bar-South" style="background:var(--south);width:0%"></div></div>
-          <div class="cap-meta"><span id="cap-pct-South">0%</span><span id="cap-vph-South" style="font-size:.6rem">0 veh/h</span></div>
-        </div>
-        <div class="cap-item">
-          <div class="cap-dir" style="color:var(--east)">→ East</div>
-          <div class="cap-bar-wrap"><div class="cap-bar" id="cap-bar-East" style="background:var(--east);width:0%"></div></div>
-          <div class="cap-meta"><span id="cap-pct-East">0%</span><span id="cap-vph-East" style="font-size:.6rem">0 veh/h</span></div>
-        </div>
-        <div class="cap-item">
-          <div class="cap-dir" style="color:var(--west)">← West</div>
-          <div class="cap-bar-wrap"><div class="cap-bar" id="cap-bar-West" style="background:var(--west);width:0%"></div></div>
-          <div class="cap-meta"><span id="cap-pct-West">0%</span><span id="cap-vph-West" style="font-size:.6rem">0 veh/h</span></div>
-        </div>
-      </div>
-      <!-- Advisor cards -->
-      <div class="advisor-row" id="advisor-cards">
-        <div class="adv-card adv-ok"><div class="adv-dir">↑ North</div><div class="adv-action">–</div><div class="adv-reason">Loading…</div></div>
-        <div class="adv-card adv-ok"><div class="adv-dir">↓ South</div><div class="adv-action">–</div><div class="adv-reason">Loading…</div></div>
-        <div class="adv-card adv-ok"><div class="adv-dir">→ East</div><div class="adv-action">–</div><div class="adv-reason">Loading…</div></div>
-        <div class="adv-card adv-ok"><div class="adv-dir">← West</div><div class="adv-action">–</div><div class="adv-reason">Loading…</div></div>
       </div>
     </div>
   </div>
 
-  <!-- Charts: Counts + Forecast + Past-vs-Future -->
-  <div class="chart-3col">
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title">Vehicle Counts · عدد المركبات</div>
-        <span class="badge purple" style="font-size:.63rem">Live</span>
+  <!-- 3. DIRECTION SUMMARY -->
+  <div>
+    <div class="section-label">Vehicle Count by Direction</div>
+    <div class="col-4">
+      <div class="dir-card" data-d="North">
+        <div class="dir-label">&#x2191; North &middot; &#x634;&#x645;&#x627;&#x644;</div>
+        <div class="dir-count" id="cnt-North">0</div>
+        <div class="dir-unit">vehicles crossed</div>
+        <div class="fc-rows" id="fc-North"></div>
       </div>
-      <div class="chart-box"><canvas id="countsChart"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title">Forecast · التنبؤ (+60 min)</div>
-        <span id="fc-source-badge" class="badge purple" style="font-size:.63rem">Smart Forecast</span>
+      <div class="dir-card" data-d="South">
+        <div class="dir-label">&#x2193; South &middot; &#x62C;&#x646;&#x648;&#x628;</div>
+        <div class="dir-count" id="cnt-South">0</div>
+        <div class="dir-unit">vehicles crossed</div>
+        <div class="fc-rows" id="fc-South"></div>
       </div>
-      <div class="chart-box"><canvas id="forecastChart"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title">Past vs Future · الماضي والمستقبل</div>
-        <span class="badge purple" style="font-size:.63rem">Comparison</span>
+      <div class="dir-card" data-d="East">
+        <div class="dir-label">&#x2192; East &middot; &#x634;&#x631;&#x642;</div>
+        <div class="dir-count" id="cnt-East">0</div>
+        <div class="dir-unit">vehicles crossed</div>
+        <div class="fc-rows" id="fc-East"></div>
       </div>
-      <div class="chart-box"><canvas id="comparisonChart"></canvas></div>
-    </div>
-  </div>
-
-  <!-- Analytics Row: Heatmap + Economic Cost -->
-  <div class="analytics-row">
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title">Hourly Traffic Heatmap · الخريطة الحرارية بالساعة</div>
-        <span class="badge purple" style="font-size:.63rem">30-day avg</span>
+      <div class="dir-card" data-d="West">
+        <div class="dir-label">&#x2190; West &middot; &#x63A;&#x631;&#x628;</div>
+        <div class="dir-count" id="cnt-West">0</div>
+        <div class="dir-unit">vehicles crossed</div>
+        <div class="fc-rows" id="fc-West"></div>
       </div>
-      <div class="heatmap-wrap"><canvas id="heatmapChart"></canvas></div>
-    </div>
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title">Economic Cost · التكلفة الاقتصادية</div>
-        <span class="badge amber" style="font-size:.63rem">Session Estimate</span>
-      </div>
-      <div class="cost-grid">
-        <div class="cost-item">
-          <div class="cost-val" id="cost-delay" style="color:var(--east)">–</div>
-          <div class="cost-lbl">Total Delay · إجمالي التأخير</div>
-        </div>
-        <div class="cost-item">
-          <div class="cost-val" id="cost-fuel" style="color:var(--south)">–</div>
-          <div class="cost-lbl">Fuel Cost · تكلفة الوقود</div>
-        </div>
-        <div class="cost-item">
-          <div class="cost-val" id="cost-vehicles" style="color:var(--text)">–</div>
-          <div class="cost-lbl">Vehicles · المركبات</div>
-        </div>
-        <div class="cost-item">
-          <div class="cost-val" id="cost-per-veh" style="color:var(--purple)">–</div>
-          <div class="cost-lbl">Cost / Vehicle · تكلفة/مركبة</div>
-        </div>
-      </div>
-      <div class="cost-note" id="cost-note">Based on Google Maps delay × session count</div>
     </div>
   </div>
 
-  <!-- Bottom Row -->
-  <div class="bottom-row">
-
-    <div class="card">
-      <div class="card-hd">
-        <div class="card-title">Traffic Congestion</div>
-        <span class="badge green" style="font-size:.63rem">Google Maps</span>
+  <!-- 4. SIGNAL STATE + DIRECTION FLOW -->
+  <div>
+    <div class="section-label">Traffic Signals &amp; Flow</div>
+    <div class="col-2">
+      <div class="card">
+        <div class="card-title">Live Signal State</div>
+        <div class="signal-grid">
+          <div class="tl-item"><div class="tl-label">&#x2191; North</div><div class="tl-body"><div class="tl-bulb r" id="tl-North-r"></div><div class="tl-bulb y" id="tl-North-y"></div><div class="tl-bulb g" id="tl-North-g"></div></div></div>
+          <div class="tl-item"><div class="tl-label">&#x2193; South</div><div class="tl-body"><div class="tl-bulb r" id="tl-South-r"></div><div class="tl-bulb y" id="tl-South-y"></div><div class="tl-bulb g" id="tl-South-g"></div></div></div>
+          <div class="tl-item"><div class="tl-label">&#x2192; East</div> <div class="tl-body"><div class="tl-bulb r" id="tl-East-r"></div> <div class="tl-bulb y" id="tl-East-y"></div> <div class="tl-bulb g" id="tl-East-g"></div></div></div>
+          <div class="tl-item"><div class="tl-label">&#x2190; West</div> <div class="tl-body"><div class="tl-bulb r" id="tl-West-r"></div> <div class="tl-bulb y" id="tl-West-y"></div> <div class="tl-bulb g" id="tl-West-g"></div></div></div>
+        </div>
+        <div class="sig-timer">
+          <span>Active for</span><span id="sig-elapsed" class="sig-timer-val">&#x2013;</span>
+          <span>Remaining</span><span id="sig-remaining" class="sig-timer-val">&#x2013;</span>
+        </div>
       </div>
-      <div class="gauge-wrap">
-        <div class="gauge-svg-wrap">
-          <svg width="130" height="130" viewBox="0 0 130 130">
-            <circle cx="65" cy="65" r="52" fill="none" stroke="#1a1a2e" stroke-width="10"/>
-            <circle id="gauge-arc" cx="65" cy="65" r="52" fill="none" stroke="#00e676"
-                    stroke-width="10" stroke-dasharray="326.7" stroke-dashoffset="326.7"
-                    stroke-linecap="round" style="transition:stroke-dashoffset .6s,stroke .6s"/>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Direction Flow</div>
+          <span class="badge purple">Live</span>
+        </div>
+        <div class="flow-rows">
+          <div class="flow-row" data-d="North"><span class="flow-dir-lbl">&#x2191; North</span><div class="flow-bar-wrap"><div class="flow-bar" id="flow-bar-North"></div></div><span class="flow-veh" id="flow-veh-North"></span><span class="flow-dot" id="flow-dot-North"></span></div>
+          <div class="flow-row" data-d="South"><span class="flow-dir-lbl">&#x2193; South</span><div class="flow-bar-wrap"><div class="flow-bar" id="flow-bar-South"></div></div><span class="flow-veh" id="flow-veh-South"></span><span class="flow-dot" id="flow-dot-South"></span></div>
+          <div class="flow-row" data-d="East"> <span class="flow-dir-lbl">&#x2192; East</span> <div class="flow-bar-wrap"><div class="flow-bar" id="flow-bar-East"></div></div> <span class="flow-veh" id="flow-veh-East"></span> <span class="flow-dot" id="flow-dot-East"></span></div>
+          <div class="flow-row" data-d="West"> <span class="flow-dir-lbl">&#x2190; West</span> <div class="flow-bar-wrap"><div class="flow-bar" id="flow-bar-West"></div></div> <span class="flow-veh" id="flow-veh-West"></span> <span class="flow-dot" id="flow-dot-West"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. INTERSECTION MAP + SIGNAL ADVISOR -->
+  <div>
+    <div class="section-label">Intersection Overview &amp; Signal Advisor</div>
+    <div class="col-2">
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Intersection Map</div>
+          <span class="badge purple">Live</span>
+        </div>
+        <div class="map-center">
+          <svg viewBox="0 0 220 220" xmlns="http://www.w3.org/2000/svg">
+            <rect x="88" y="0" width="44" height="220" fill="#1a1a2a" rx="2"/>
+            <rect x="0" y="88" width="220" height="44" fill="#1a1a2a" rx="2"/>
+            <rect x="88" y="88" width="44" height="44" fill="#22223a" rx="3"/>
+            <line x1="110" y1="0"   x2="110" y2="85"  stroke="#2a2a4a" stroke-width="2" stroke-dasharray="8,6"/>
+            <line x1="110" y1="135" x2="110" y2="220" stroke="#2a2a4a" stroke-width="2" stroke-dasharray="8,6"/>
+            <line x1="0"   y1="110" x2="85"  y2="110" stroke="#2a2a4a" stroke-width="2" stroke-dasharray="8,6"/>
+            <line x1="135" y1="110" x2="220" y2="110" stroke="#2a2a4a" stroke-width="2" stroke-dasharray="8,6"/>
+            <circle id="map-sig-North" cx="110" cy="20"  r="9" fill="#ff5252"/>
+            <circle id="map-sig-South" cx="110" cy="200" r="9" fill="#ff5252"/>
+            <circle id="map-sig-East"  cx="200" cy="110" r="9" fill="#ff5252"/>
+            <circle id="map-sig-West"  cx="20"  cy="110" r="9" fill="#ff5252"/>
+            <text x="110" y="48"  text-anchor="middle" font-size="14" fill="#64748b">&#x2191;</text>
+            <text x="110" y="185" text-anchor="middle" font-size="14" fill="#64748b">&#x2193;</text>
+            <text x="175" y="115" text-anchor="middle" font-size="14" fill="#64748b">&#x2192;</text>
+            <text x="45"  y="115" text-anchor="middle" font-size="14" fill="#64748b">&#x2190;</text>
+            <text id="map-cnt-North" x="110" y="68"  text-anchor="middle" font-size="11" font-weight="700" fill="#00e676">0</text>
+            <text id="map-cnt-South" x="110" y="165" text-anchor="middle" font-size="11" font-weight="700" fill="#ff5252">0</text>
+            <text id="map-cnt-East"  x="158" y="115" text-anchor="middle" font-size="11" font-weight="700" fill="#ff9100">0</text>
+            <text id="map-cnt-West"  x="62"  y="115" text-anchor="middle" font-size="11" font-weight="700" fill="#448aff">0</text>
+            <text x="110" y="14"  text-anchor="middle" font-size="9" fill="#334155">N</text>
+            <text x="110" y="217" text-anchor="middle" font-size="9" fill="#334155">S</text>
+            <text x="214" y="114" text-anchor="middle" font-size="9" fill="#334155">E</text>
+            <text x="8"   y="114" text-anchor="middle" font-size="9" fill="#334155">W</text>
           </svg>
-          <div class="gauge-center">
-            <div class="gauge-num" id="gauge-num">–</div>
-            <div class="gauge-sub">ratio vs normal</div>
-          </div>
         </div>
-        <span id="cong-label" class="cong-level cong-free">Free Flow</span>
-        <div class="cong-meta" id="cong-meta">Fetching data…</div>
-        <div class="cong-scale">1.0 = normal speed · &gt;1.5 = heavy congestion</div>
       </div>
-    </div>
-
-    <div class="card">
-      <div class="card-hd"><div class="card-title">Signal Timing</div></div>
-      <div class="signal-list">
-        <div class="sig-item">
-          <div class="sig-label">North / South</div>
-          <div class="sig-bar">
-            <div class="seg seg-g" style="flex:30"></div>
-            <div class="seg seg-y" style="flex:5"></div>
-            <div class="seg seg-r" style="flex:74"></div>
-          </div>
-          <div class="sig-timing">Green 30 s · Yellow 5 s · Red 74 s</div>
+      <div class="card">
+        <div class="card-head">
+          <div class="card-title">Signal Advisor</div>
+          <span id="adv-state-badge" class="badge green">Normal</span>
         </div>
-        <div class="sig-item">
-          <div class="sig-label">East (separate from West)</div>
-          <div class="sig-bar">
-            <div class="seg seg-r" style="flex:35"></div>
-            <div class="seg seg-g" style="flex:35"></div>
-            <div class="seg seg-y" style="flex:5"></div>
-            <div class="seg seg-r" style="flex:34"></div>
-          </div>
-          <div class="sig-timing">Red 35 s · Green 35 s · Yellow 5 s · Red 34 s</div>
+        <div class="cap-row" style="margin-bottom:14px;">
+          <div class="cap-item"><div class="cap-dir" style="color:var(--north)">&#x2191; North</div><div class="cap-bar-wrap"><div class="cap-bar" id="cap-bar-North" style="background:var(--north);width:0%"></div></div><div class="cap-meta"><span id="cap-pct-North">0%</span><span id="cap-vph-North">0 veh/h</span></div></div>
+          <div class="cap-item"><div class="cap-dir" style="color:var(--south)">&#x2193; South</div><div class="cap-bar-wrap"><div class="cap-bar" id="cap-bar-South" style="background:var(--south);width:0%"></div></div><div class="cap-meta"><span id="cap-pct-South">0%</span><span id="cap-vph-South">0 veh/h</span></div></div>
+          <div class="cap-item"><div class="cap-dir" style="color:var(--east)">&#x2192; East</div>  <div class="cap-bar-wrap"><div class="cap-bar" id="cap-bar-East"  style="background:var(--east);width:0%"></div></div><div class="cap-meta"><span id="cap-pct-East">0%</span><span id="cap-vph-East">0 veh/h</span></div></div>
+          <div class="cap-item"><div class="cap-dir" style="color:var(--west)">&#x2190; West</div>  <div class="cap-bar-wrap"><div class="cap-bar" id="cap-bar-West"  style="background:var(--west);width:0%"></div></div><div class="cap-meta"><span id="cap-pct-West">0%</span><span id="cap-vph-West">0 veh/h</span></div></div>
         </div>
-        <div class="sig-item">
-          <div class="sig-label">West (separate from East)</div>
-          <div class="sig-bar">
-            <div class="seg seg-r" style="flex:75"></div>
-            <div class="seg seg-g" style="flex:29"></div>
-            <div class="seg seg-y" style="flex:5"></div>
-          </div>
-          <div class="sig-timing">Red 75 s · Green 29 s · Yellow 5 s</div>
-        </div>
-        <div class="sig-item">
-          <div class="sig-label">Full Cycle</div>
-          <div class="sig-bar" style="height:12px;">
-            <div class="seg seg-g" style="flex:30;border-radius:4px 0 0 4px"></div>
-            <div class="seg seg-y" style="flex:5"></div>
-            <div class="seg seg-g" style="flex:35"></div>
-            <div class="seg seg-y" style="flex:5"></div>
-            <div class="seg seg-g" style="flex:29"></div>
-            <div class="seg seg-y" style="flex:5;border-radius:0 4px 4px 0"></div>
-          </div>
-          <div class="sig-timing">N/S → East → West · Total 109 s</div>
+        <div class="col-2" id="advisor-cards">
+          <div class="adv-card adv-ok"><div class="adv-dir">&#x2191; North</div><div class="adv-action">&#x2013;</div><div class="adv-reason">Loading&hellip;</div></div>
+          <div class="adv-card adv-ok"><div class="adv-dir">&#x2193; South</div><div class="adv-action">&#x2013;</div><div class="adv-reason">Loading&hellip;</div></div>
+          <div class="adv-card adv-ok"><div class="adv-dir">&#x2192; East</div><div class="adv-action">&#x2013;</div><div class="adv-reason">Loading&hellip;</div></div>
+          <div class="adv-card adv-ok"><div class="adv-dir">&#x2190; West</div><div class="adv-action">&#x2013;</div><div class="adv-reason">Loading&hellip;</div></div>
         </div>
       </div>
     </div>
+  </div>
 
-    <div class="card">
-      <div class="card-hd"><div class="card-title">Incident Report · بلاغ حادثة</div></div>
-      <div class="inc-form">
-        <div class="inc-form-row">
-          <select id="inc-dir">
-            <option value="">Direction / الاتجاه</option>
-            <option value="North">↑ North شمال</option>
-            <option value="South">↓ South جنوب</option>
-            <option value="East">→ East شرق</option>
-            <option value="West">← West غرب</option>
-            <option value="All">All Directions</option>
-          </select>
-          <select id="inc-type">
-            <option value="">Type / النوع</option>
-            <option value="Accident">Accident حادث</option>
-            <option value="Breakdown">Breakdown عطل</option>
-            <option value="Congestion">Congestion ازدحام</option>
-            <option value="Roadwork">Roadwork أعمال</option>
-            <option value="Signal Fault">Signal Fault خلل إشارة</option>
-            <option value="Other">Other أخرى</option>
-          </select>
-        </div>
-        <input type="text" id="inc-notes" placeholder="Notes (optional) / ملاحظات" maxlength="120"/>
-        <button class="btn-report" onclick="submitIncident()">🚨 Report Incident · بلّغ عن حادثة</button>
+  <!-- 6. CHARTS -->
+  <div>
+    <div class="section-label">Charts &amp; Forecasts</div>
+    <div class="col-3">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Vehicle Counts</div><span class="badge purple">Live</span></div>
+        <div class="chart-box"><canvas id="countsChart"></canvas></div>
       </div>
-      <div class="card-title" style="margin-bottom:.45rem;">Recent Reports · التقارير الأخيرة</div>
-      <div class="inc-scroll" id="inc-list">
-        <div class="no-data">No incidents reported</div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Traffic Forecast (+60 min)</div><span id="fc-source-badge" class="badge purple">Smart Forecast</span></div>
+        <div class="chart-box"><canvas id="forecastChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Past vs Future Comparison</div><span class="badge purple">4h + 2h</span></div>
+        <div class="chart-box"><canvas id="comparisonChart"></canvas></div>
       </div>
     </div>
+  </div>
 
-  </div><!-- /bottom-row -->
+  <!-- 7. HEATMAP + ECONOMIC COST -->
+  <div>
+    <div class="section-label">Analytics</div>
+    <div class="col-2">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Hourly Traffic Heatmap</div><span class="badge purple">30-day avg</span></div>
+        <div class="chart-box" style="height:200px;"><canvas id="heatmapChart"></canvas></div>
+      </div>
+      <div class="card">
+        <div class="card-head"><div class="card-title">Economic Cost Estimate</div><span class="badge amber">Session</span></div>
+        <div class="cost-grid">
+          <div class="cost-item"><div class="cost-val" id="cost-delay"    style="color:var(--east)">&#x2013;</div><div class="cost-lbl">Total Delay</div></div>
+          <div class="cost-item"><div class="cost-val" id="cost-fuel"     style="color:var(--south)">&#x2013;</div><div class="cost-lbl">Fuel Cost</div></div>
+          <div class="cost-item"><div class="cost-val" id="cost-vehicles" style="color:var(--text)">&#x2013;</div><div class="cost-lbl">Vehicles</div></div>
+          <div class="cost-item"><div class="cost-val" id="cost-per-veh"  style="color:var(--purple)">&#x2013;</div><div class="cost-lbl">Cost / Vehicle</div></div>
+        </div>
+        <div class="cost-note" id="cost-note">Based on Google Maps delay x session count</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. CONGESTION + SIGNAL TIMING + INCIDENTS -->
+  <div>
+    <div class="section-label">Congestion, Signal Timing &amp; Incidents</div>
+    <div class="col-3">
+      <div class="card">
+        <div class="card-head"><div class="card-title">Traffic Congestion</div><span class="badge green">Google Maps</span></div>
+        <div class="gauge-wrap">
+          <div class="gauge-svg-wrap">
+            <svg width="130" height="130" viewBox="0 0 130 130">
+              <circle cx="65" cy="65" r="52" fill="none" stroke="#1a1a2e" stroke-width="10"/>
+              <circle id="gauge-arc" cx="65" cy="65" r="52" fill="none" stroke="#00e676" stroke-width="10" stroke-dasharray="326.7" stroke-dashoffset="326.7" stroke-linecap="round" style="transition:stroke-dashoffset .6s,stroke .6s"/>
+            </svg>
+            <div class="gauge-center"><div class="gauge-num" id="gauge-num">&#x2013;</div><div class="gauge-sub">vs normal</div></div>
+          </div>
+          <span id="cong-label" class="cong-level cong-free">Free Flow</span>
+          <div class="cong-meta" id="cong-meta">Fetching data&hellip;</div>
+          <div class="cong-scale">1.0 = normal &middot; &gt;1.5 = heavy</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Signal Timing Plan</div>
+        <div class="signal-list">
+          <div class="sig-item"><div class="sig-label">North / South</div><div class="sig-bar"><div class="seg seg-g" style="flex:30"></div><div class="seg seg-y" style="flex:5"></div><div class="seg seg-r" style="flex:74"></div></div><div class="sig-timing">Green 30s &middot; Yellow 5s &middot; Red 74s</div></div>
+          <div class="sig-item"><div class="sig-label">East</div><div class="sig-bar"><div class="seg seg-r" style="flex:35"></div><div class="seg seg-g" style="flex:35"></div><div class="seg seg-y" style="flex:5"></div><div class="seg seg-r" style="flex:34"></div></div><div class="sig-timing">Red 35s &middot; Green 35s &middot; Yellow 5s &middot; Red 34s</div></div>
+          <div class="sig-item"><div class="sig-label">West</div><div class="sig-bar"><div class="seg seg-r" style="flex:75"></div><div class="seg seg-g" style="flex:29"></div><div class="seg seg-y" style="flex:5"></div></div><div class="sig-timing">Red 75s &middot; Green 29s &middot; Yellow 5s</div></div>
+          <div class="sig-item"><div class="sig-label">Full Cycle: 109 seconds</div><div class="sig-bar" style="height:12px;"><div class="seg seg-g" style="flex:30"></div><div class="seg seg-y" style="flex:5"></div><div class="seg seg-g" style="flex:35"></div><div class="seg seg-y" style="flex:5"></div><div class="seg seg-g" style="flex:29"></div><div class="seg seg-y" style="flex:5"></div></div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Report an Incident</div>
+        <div class="inc-form">
+          <div class="inc-row">
+            <select id="inc-dir">
+              <option value="">Direction</option>
+              <option value="North">&#x2191; North</option>
+              <option value="South">&#x2193; South</option>
+              <option value="East">&#x2192; East</option>
+              <option value="West">&#x2190; West</option>
+              <option value="All">All Directions</option>
+            </select>
+            <select id="inc-type">
+              <option value="">Type</option>
+              <option value="Accident">Accident</option>
+              <option value="Breakdown">Breakdown</option>
+              <option value="Congestion">Congestion</option>
+              <option value="Roadwork">Roadwork</option>
+              <option value="Signal Fault">Signal Fault</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <input type="text" id="inc-notes" placeholder="Notes (optional)" maxlength="120"/>
+          <button class="btn-report" onclick="submitIncident()">&#x1F6A8; Report Incident</button>
+        </div>
+        <div style="font-size:13px;font-weight:700;margin-bottom:8px;">Recent Reports</div>
+        <div class="inc-scroll" id="inc-list"><div class="no-data">No incidents reported</div></div>
+      </div>
+    </div>
+  </div>
+
 </main>
 
 <script>
-  // Works whether opened from file:// or served from http://localhost:8000
   const API  = window.location.protocol === 'file:' ? 'http://localhost:8000' : '';
   const CLR  = { North:'#00e676', South:'#ff5252', East:'#ff9100', West:'#448aff' };
   const DIRS = ['North','South','East','West'];
-  const DIR_ARROW = { North:'↑', South:'↓', East:'→', West:'←' };
+  const DIR_ARROW = { North:'\u2191', South:'\u2193', East:'\u2192', West:'\u2190' };
 
-  Chart.defaults.color       = '#64748b';
-  Chart.defaults.borderColor = '#1c1c2e';
+  Chart.defaults.color       = '#6b7280';
+  Chart.defaults.borderColor = '#222222';
   Chart.defaults.font.family = "'Segoe UI', system-ui, sans-serif";
+  Chart.defaults.font.size   = 12;
 
-  // ── Charts ────────────────────────────────────────────────────────────────
   const countsChart = new Chart(document.getElementById('countsChart'), {
-    type: 'bar',
-    data: {
-      labels: DIRS,
-      datasets: [{ label:'Total Vehicles', data:[0,0,0,0],
-        backgroundColor: DIRS.map(d => CLR[d]+'25'),
-        borderColor: DIRS.map(d => CLR[d]),
-        borderWidth:2, borderRadius:7, borderSkipped:false }]
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false, animation:{duration:400},
-      plugins:{legend:{display:false},tooltip:{backgroundColor:'#0c0c12',borderColor:'#2a2a40',borderWidth:1,callbacks:{label:c=>' '+c.parsed.y+' vehicles'}}},
-      scales:{x:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}}},y:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}},beginAtZero:true}}
-    }
+    type:'bar', data:{ labels:DIRS, datasets:[{ label:'Total Vehicles', data:[0,0,0,0], backgroundColor:DIRS.map(d=>CLR[d]+'25'), borderColor:DIRS.map(d=>CLR[d]), borderWidth:2, borderRadius:7, borderSkipped:false }] },
+    options:{ responsive:true, maintainAspectRatio:false, animation:{duration:400}, plugins:{legend:{display:false},tooltip:{backgroundColor:'#111',borderColor:'#333',borderWidth:1,callbacks:{label:c=>' '+c.parsed.y+' vehicles'}}}, scales:{x:{grid:{color:'#1a1a1a'},ticks:{color:'#6b7280'}},y:{grid:{color:'#1a1a1a'},ticks:{color:'#6b7280'},beginAtZero:true}} }
   });
-
   const forecastChart = new Chart(document.getElementById('forecastChart'), {
-    type: 'bar',
-    data: {
-      labels: ['+15 min','+30 min','+60 min'],
-      datasets: DIRS.map(d => ({label:d,data:[0,0,0],backgroundColor:CLR[d]+'28',borderColor:CLR[d],borderWidth:2,borderRadius:5,borderSkipped:false}))
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false, animation:{duration:400},
-      plugins:{legend:{position:'bottom',labels:{color:'#64748b',boxWidth:10,padding:10,font:{size:11}}},tooltip:{backgroundColor:'#0c0c12',borderColor:'#2a2a40',borderWidth:1,callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y+' veh'}}},
-      scales:{x:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}}},y:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:11}},beginAtZero:true}}
-    }
+    type:'bar', data:{ labels:['+15 min','+30 min','+60 min'], datasets:DIRS.map(d=>({label:d,data:[0,0,0],backgroundColor:CLR[d]+'28',borderColor:CLR[d],borderWidth:2,borderRadius:5,borderSkipped:false})) },
+    options:{ responsive:true, maintainAspectRatio:false, animation:{duration:400}, plugins:{legend:{position:'bottom',labels:{color:'#6b7280',boxWidth:10,padding:10}},tooltip:{backgroundColor:'#111',borderColor:'#333',borderWidth:1,callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y+' veh'}}}, scales:{x:{grid:{color:'#1a1a1a'},ticks:{color:'#6b7280'}},y:{grid:{color:'#1a1a1a'},ticks:{color:'#6b7280'},beginAtZero:true}} }
   });
-
   const comparisonChart = new Chart(document.getElementById('comparisonChart'), {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: DIRS.map(d => ({label:d,data:[],borderColor:CLR[d],backgroundColor:CLR[d]+'18',fill:false,tension:.3,pointRadius:4,borderWidth:2}))
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false, animation:{duration:600},
-      plugins:{legend:{position:'bottom',labels:{color:'#64748b',boxWidth:10,padding:8,font:{size:10}}},tooltip:{backgroundColor:'#0c0c12',borderColor:'#2a2a40',borderWidth:1}},
-      scales:{x:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:10}}},y:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:10}},beginAtZero:true}}
-    }
+    type:'line', data:{ labels:[], datasets:DIRS.map(d=>({label:d,data:[],borderColor:CLR[d],backgroundColor:CLR[d]+'18',fill:false,tension:.3,pointRadius:3,borderWidth:2})) },
+    options:{ responsive:true, maintainAspectRatio:false, animation:{duration:600}, plugins:{legend:{position:'bottom',labels:{color:'#6b7280',boxWidth:10,padding:8}},tooltip:{backgroundColor:'#111',borderColor:'#333',borderWidth:1}}, scales:{x:{grid:{color:'#1a1a1a'},ticks:{color:'#6b7280'}},y:{grid:{color:'#1a1a1a'},ticks:{color:'#6b7280'},beginAtZero:true}} }
   });
-
   const heatmapChart = new Chart(document.getElementById('heatmapChart'), {
-    type: 'bar',
-    data: {
-      labels: [],
-      datasets: DIRS.map(d => ({label:d,data:[],backgroundColor:CLR[d]+'40',borderColor:CLR[d],borderWidth:1,borderRadius:2,borderSkipped:false}))
-    },
-    options: {
-      responsive:true, maintainAspectRatio:false, animation:{duration:600},
-      plugins:{legend:{position:'bottom',labels:{color:'#64748b',boxWidth:10,padding:8,font:{size:10}}},tooltip:{backgroundColor:'#0c0c12',borderColor:'#2a2a40',borderWidth:1,callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y+' veh/h'}}},
-      scales:{x:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:9}},stacked:false},y:{grid:{color:'#1c1c2e'},ticks:{color:'#64748b',font:{size:10}},beginAtZero:true}}
-    }
+    type:'bar', data:{ labels:[], datasets:DIRS.map(d=>({label:d,data:[],backgroundColor:CLR[d]+'40',borderColor:CLR[d],borderWidth:1,borderRadius:2,borderSkipped:false})) },
+    options:{ responsive:true, maintainAspectRatio:false, animation:{duration:600}, plugins:{legend:{position:'bottom',labels:{color:'#6b7280',boxWidth:10,padding:8}},tooltip:{backgroundColor:'#111',borderColor:'#333',borderWidth:1,callbacks:{label:c=>' '+c.dataset.label+': '+c.parsed.y+' veh/h'}}}, scales:{x:{grid:{color:'#1a1a1a'},ticks:{color:'#6b7280'}},y:{grid:{color:'#1a1a1a'},ticks:{color:'#6b7280'},beginAtZero:true}} }
   });
 
-  // ── Gauge ─────────────────────────────────────────────────────────────────
   const CIRC = 2*Math.PI*52;
   function updateGauge(ratio) {
-    const pct   = Math.min(Math.max((ratio-1)/2,0),1);
-    const color = pct<0.3?'#00e676':pct<0.65?'#ff9100':'#ff5252';
-    const arc   = document.getElementById('gauge-arc');
-    arc.style.strokeDashoffset = (CIRC*(1-pct)).toFixed(1);
-    arc.setAttribute('stroke',color);
-    document.getElementById('gauge-num').style.color = color;
+    const pct=Math.min(Math.max((ratio-1)/2,0),1); const color=pct<0.3?'#00e676':pct<0.65?'#ff9100':'#ff5252';
+    const arc=document.getElementById('gauge-arc'); arc.style.strokeDashoffset=(CIRC*(1-pct)).toFixed(1); arc.setAttribute('stroke',color);
+    document.getElementById('gauge-num').style.color=color;
   }
 
-  // ── Video stream ──────────────────────────────────────────────────────────
-  let videoLive = false;
-  function tryConnectVideo() { document.getElementById('video-feed').src = API+'/video_feed?t='+Date.now(); }
-  function onVideoLoad() {
-    if (videoLive) return; videoLive = true;
-    document.getElementById('video-feed').style.display = 'block';
-    document.getElementById('video-placeholder').style.display = 'none';
-    document.getElementById('stream-status').textContent = 'Streaming live';
-    setEl('badge-det','<span>●</span> Detecting','badge green');
-  }
-  function onVideoError() {
-    videoLive = false;
-    document.getElementById('video-feed').style.display = 'none';
-    document.getElementById('video-placeholder').style.display = 'flex';
-    document.getElementById('stream-status').textContent = 'No stream · retrying…';
-    setEl('badge-det','<span>●</span> No stream','badge red');
-    setTimeout(tryConnectVideo, 3000);
-  }
+  let videoLive=false;
+  function tryConnectVideo(){document.getElementById('video-feed').src=API+'/video_feed?t='+Date.now();}
+  function onVideoLoad(){if(videoLive)return;videoLive=true;document.getElementById('video-feed').style.display='block';document.getElementById('video-placeholder').style.display='none';document.getElementById('stream-status').textContent='Streaming live';setEl('badge-det','\u25cf Detecting','badge green');}
+  function onVideoError(){videoLive=false;document.getElementById('video-feed').style.display='none';document.getElementById('video-placeholder').style.display='flex';document.getElementById('stream-status').textContent='No stream \u00b7 retrying\u2026';setEl('badge-det','\u25cf No Stream','badge red');setTimeout(tryConnectVideo,3000);}
   tryConnectVideo();
 
-  // ── Live counts — 500 ms ──────────────────────────────────────────────────
-  let prev = {North:0,South:0,East:0,West:0};
-  async function refreshLive() {
-    try {
-      const r = await fetch(API+'/live_counts'); if (!r.ok) throw 0;
-      const d = await r.json(); const c = d.counts||{};
-      document.getElementById('lc-total').textContent = d.total||0;
-      const mx = Math.max(...Object.values(c),1);
-      DIRS.forEach(dir => {
-        const v = c[dir]||0;
-        const n = document.getElementById('lc-'+dir);
-        const b = document.getElementById('lc-bar-'+dir);
-        if (n) n.textContent = v; if (b) b.style.width = ((v/mx)*100).toFixed(1)+'%';
-        if (v > (prev[dir]||0)) { const el=document.getElementById('lci-'+dir); if(el){el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');} }
-        prev[dir] = v;
-        const el = document.getElementById('cnt-'+dir); if (el) el.textContent = v;
-        // Update 2D map counts
-        const mc = document.getElementById('map-cnt-'+dir); if (mc) mc.textContent = v;
+  let prev={North:0,South:0,East:0,West:0};
+  async function refreshLive(){
+    try{
+      const r=await fetch(API+'/live_counts');if(!r.ok)throw 0;
+      const d=await r.json();const c=d.counts||{};
+      document.getElementById('lc-total').textContent=d.total||0;
+      const mx=Math.max(...Object.values(c),1);
+      DIRS.forEach(dir=>{
+        const v=c[dir]||0;
+        const n=document.getElementById('lc-'+dir);const b=document.getElementById('lc-bar-'+dir);
+        if(n)n.textContent=v;if(b)b.style.width=((v/mx)*100).toFixed(1)+'%';
+        if(v>(prev[dir]||0)){const el=document.getElementById('lci-'+dir);if(el){el.classList.remove('pulse');void el.offsetWidth;el.classList.add('pulse');}}
+        prev[dir]=v;
+        const el=document.getElementById('cnt-'+dir);if(el)el.textContent=v;
+        const mc=document.getElementById('map-cnt-'+dir);if(mc)mc.textContent=v;
       });
-      countsChart.data.datasets[0].data = DIRS.map(dir => c[dir]??0);
-      countsChart.update('none');
-      const dot = document.getElementById('det-dot'); const lbl = document.getElementById('det-status');
-      if (d.total > 0) { dot.classList.add('active'); lbl.textContent='Detection running · '+d.total+' vehicles crossed this session'; setEl('badge-det','<span>●</span> Detecting','badge green'); }
-      else             { dot.classList.remove('active'); lbl.textContent='Waiting for detection to start…'; }
-    } catch {}
+      countsChart.data.datasets[0].data=DIRS.map(dir=>c[dir]??0);countsChart.update('none');
+      const dot=document.getElementById('det-dot');const lbl=document.getElementById('det-status');
+      if(d.total>0){dot.classList.add('active');lbl.textContent='Detection running \u00b7 '+d.total+' vehicles crossed';setEl('badge-det','\u25cf Detecting','badge green');}
+      else{dot.classList.remove('active');lbl.textContent='Waiting for detection\u2026';}
+    }catch{}
   }
 
-  // ── Summary — 15 s ────────────────────────────────────────────────────────
-  async function refreshSummary() {
-    try {
-      const r = await fetch(API+'/summary'); if (!r.ok) throw 0;
-      const d = await r.json();
-      setEl('badge-api','<span>●</span> API Connected','badge green');
-
-      const meta   = d.forecast_meta||{};
-      const isLive = meta.detection_running && meta.elapsed_min > 0.5;
-      const srcLabel = isLive ? 'Live video + Maps ('+( meta.live_weight_pct||0)+'% live)' : 'Typical Sun/Mon + Maps';
-      const fcBadge = document.getElementById('fc-source-badge');
-      if (fcBadge) { fcBadge.textContent=isLive?'Smart · Live':'Smart · Typical'; fcBadge.className='badge '+(isLive?'green':'purple'); fcBadge.style.fontSize='.63rem'; }
-
-      const fc = {};
-      (d.forecasts||[]).forEach(f=>{ if(!fc[f.direction])fc[f.direction]={}; fc[f.direction][f.horizon_minutes]=f.predicted_count; });
+  async function refreshSummary(){
+    try{
+      const r=await fetch(API+'/summary');if(!r.ok)throw 0;
+      const d=await r.json();setEl('badge-api','\u25cf API Connected','badge green');
+      const meta=d.forecast_meta||{};const isLive=meta.detection_running&&meta.elapsed_min>0.5;
+      const srcLabel=isLive?'Live+Maps ('+(meta.live_weight_pct||0)+'% live)':'Typical+Maps';
+      const fcBadge=document.getElementById('fc-source-badge');
+      if(fcBadge){fcBadge.textContent=isLive?'Smart \u00b7 Live':'Smart \u00b7 Typical';fcBadge.className='badge '+(isLive?'green':'purple');}
+      const fc={};(d.forecasts||[]).forEach(f=>{if(!fc[f.direction])fc[f.direction]={};fc[f.direction][f.horizon_minutes]=f.predicted_count;});
       DIRS.forEach(dir=>{
-        const el=document.getElementById('fc-'+dir); if (!el) return;
-        el.innerHTML='<div class="fc-rows-hd" title="'+srcLabel+'">'+(isLive?'🟢':'🔵')+' '+srcLabel+'</div>'
-          +[15,30,60].map(h=>'<div class="fc-row"><span class="fc-lbl">+'+h+' min</span><span class="fc-val" style="color:'+CLR[dir]+'">'+(fc[dir]&&fc[dir][h]!=null?'<strong>'+fc[dir][h]+'</strong> vehicles':'–')+'</span></div>').join('');
+        const el=document.getElementById('fc-'+dir);if(!el)return;
+        el.innerHTML='<div class="fc-src">'+(isLive?'\uD83D\uDFE2':'\uD83D\uDD35')+' '+srcLabel+'</div>'+[15,30,60].map(h=>'<div class="fc-row"><span class="fc-lbl">+'+h+' min</span><span class="fc-val" style="color:'+CLR[dir]+'">'+(fc[dir]&&fc[dir][h]!=null?fc[dir][h]+' veh':'\u2013')+'</span></div>').join('');
       });
-      forecastChart.data.datasets.forEach((ds,i)=>{ const f=fc[DIRS[i]]||{}; ds.data=[f[15]??0,f[30]??0,f[60]??0]; });
-      forecastChart.update('none');
-
-      const cond=d.conditions||{}; const ratio=cond.congestion_ratio??1;
-      document.getElementById('gauge-num').textContent=ratio.toFixed(2); updateGauge(ratio);
-      const lvls={ free_flow:{cls:'cong-free',txt:'Free Flow',b:'badge green'}, moderate:{cls:'cong-mod',txt:'Moderate',b:'badge amber'}, heavy:{cls:'cong-heavy',txt:'Heavy Traffic',b:'badge red'} };
+      forecastChart.data.datasets.forEach((ds,i)=>{const f=fc[DIRS[i]]||{};ds.data=[f[15]??0,f[30]??0,f[60]??0];});forecastChart.update('none');
+      const cond=d.conditions||{};const ratio=cond.congestion_ratio??1;
+      document.getElementById('gauge-num').textContent=ratio.toFixed(2);updateGauge(ratio);
+      const lvls={free_flow:{cls:'cong-free',txt:'Free Flow',b:'badge green'},moderate:{cls:'cong-mod',txt:'Moderate',b:'badge amber'},heavy:{cls:'cong-heavy',txt:'Heavy Traffic',b:'badge red'}};
       const lv=lvls[cond.level]||lvls.free_flow;
-      setEl('cong-label',lv.txt,'cong-level '+lv.cls); setEl('badge-cong','<span>●</span> '+lv.txt,lv.b);
-      document.getElementById('cong-meta').textContent=cond.travel_time_normal&&cond.travel_time_traffic?'Normal: '+cond.travel_time_normal+'s · With traffic: '+cond.travel_time_traffic+'s':'Wadi Saqra — Arar St corridor';
-    } catch { setEl('badge-api','<span>●</span> API Offline','badge red'); }
+      setEl('cong-label',lv.txt,'cong-level '+lv.cls);setEl('badge-cong','\u25cf '+lv.txt,lv.b);
+      document.getElementById('cong-meta').textContent=cond.travel_time_normal&&cond.travel_time_traffic?'Normal: '+cond.travel_time_normal+'s \u00b7 Traffic: '+cond.travel_time_traffic+'s':'Wadi Saqra \u2014 Arar St';
+    }catch{setEl('badge-api','\u25cf API Offline','badge red');}
   }
 
   function setEl(id,html,cls){const e=document.getElementById(id);if(!e)return;e.innerHTML=html;if(cls)e.className=cls;}
 
-  // ── Live Stats + Signal + Flow — 500 ms ───────────────────────────────────
-  async function refreshStats() {
-    try {
-      const r = await fetch(API+'/live_stats'); if (!r.ok) throw 0;
-      const d = await r.json();
+  async function refreshStats(){
+    try{
+      const r=await fetch(API+'/live_stats');if(!r.ok)throw 0;const d=await r.json();
       const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-      set('st-visible',d.visible_now??0); set('st-moving',d.moving??0); set('st-stopped',d.stopped??0);
-      set('st-cars',d.cars??0); set('st-trucks',d.trucks??0); set('st-buses',d.buses??0); set('st-motos',d.motos??0); set('st-session',d.session_tracks??0);
-      const conf=d.avg_confidence??0; const confEl=document.getElementById('st-conf');
-      if (confEl) { confEl.textContent=conf>0?conf.toFixed(0)+'%':'–'; confEl.style.color=conf>=70?'var(--north)':conf>=45?'var(--east)':conf>0?'var(--south)':'var(--muted)'; }
-
+      set('st-visible',d.visible_now??0);set('st-moving',d.moving??0);set('st-stopped',d.stopped??0);
+      set('st-cars',d.cars??0);set('st-trucks',d.trucks??0);set('st-buses',d.buses??0);set('st-session',d.session_tracks??0);
+      const conf=d.avg_confidence??0;const confEl=document.getElementById('st-conf');
+      if(confEl){confEl.textContent=conf>0?conf.toFixed(0)+'%':'\u2013';confEl.style.color=conf>=70?'var(--north)':conf>=45?'var(--east)':conf>0?'var(--south)':'var(--muted)';}
       const sigs=d.signals||{};
       DIRS.forEach(dir=>{
         const state=sigs[dir]||'red';
-        ['r','y','g'].forEach(c=>{ const el=document.getElementById('tl-'+dir+'-'+c); if(!el)return; el.classList.remove('on'); if((c==='r'&&state==='red')||(c==='y'&&state==='yellow')||(c==='g'&&state==='green'))el.classList.add('on'); });
-        // Update 2D map signal dots
-        const sc=document.getElementById('map-sig-'+dir);
-        if(sc)sc.setAttribute('fill',state==='green'?'#00e676':state==='yellow'?'#ffd600':'#ff5252');
+        ['r','y','g'].forEach(c=>{const el=document.getElementById('tl-'+dir+'-'+c);if(!el)return;el.classList.remove('on');if((c==='r'&&state==='red')||(c==='y'&&state==='yellow')||(c==='g'&&state==='green'))el.classList.add('on');});
+        const sc=document.getElementById('map-sig-'+dir);if(sc)sc.setAttribute('fill',state==='green'?'#00e676':state==='yellow'?'#ffd600':'#ff5252');
       });
-
-      const elapsed=d.phase_elapsed??0; const remaining=d.phase_remaining??0;
+      const elapsed=d.phase_elapsed??0;const remaining=d.phase_remaining??0;
       const activeDir=DIRS.find(dir=>(sigs[dir]||'red')!=='red')||null;
-      const timerCls=activeDir?((sigs[activeDir]==='yellow')?'sig-timer-ylw':'sig-timer-grn'):'sig-timer-red';
-      const elEl=document.getElementById('sig-elapsed'); const rmEl=document.getElementById('sig-remaining');
-      if(elEl){elEl.textContent=elapsed+'s';elEl.className='sig-timer-val '+timerCls;}
-      if(rmEl){rmEl.textContent=remaining+'s';rmEl.className='sig-timer-val '+timerCls;}
-
-      const lc=d.live_counts||{}; const maxC=Math.max(...Object.values(lc),1);
+      const timerColor=activeDir?((sigs[activeDir]==='yellow')?'#ffd600':'var(--north)'):'var(--south)';
+      const elEl=document.getElementById('sig-elapsed');const rmEl=document.getElementById('sig-remaining');
+      if(elEl){elEl.textContent=elapsed+'s';elEl.style.color=timerColor;}if(rmEl){rmEl.textContent=remaining+'s';rmEl.style.color=timerColor;}
+      const lc=d.live_counts||{};const maxC=Math.max(...Object.values(lc),1);
       DIRS.forEach(dir=>{
-        const v=lc[dir]??0; const state=sigs[dir]||'red';
-        const bar=document.getElementById('flow-bar-'+dir); const veh=document.getElementById('flow-veh-'+dir); const dot=document.getElementById('flow-dot-'+dir);
-        if(bar)bar.style.width=((v/maxC)*100).toFixed(1)+'%'; if(veh)veh.textContent=v+' crossed'; if(dot)dot.className='flow-sig-dot '+state;
+        const v=lc[dir]??0;const state=sigs[dir]||'red';
+        const bar=document.getElementById('flow-bar-'+dir);const veh=document.getElementById('flow-veh-'+dir);const dot=document.getElementById('flow-dot-'+dir);
+        if(bar)bar.style.width=((v/maxC)*100).toFixed(1)+'%';if(veh)veh.textContent=v+' crossed';if(dot)dot.className='flow-dot '+state;
       });
-    } catch {}
+    }catch{}
   }
 
-  // ── Signal Advisor + Capacity — 10 s ──────────────────────────────────────
-  async function refreshAdvisor() {
-    try {
-      const r = await fetch(API+'/signal/advisor'); if (!r.ok) throw 0;
-      const d = await r.json();
-
-      // Alert banner
-      const banner = document.getElementById('alert-banner');
-      const state  = (d.traffic_state||'Normal').toLowerCase();
-      const MSGS   = { normal:'✅ Traffic Normal · الحركة طبيعية', warning:'⚠️ Warning: Traffic Building Up · تحذير: ازدياد في الحركة', critical:'🚨 Critical: Heavy Congestion — Action Required · ازدحام شديد' };
-      banner.textContent = MSGS[state] || MSGS.normal;
-      banner.className   = state;
-
-      // State badge
-      const sb = document.getElementById('adv-state-badge');
-      if (sb) { const cls={normal:'badge green',warning:'badge amber',critical:'badge red'}; sb.textContent=d.traffic_state||'Normal'; sb.className=cls[state]||'badge green'; }
-
-      // Advisor cards
-      const container = document.getElementById('advisor-cards');
-      if (container && d.recommendations) {
-        const DIR_ICONS = {North:'↑',South:'↓',East:'→',West:'←'};
-        const PRI_CLS   = {ok:'adv-ok',medium:'adv-med',high:'adv-high',low:'adv-low'};
-        container.innerHTML = d.recommendations.map(rec=>`
-          <div class="adv-card ${PRI_CLS[rec.priority]||'adv-ok'}">
-            <div class="adv-dir">${DIR_ICONS[rec.direction]||''} ${rec.direction}</div>
-            <div class="adv-action">${rec.action}</div>
-            <div class="adv-reason">${rec.reason}</div>
-            <span class="adv-load">${rec.load_pct}%</span>
-          </div>`).join('');
+  async function refreshAdvisor(){
+    try{
+      const r=await fetch(API+'/signal/advisor');if(!r.ok)throw 0;const d=await r.json();
+      const banner=document.getElementById('alert-banner');const state=(d.traffic_state||'Normal').toLowerCase();
+      const MSGS={normal:'\u2705 Traffic Normal',warning:'\u26A0\uFE0F Warning: Traffic Building Up',critical:'\uD83D\uDEA8 Critical: Heavy Congestion'};
+      banner.textContent=MSGS[state]||MSGS.normal;banner.className=state;
+      const sb=document.getElementById('adv-state-badge');if(sb){const cls={normal:'badge green',warning:'badge amber',critical:'badge red'};sb.textContent=d.traffic_state||'Normal';sb.className=cls[state]||'badge green';}
+      const container=document.getElementById('advisor-cards');
+      if(container&&d.recommendations){
+        const PRI_CLS={ok:'adv-ok',medium:'adv-med',high:'adv-high',low:'adv-low'};
+        container.innerHTML=d.recommendations.map(rec=>`<div class="adv-card ${PRI_CLS[rec.priority]||'adv-ok'}"><div class="adv-dir">${DIR_ARROW[rec.direction]||''} ${rec.direction}</div><div class="adv-action">${rec.action}</div><div class="adv-reason">${rec.reason}</div><span class="adv-load">${rec.load_pct}%</span></div>`).join('');
       }
-
-      // Capacity bars (from capacity endpoint)
-      const rc = await fetch(API+'/analytics/capacity'); if (!rc.ok) return;
-      const cap = await rc.json();
+      const rc=await fetch(API+'/analytics/capacity');if(!rc.ok)return;const cap=await rc.json();
       (cap.directions||[]).forEach(item=>{
-        const bar = document.getElementById('cap-bar-'+item.direction);
-        const pct = document.getElementById('cap-pct-'+item.direction);
-        const vph = document.getElementById('cap-vph-'+item.direction);
-        const w   = Math.min(item.load_pct,150);
-        const col = item.load_pct>90?'var(--south)':item.load_pct>70?'var(--east)':'var(--north)';
-        if(bar){bar.style.width=w+'%';bar.style.background=col;}
-        if(pct)pct.textContent=item.load_pct+'%';
-        if(vph)vph.textContent=item.rate_per_hour+' veh/h';
+        const bar=document.getElementById('cap-bar-'+item.direction);const pct=document.getElementById('cap-pct-'+item.direction);const vph=document.getElementById('cap-vph-'+item.direction);
+        const w=Math.min(item.load_pct,150);const col=item.load_pct>90?'var(--south)':item.load_pct>70?'var(--east)':'var(--north)';
+        if(bar){bar.style.width=w+'%';bar.style.background=col;}if(pct)pct.textContent=item.load_pct+'%';if(vph)vph.textContent=item.rate_per_hour+' veh/h';
       });
-    } catch {}
+    }catch{}
   }
 
-  // ── Economic Cost — 30 s ──────────────────────────────────────────────────
-  async function refreshCost() {
-    try {
-      const r = await fetch(API+'/analytics/cost'); if (!r.ok) throw 0;
-      const d = await r.json();
+  async function refreshCost(){
+    try{
+      const r=await fetch(API+'/analytics/cost');if(!r.ok)throw 0;const d=await r.json();
       const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};
-      set('cost-delay',   d.total_delay_minutes!=null ? d.total_delay_minutes.toFixed(1)+' min' : '–');
-      set('cost-fuel',    d.estimated_fuel_cost_jod!=null ? d.estimated_fuel_cost_jod.toFixed(2)+' JOD' : '–');
-      set('cost-vehicles',d.total_vehicles_this_session ?? '–');
-      set('cost-per-veh', d.fuel_cost_per_vehicle_fils!=null ? d.fuel_cost_per_vehicle_fils.toFixed(1)+' fils' : '–');
-      const note = document.getElementById('cost-note');
-      if (note && d.delay_per_vehicle_sec!=null) note.textContent='Delay/vehicle: '+d.delay_per_vehicle_sec+'s · Congestion: '+d.congestion_ratio+'x';
-    } catch {}
+      set('cost-delay',d.total_delay_minutes!=null?d.total_delay_minutes.toFixed(1)+' min':'\u2013');
+      set('cost-fuel',d.estimated_fuel_cost_jod!=null?d.estimated_fuel_cost_jod.toFixed(2)+' JOD':'\u2013');
+      set('cost-vehicles',d.total_vehicles_this_session??'\u2013');
+      set('cost-per-veh',d.fuel_cost_per_vehicle_fils!=null?d.fuel_cost_per_vehicle_fils.toFixed(1)+' fils':'\u2013');
+      const note=document.getElementById('cost-note');if(note&&d.delay_per_vehicle_sec!=null)note.textContent='Delay/vehicle: '+d.delay_per_vehicle_sec+'s \u00b7 Congestion: '+d.congestion_ratio+'x';
+    }catch{}
   }
 
-  // ── Heatmap — 5 min ───────────────────────────────────────────────────────
-  async function refreshHeatmap() {
-    try {
-      const r = await fetch(API+'/analytics/heatmap'); if (!r.ok) throw 0;
-      const d = await r.json();
-      const hours = (d.hours||[]);
-      // Show every 2 hours to avoid crowding
-      const filtered = hours.filter(h => h.hour % 2 === 0);
-      heatmapChart.data.labels = filtered.map(h=>h.hour+':00');
-      DIRS.forEach((dir,i)=>{ heatmapChart.data.datasets[i].data = filtered.map(h=>h[dir]??0); });
+  async function refreshHeatmap(){
+    try{
+      const r=await fetch(API+'/analytics/heatmap');if(!r.ok)throw 0;const d=await r.json();
+      const filtered=(d.hours||[]).filter(h=>h.hour%2===0);
+      heatmapChart.data.labels=filtered.map(h=>h.hour+':00');
+      DIRS.forEach((dir,i)=>{heatmapChart.data.datasets[i].data=filtered.map(h=>h[dir]??0);});
       heatmapChart.update('none');
-    } catch {}
+    }catch{}
   }
 
-  // ── Past vs Future Comparison — 30 s ──────────────────────────────────────
-  async function refreshComparison() {
-    try {
-      const r = await fetch(API+'/analytics/comparison'); if (!r.ok) throw 0;
-      const d = await r.json();
-      const hist = d.historical||[]; const future = d.forecast||[];
-      const all  = [...hist, ...future];
-      comparisonChart.data.labels = all.map(h=>h.label||h.hour+':00');
-      DIRS.forEach((dir,i)=>{ comparisonChart.data.datasets[i].data = all.map(h=>h[dir]??0); });
-      // Mark forecast points dashed
-      comparisonChart.data.datasets.forEach(ds=>{
-        ds.borderDash = [];
-        const splitIdx = hist.length;
-        ds.segment = { borderDash: ctx => ctx.p0DataIndex >= splitIdx-1 ? [5,3] : [] };
-      });
+  async function refreshComparison(){
+    try{
+      const r=await fetch(API+'/analytics/comparison');if(!r.ok)throw 0;const d=await r.json();
+      const hist=d.historical||[];const future=d.forecast||[];const all=[...hist,...future];
+      comparisonChart.data.labels=all.map(h=>h.label||h.hour+':00');
+      DIRS.forEach((dir,i)=>{comparisonChart.data.datasets[i].data=all.map(h=>h[dir]??0);});
+      comparisonChart.data.datasets.forEach(ds=>{const splitIdx=hist.length;ds.segment={borderDash:ctx=>ctx.p0DataIndex>=splitIdx-1?[5,3]:[]};});
       comparisonChart.update('none');
-    } catch {}
+    }catch{}
   }
 
-  // ── Incidents ─────────────────────────────────────────────────────────────
-  async function refreshIncidents() {
-    try {
-      const r = await fetch(API+'/incidents?limit=10'); if (!r.ok) throw 0;
-      const list = await r.json();
-      const el   = document.getElementById('inc-list');
-      if (!el) return;
-      el.innerHTML = list.length
-        ? list.map(i=>`<div class="inc-item">
-            <div class="inc-dot" style="background:${CLR[i.direction]||'#64748b'}"></div>
-            <div>
-              <div class="inc-type">${i.type||'–'} ${i.direction?'· '+i.direction:''}</div>
-              <div class="inc-meta">${(i.timestamp||'').slice(11,19)}${i.notes?' · '+i.notes:''}</div>
-            </div></div>`).join('')
-        : '<div class="no-data">No incidents reported</div>';
-    } catch {}
+  async function refreshIncidents(){
+    try{
+      const r=await fetch(API+'/incidents?limit=10');if(!r.ok)throw 0;const list=await r.json();
+      const el=document.getElementById('inc-list');if(!el)return;
+      el.innerHTML=list.length?list.map(i=>`<div class="inc-item"><div class="inc-dot" style="background:${CLR[i.direction]||'#6b7280'}"></div><div><div class="inc-type">${i.type||'\u2013'}${i.direction?' \u00b7 '+i.direction:''}</div><div class="inc-meta">${(i.timestamp||'').slice(11,19)}${i.notes?' \u00b7 '+i.notes:''}</div></div></div>`).join(''):'<div class="no-data">No incidents reported</div>';
+    }catch{}
   }
 
-  async function submitIncident() {
-    const dir   = document.getElementById('inc-dir').value;
-    const type  = document.getElementById('inc-type').value;
-    const notes = document.getElementById('inc-notes').value;
-    if (!type) { alert('Please select an incident type.'); return; }
-    const btn = document.querySelector('.btn-report');
-    btn.disabled = true; btn.textContent = 'Submitting…';
-    try {
-      const r = await fetch(API+'/incidents', {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ direction: dir||'All', incident_type: type, notes })
-      });
-      if (r.ok) {
-        document.getElementById('inc-dir').value   = '';
-        document.getElementById('inc-type').value  = '';
-        document.getElementById('inc-notes').value = '';
-        await refreshIncidents();
-      }
-    } catch {}
-    btn.disabled = false; btn.textContent = '🚨 Report Incident · بلّغ عن حادثة';
+  async function submitIncident(){
+    const dir=document.getElementById('inc-dir').value;const type=document.getElementById('inc-type').value;const notes=document.getElementById('inc-notes').value;
+    if(!type){alert('Please select an incident type.');return;}
+    const btn=document.querySelector('.btn-report');btn.disabled=true;btn.textContent='Submitting\u2026';
+    try{const r=await fetch(API+'/incidents',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({direction:dir||'All',incident_type:type,notes})});if(r.ok){document.getElementById('inc-dir').value='';document.getElementById('inc-type').value='';document.getElementById('inc-notes').value='';await refreshIncidents();}}catch{}
+    btn.disabled=false;btn.textContent='\uD83D\uDEA8 Report Incident';
   }
 
-  // ── Export CSV ────────────────────────────────────────────────────────────
-  async function exportReport() {
-    try {
-      const [counts, cond, inc] = await Promise.all([
-        fetch(API+'/counts?limit=200').then(r=>r.json()),
-        fetch(API+'/conditions?limit=50').then(r=>r.json()),
-        fetch(API+'/incidents?limit=50').then(r=>r.json()),
-      ]);
-      let csv = 'Type,Timestamp,Direction,Count/Value,Extra\n';
-      counts.forEach(row=>{ csv+=`count,${row.timestamp},${row.direction},${row.vehicle_count},hour_${row.hour}\n`; });
-      cond.forEach(row=>{ csv+=`congestion,${row.timestamp},–,${row.congestion_ratio},normal_${row.travel_time_normal}s\n`; });
-      inc.forEach(row=>{ csv+=`incident,${row.timestamp},${row.direction},${row.type},"${row.notes||''}"\n`; });
-      const blob = new Blob([csv], {type:'text/csv'});
-      const a    = document.createElement('a'); a.href=URL.createObjectURL(blob);
-      a.download = 'wadi_saqra_report_'+new Date().toISOString().slice(0,10)+'.csv';
-      a.click();
-    } catch(e) { alert('Export failed: '+e.message); }
+  async function exportReport(){
+    try{
+      const [counts,cond,inc]=await Promise.all([fetch(API+'/counts?limit=200').then(r=>r.json()),fetch(API+'/conditions?limit=50').then(r=>r.json()),fetch(API+'/incidents?limit=50').then(r=>r.json())]);
+      let csv='Type,Timestamp,Direction,Count/Value,Extra\n';
+      counts.forEach(row=>{csv+=`count,${row.timestamp},${row.direction},${row.vehicle_count},hour_${row.hour}\n`;});
+      cond.forEach(row=>{csv+=`congestion,${row.timestamp},-,${row.congestion_ratio},normal_${row.travel_time_normal}s\n`;});
+      inc.forEach(row=>{csv+=`incident,${row.timestamp},${row.direction},${row.type},"${row.notes||''}"\n`;});
+      const blob=new Blob([csv],{type:'text/csv'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='wadi_saqra_report_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+    }catch(e){alert('Export failed: '+e.message);}
   }
 
-  // ── Boot ──────────────────────────────────────────────────────────────────
-  refreshLive();
-  refreshStats();
-  refreshSummary();
-  refreshAdvisor();
-  refreshCost();
-  refreshHeatmap();
-  refreshComparison();
-  refreshIncidents();
-
-  setInterval(refreshLive,        500);
-  setInterval(refreshStats,       500);
-  setInterval(refreshSummary,   15000);
-  setInterval(refreshAdvisor,   10000);
-  setInterval(refreshCost,      30000);
-  setInterval(refreshHeatmap,  300000);
-  setInterval(refreshComparison,30000);
-  setInterval(refreshIncidents, 20000);
+  refreshLive(); refreshStats(); refreshSummary(); refreshAdvisor(); refreshCost(); refreshHeatmap(); refreshComparison(); refreshIncidents();
+  setInterval(refreshLive,500); setInterval(refreshStats,500); setInterval(refreshSummary,15000);
+  setInterval(refreshAdvisor,10000); setInterval(refreshCost,30000); setInterval(refreshHeatmap,300000);
+  setInterval(refreshComparison,30000); setInterval(refreshIncidents,20000);
 </script>
-<!-- ── CHATBOT WIDGET ─────────────────────────────────────────────────── -->
-<button id="chat-fab" onclick="toggleChat()" title="Ask the traffic assistant">💬</button>
 
+<!-- CHATBOT -->
+<button id="chat-fab" onclick="toggleChat()" title="Ask the traffic assistant">&#x1F4AC;</button>
 <div id="chat-panel" class="hidden">
   <div class="chat-header">
-    <span class="chat-header-icon">🚦</span>
-    <div style="flex:1">
-      <div class="chat-header-title">Wadi Saqra Traffic Assistant</div>
-      <div class="chat-header-sub" id="chat-status-lbl">Powered by Claude · Real-time data</div>
-    </div>
-    <button id="chat-close" onclick="toggleChat()" title="Close">✕</button>
+    <span style="font-size:18px">&#x1F6A6;</span>
+    <div style="flex:1"><div class="chat-header-title">Traffic Assistant</div><div class="chat-header-sub" id="chat-status-lbl">Powered by Claude &middot; Real-time data</div></div>
+    <button id="chat-close" onclick="toggleChat()">&#x2715;</button>
   </div>
-
-  <div id="chat-messages">
-    <div class="msg system">👋 Ask me anything about traffic at this intersection!</div>
-  </div>
-
-  <!-- Suggestion chips -->
+  <div id="chat-messages"><div class="msg system">&#x1F44B; Ask me anything about traffic at this intersection!</div></div>
   <div class="chat-chips" id="chat-chips">
     <span class="chip" onclick="sendChip('How is traffic right now?')">Traffic now?</span>
     <span class="chip" onclick="sendChip('What is the forecast for the next 30 minutes?')">30-min forecast</span>
     <span class="chip" onclick="sendChip('Which direction has the most cars?')">Busiest lane?</span>
-    <span class="chip" onclick="sendChip('Is there heavy congestion on Google Maps?')">Congestion?</span>
+    <span class="chip" onclick="sendChip('Is there heavy congestion?')">Congestion?</span>
     <span class="chip" onclick="sendChip('What is the current signal state?')">Signal state</span>
-    <span class="chip" onclick="sendChip('Show me the peak hours for this intersection.')">Peak hours</span>
+    <span class="chip" onclick="sendChip('Show me peak hours.')">Peak hours</span>
   </div>
-
   <div class="chat-footer">
-    <textarea id="chat-input" placeholder="Ask about traffic, forecasts, signals…"
-      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
-    <button id="chat-send" onclick="sendMessage()" title="Send">➤</button>
+    <textarea id="chat-input" placeholder="Ask about traffic, forecasts, signals&hellip;" onkeydown="if(event.key==='Enter'&amp;&amp;!event.shiftKey){event.preventDefault();sendMessage();}"></textarea>
+    <button id="chat-send" onclick="sendMessage()">&#x27A4;</button>
   </div>
-  <div style="display:flex;justify-content:flex-end;padding:.1rem .75rem .45rem;">
-    <button id="chat-reset" onclick="resetChat()">↺ New conversation</button>
-  </div>
+  <div style="display:flex;justify-content:flex-end;padding:2px 12px 8px;"><button id="chat-reset" onclick="resetChat()">&#x21BA; New conversation</button></div>
 </div>
 
 <script>
-  // ── Chat state ─────────────────────────────────────────────────────────
-  let _chatSession = null;
-  let _chatBusy    = false;
-
-  async function _ensureSession() {
-    if (_chatSession) return _chatSession;
-    try {
-      const r = await fetch(API + '/chat/session');
-      const d = await r.json();
-      _chatSession = d.session_id;
-    } catch { _chatSession = 'local-' + Date.now(); }
-    return _chatSession;
+  let _chatSession=null,_chatBusy=false;
+  async function _ensureSession(){if(_chatSession)return _chatSession;try{const r=await fetch(API+'/chat/session');const d=await r.json();_chatSession=d.session_id;}catch{_chatSession='local-'+Date.now();}return _chatSession;}
+  function toggleChat(){const p=document.getElementById('chat-panel');p.classList.toggle('hidden');if(!p.classList.contains('hidden'))document.getElementById('chat-input').focus();}
+  function _cleanText(t){return t.replace(/#{1,3}\s*/g,'').replace(/\*\*(.*?)\*\*/g,'$1').replace(/\*(.*?)\*/g,'$1').replace(/^[-\u2022]\s+/gm,'').replace(/\n{3,}/g,'\n\n').trim();}
+  function _appendMsg(role,text,toolsUsed){const box=document.getElementById('chat-messages');const div=document.createElement('div');div.className='msg '+role;div.textContent=text;if(toolsUsed&&toolsUsed.length){const t=document.createElement('div');t.className='msg-tools';toolsUsed.forEach(n=>{const b=document.createElement('span');b.className='tool-badge';b.textContent='\u2699 '+n.replace(/_/g,' ');t.appendChild(b);});div.appendChild(t);}box.appendChild(div);box.scrollTop=box.scrollHeight;return div;}
+  function _appendSpinner(){const box=document.getElementById('chat-messages');const div=document.createElement('div');div.className='msg assistant';div.id='chat-spinner';div.innerHTML='<div class="msg-spinner"><span></span><span></span><span></span></div>';box.appendChild(div);box.scrollTop=box.scrollHeight;}
+  function _removeSpinner(){const s=document.getElementById('chat-spinner');if(s)s.remove();}
+  async function sendMessage(){
+    if(_chatBusy)return;const input=document.getElementById('chat-input');const text=input.value.trim();if(!text)return;
+    input.value='';document.getElementById('chat-chips').style.display='none';
+    _appendMsg('user',text,null);_chatBusy=true;document.getElementById('chat-send').disabled=true;
+    document.getElementById('chat-status-lbl').textContent='Thinking\u2026';_appendSpinner();
+    try{const sid=await _ensureSession();const r=await fetch(API+'/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,session_id:sid})});_removeSpinner();if(!r.ok){_appendMsg('system','\u26A0 API error '+r.status,null);}else{const d=await r.json();_chatSession=d.session_id;_appendMsg('assistant',_cleanText(d.reply),d.tools_used);}}catch(err){_removeSpinner();_appendMsg('system','\u26A0 Could not reach API: '+err.message,null);}
+    _chatBusy=false;document.getElementById('chat-send').disabled=false;document.getElementById('chat-status-lbl').textContent='Powered by Claude \u00b7 Real-time data';document.getElementById('chat-input').focus();
   }
-
-  function toggleChat() {
-    const panel = document.getElementById('chat-panel');
-    panel.classList.toggle('hidden');
-    if (!panel.classList.contains('hidden')) {
-      document.getElementById('chat-input').focus();
-    }
-  }
-
-  function _cleanText(text) {
-    // Strip any markdown that Claude sends despite instructions
-    return text
-      .replace(/#{1,3}\s*/g, '')          // ## headers
-      .replace(/\*\*(.*?)\*\*/g, '$1')    // **bold**
-      .replace(/\*(.*?)\*/g, '$1')        // *italic*
-      .replace(/^[-•]\s+/gm, '')          // bullet points
-      .replace(/\n{3,}/g, '\n\n')         // excessive blank lines
-      .trim();
-  }
-
-  function _appendMsg(role, text, toolsUsed) {
-    const box = document.getElementById('chat-messages');
-    const div = document.createElement('div');
-    div.className = 'msg ' + role;
-    div.textContent = text;
-    if (toolsUsed && toolsUsed.length) {
-      const tDiv = document.createElement('div');
-      tDiv.className = 'msg-tools';
-      toolsUsed.forEach(t => {
-        const b = document.createElement('span');
-        b.className = 'tool-badge';
-        b.textContent = '⚙ ' + t.replace(/_/g,' ');
-        tDiv.appendChild(b);
-      });
-      div.appendChild(tDiv);
-    }
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-    return div;
-  }
-
-  function _appendSpinner() {
-    const box = document.getElementById('chat-messages');
-    const div = document.createElement('div');
-    div.className = 'msg assistant';
-    div.id = 'chat-spinner';
-    div.innerHTML = '<div class="msg-spinner"><span></span><span></span><span></span></div>';
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-  }
-
-  function _removeSpinner() {
-    const s = document.getElementById('chat-spinner');
-    if (s) s.remove();
-  }
-
-  async function sendMessage() {
-    if (_chatBusy) return;
-    const input = document.getElementById('chat-input');
-    const text  = input.value.trim();
-    if (!text) return;
-
-    input.value = '';
-    // Hide chips after first message
-    document.getElementById('chat-chips').style.display = 'none';
-
-    _appendMsg('user', text, null);
-    _chatBusy = true;
-    document.getElementById('chat-send').disabled = true;
-    document.getElementById('chat-status-lbl').textContent = 'Thinking…';
-    _appendSpinner();
-
-    try {
-      const sid = await _ensureSession();
-      const r = await fetch(API + '/chat', {
-        method:  'POST',
-        headers: {'Content-Type': 'application/json'},
-        body:    JSON.stringify({ message: text, session_id: sid }),
-      });
-      _removeSpinner();
-
-      if (!r.ok) {
-        _appendMsg('system', '⚠ API error ' + r.status + ' — is the server running?', null);
-      } else {
-        const d = await r.json();
-        _chatSession = d.session_id;
-        _appendMsg('assistant', _cleanText(d.reply), d.tools_used);
-      }
-    } catch (err) {
-      _removeSpinner();
-      _appendMsg('system', '⚠ Could not reach the API: ' + err.message, null);
-    }
-
-    _chatBusy = false;
-    document.getElementById('chat-send').disabled = false;
-    document.getElementById('chat-status-lbl').textContent = 'Powered by Claude · Real-time data';
-    document.getElementById('chat-input').focus();
-  }
-
-  function sendChip(text) {
-    document.getElementById('chat-input').value = text;
-    sendMessage();
-  }
-
-  async function resetChat() {
-    if (_chatSession) {
-      try {
-        await fetch(API + '/chat/reset', {
-          method:  'POST',
-          headers: {'Content-Type': 'application/json'},
-          body:    JSON.stringify({ session_id: _chatSession }),
-        });
-      } catch {}
-    }
-    _chatSession = null;
-    const box = document.getElementById('chat-messages');
-    box.innerHTML = '<div class="msg system">↺ Conversation cleared. Ask me anything!</div>';
-    document.getElementById('chat-chips').style.display = 'flex';
-  }
+  function sendChip(text){document.getElementById('chat-input').value=text;sendMessage();}
+  async function resetChat(){if(_chatSession){try{await fetch(API+'/chat/reset',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({session_id:_chatSession})});}catch{}}_chatSession=null;document.getElementById('chat-messages').innerHTML='<div class="msg system">\u21BA Cleared. Ask me anything!</div>';document.getElementById('chat-chips').style.display='flex';}
 </script>
 </body>
 </html>
