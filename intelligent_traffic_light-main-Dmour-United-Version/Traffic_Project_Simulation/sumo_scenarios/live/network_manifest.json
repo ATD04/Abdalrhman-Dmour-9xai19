@@ -1,0 +1,184 @@
+{
+  "schema_version": 2,
+  "created_at": "2026-05-06T14:14:34+03:00",
+  "reference_location": {
+    "label": "Wadi Saqra camera reference",
+    "lat": 31.96387,
+    "lon": 35.88957
+  },
+  "simulation_center": {
+    "lat": 31.964932,
+    "lon": 35.884545,
+    "distance_from_reference_m": 489.7
+  },
+  "controller_tls_id": "cluster_10989299571_10989299572_10989299573_10989307263_#11more",
+  "bbox": {
+    "west": 35.88357,
+    "south": 31.95937,
+    "east": 35.89557,
+    "north": 31.96837
+  },
+  "routes": {
+    "northbound": {
+      "incoming_edge": "150999182#0",
+      "outgoing_edge": "150999182#1",
+      "edges": [
+        "150999182#0",
+        "150999182#1"
+      ],
+      "monitor_edges": [
+        "150999182#0",
+        "1067942483#0",
+        "282619518"
+      ],
+      "incoming_lanes": [
+        "150999182#0_0",
+        "150999182#0_1",
+        "150999182#0_2"
+      ],
+      "monitor_lanes": [
+        "150999182#0_0",
+        "150999182#0_1",
+        "150999182#0_2",
+        "1067942483#0_0",
+        "1067942483#0_1",
+        "282619518_0"
+      ],
+      "route_length_m": 99.0,
+      "travel_cost_m": 99.0,
+      "incoming_heading_deg": 38.0,
+      "outgoing_heading_deg": 39.6
+    },
+    "southbound": {
+      "incoming_edge": "150999181-AddedOnRampEdge",
+      "outgoing_edge": "1376463187#1",
+      "edges": [
+        "150999181-AddedOnRampEdge",
+        "150999181",
+        "150999181-AddedOffRampEdge",
+        "1376463188#0",
+        "1376463187#1"
+      ],
+      "monitor_edges": [
+        "150999181-AddedOnRampEdge",
+        "688515255#1",
+        "150999181-AddedOffRampEdge"
+      ],
+      "incoming_lanes": [
+        "150999181-AddedOnRampEdge_0",
+        "150999181-AddedOnRampEdge_1",
+        "150999181-AddedOnRampEdge_2",
+        "150999181-AddedOnRampEdge_3",
+        "150999181-AddedOnRampEdge_4"
+      ],
+      "monitor_lanes": [
+        "150999181-AddedOnRampEdge_0",
+        "150999181-AddedOnRampEdge_1",
+        "150999181-AddedOnRampEdge_2",
+        "150999181-AddedOnRampEdge_3",
+        "150999181-AddedOnRampEdge_4",
+        "688515255#1_0",
+        "688515255#1_1",
+        "688515255#1_2",
+        "688515255#1_3",
+        "150999181-AddedOffRampEdge_0",
+        "150999181-AddedOffRampEdge_1",
+        "150999181-AddedOffRampEdge_2"
+      ],
+      "route_length_m": 402.1,
+      "travel_cost_m": 402.1,
+      "incoming_heading_deg": 232.0,
+      "outgoing_heading_deg": 214.5
+    },
+    "eastbound": {
+      "incoming_edge": "1473593772#0",
+      "outgoing_edge": "688515257#0",
+      "edges": [
+        "1473593772#0",
+        "150999182#0",
+        "150999182#1",
+        "150999182#2",
+        "150999182#3",
+        "688983278",
+        "688515257#0"
+      ],
+      "monitor_edges": [
+        "1473593772#0",
+        "708835814",
+        "154403484"
+      ],
+      "incoming_lanes": [
+        "1473593772#0_0",
+        "1473593772#0_1",
+        "1473593772#0_2"
+      ],
+      "monitor_lanes": [
+        "1473593772#0_0",
+        "1473593772#0_1",
+        "1473593772#0_2",
+        "708835814_0",
+        "154403484_0"
+      ],
+      "route_length_m": 368.1,
+      "travel_cost_m": 368.1,
+      "incoming_heading_deg": 134.6,
+      "outgoing_heading_deg": 66.1
+    },
+    "westbound": {
+      "incoming_edge": "51270303#9",
+      "outgoing_edge": "1489299013#1",
+      "edges": [
+        "51270303#9",
+        "150999182#2",
+        "150999182#3",
+        "688983278",
+        "688515257#0",
+        "688515257#1",
+        "688514650",
+        "688515256#0",
+        "688515256#1",
+        "688511663#0-AddedOnRampEdge",
+        "688511663#0",
+        "688511663#1",
+        "688511662#0",
+        "688507122#1",
+        "688507122#2",
+        "688507121#0",
+        "688507121#1",
+        "688507121#2",
+        "688507121#3",
+        "688507121#4",
+        "688507121#5",
+        "688507119#0",
+        "688507119#1",
+        "688514653",
+        "1389972216",
+        "1389972214",
+        "688515255#0",
+        "688515255#1",
+        "150999181-AddedOnRampEdge",
+        "150999181",
+        "150999181-AddedOffRampEdge",
+        "1376463188#0",
+        "1489299013#1"
+      ],
+      "monitor_edges": [
+        "51270303#9",
+        "-796721514#0",
+        "-796720232"
+      ],
+      "incoming_lanes": [
+        "51270303#9_0"
+      ],
+      "monitor_lanes": [
+        "51270303#9_0",
+        "-796721514#0_0",
+        "-796720232_0"
+      ],
+      "route_length_m": 1313.9,
+      "travel_cost_m": 1313.9,
+      "incoming_heading_deg": 311.9,
+      "outgoing_heading_deg": 315.6
+    }
+  }
+}

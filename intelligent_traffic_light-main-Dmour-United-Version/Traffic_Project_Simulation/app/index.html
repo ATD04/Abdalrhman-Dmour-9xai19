@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Wadi Saqra Traffic Digital Twin — Real-time traffic monitoring, AI forecasting, and signal optimization for Amman, Jordan">
+  <title>Wadi Saqra Traffic Control Room</title>
+  <link rel="stylesheet" href="/app/styles/design-tokens.css?v=5">
+  <link rel="stylesheet" href="/app/styles/components.css?v=9">
+  <link rel="stylesheet" href="/app/styles/layout.css?v=7">
+  <link rel="stylesheet" href="/app/styles/analytics.css?v=8">
+  <link rel="stylesheet" href="/app/styles/video-analytics.css?v=5">
+  <link rel="stylesheet" href="/app/styles/replay-reports.css?v=2">
+</head>
+<body>
+  <div class="app-shell">
+
+    <!-- ── Hero Header ─────────────────────────────────────────── -->
+    <header class="hero" id="hero">
+      <div class="hero-content">
+        <p class="eyebrow">Wadi Saqra Intersection · Amman, Jordan</p>
+        <h1>Traffic Control Room</h1>
+        <p class="hero-subtitle" id="hero-copy">
+          Live corridor sensors fused with a lane-level SUMO digital twin, AI traffic forecasting,
+          anomaly detection, and YOLO video analytics — unified in one operational view.
+        </p>
+      </div>
+      <div class="hero-actions">
+        <button id="adaptive-toggle" class="btn btn-toggle" title="Press A" style="margin-right: 8px;">Adaptive: --</button>
+        <button id="fusion-toggle" class="btn btn-toggle" title="Toggle sensor fusion" style="margin-right: 8px;">Fusion: --</button>
+        <span id="source-badge" class="badge badge-muted">Source: booting</span>
+        <span id="refresh-badge" class="badge">Updated: --</span>
+        <button id="theme-toggle" class="theme-toggle" title="Toggle theme (T)">🌓 Theme</button>
+      </div>
+    </header>
+
+    <!-- ── Tab Bar ──────────────────────────────────────────────── -->
+    <nav class="tab-bar" id="tab-bar">
+      <button class="tab-btn active" data-tab="tab-dashboard">
+        <span class="tab-icon">📡</span> Dashboard
+      </button>
+
+      <button class="tab-btn" data-tab="tab-simulation">
+        <span class="tab-icon">🧪</span> Simulation Lab
+      </button>
+      <button class="tab-btn" data-tab="tab-analytics">
+        <span class="tab-icon">📊</span> Analytics
+      </button>
+      <button class="tab-btn" data-tab="tab-replay">
+        <span class="tab-icon">⏪</span> Replay
+      </button>
+      <button class="tab-btn" data-tab="tab-reports">
+        <span class="tab-icon">📝</span> Reports
+      </button>
+      <button class="tab-btn" data-tab="tab-chat">
+        <span class="tab-icon">💬</span> Chat
+      </button>
+      <button class="tab-btn" data-tab="tab-video">
+        <span class="tab-icon">🎬</span> Video Analytics
+      </button>
+      <button class="tab-btn" data-tab="tab-system">
+        <span class="tab-icon">⚙️</span> System
+      </button>
+    </nav>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TAB 1: DASHBOARD
+         ═══════════════════════════════════════════════════════════ -->
+    <div id="tab-dashboard" class="tab-content active">
+
+      <div id="stale-data-banner" class="stale-banner" style="display:none;"></div>
+
+      <div id="data-source-banner" class="data-banner">
+        <span id="data-source-icon" class="banner-dot"></span>
+        <div class="banner-text">
+          <strong id="data-source-label">Connecting to data source…</strong>
+          <span id="data-source-detail">Starting up — please wait</span>
+        </div>
+        <span id="data-source-indicator" class="badge badge-muted" style="margin-left:auto;"></span>
+      </div>
+
+      <!-- KPI Row -->
+      <div class="dash-kpi-row" id="dash-kpi-row">
+        <div class="kpi-card kpi-accent" id="kpi-queue-card">
+          <div class="kpi-label">Network Queue</div>
+          <div class="kpi-value" id="kpi-queue">--</div>
+          <div class="kpi-detail">meters in monitored approaches</div>
+        </div>
+        <div class="kpi-card kpi-accent" id="kpi-speed-card">
+          <div class="kpi-label">Avg Speed</div>
+          <div class="kpi-value" id="kpi-speed">--</div>
+          <div class="kpi-detail">km/h across live approaches</div>
+        </div>
+        <div class="kpi-card kpi-warning" id="kpi-dominant-card">
+          <div class="kpi-label">Dominant Queue</div>
+          <div class="kpi-value" id="kpi-dominant">--</div>
+          <div class="kpi-detail">approach currently under stress</div>
+        </div>
+        <div class="kpi-card kpi-primary" id="kpi-forecast-card">
+          <div class="kpi-label">15-min Forecast</div>
+          <div class="kpi-value" id="kpi-forecast">--</div>
+          <div class="kpi-detail" id="kpi-forecast-detail">predicted demand</div>
+        </div>
+        <div class="kpi-card" id="kpi-anomaly-card">
+          <div class="kpi-label">Anomaly Status</div>
+          <div class="kpi-value" id="kpi-anomaly">--</div>
+          <div class="kpi-detail" id="kpi-anomaly-detail">AI detection mode</div>
+        </div>
+      </div>
+
+
+
+      <!-- Dashboard two-col: mini map + signals/alerts -->
+      <div class="dash-two-col">
+        <!-- Mini Map -->
+        <div class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">Map Layer</p><h2 class="section-title">Live Traffic Overview</h2></div>
+            <span id="vehicle-count-chip" class="badge badge-muted">Vehicles: --</span>
+          </div>
+          <div class="panel-body">
+            <div class="map-wrap">
+              <canvas id="network-map" width="1200" height="600"></canvas>
+              <iframe id="satellite-iframe" class="satellite-iframe" src="about:blank"
+                data-src="https://maps.google.com/maps?q=31.964932,35.884545&z=17&output=embed&t=k"
+                title="Satellite view" allowfullscreen style="display:none;"></iframe>
+            </div>
+            <div class="map-controls">
+              <button id="map-zoom-in" class="map-ctrl-btn">＋ Zoom</button>
+              <button id="map-zoom-out" class="map-ctrl-btn">－ Zoom</button>
+              <button id="map-reset" class="map-ctrl-btn">⌂ Reset</button>
+              <div class="map-mode-toggle">
+                <button id="map-mode-sumo" class="map-mode-btn active">📡 SUMO</button>
+                <button id="map-mode-satellite" class="map-mode-btn">🗺 Satellite</button>
+              </div>
+              <span id="map-coords" class="map-coords">Hover for coordinates</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Signal + Alerts -->
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <!-- Signal Phase -->
+          <div class="panel">
+            <div class="panel-head">
+              <div><p class="eyebrow">Signals</p><h2 class="section-title">Signal Phase</h2></div>
+              <span id="tls-id" class="badge badge-muted">Loading…</span>
+            </div>
+            <div class="panel-body">
+              <div id="signal-phase-summary" class="phase-summary">Loading…</div>
+            </div>
+          </div>
+
+          <!-- Decision Support -->
+          <div class="panel">
+            <div class="panel-head">
+              <div><p class="eyebrow">AI Insights</p><h2 class="section-title">Decision Support</h2></div>
+              <span id="google-error-chip" class="badge badge-muted">Google OK</span>
+            </div>
+            <div class="panel-body" style="max-height: 480px; overflow-y: auto; padding-right: 8px;">
+              <div id="recommendation" class="alert-card" style="margin-bottom:12px;">--</div>
+              <div id="alert-list" class="alert-list"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Digital Twin Content Merged into Dashboard -->
+      <div class="twin-layout" style="margin-top:16px;">
+        <div class="twin-map-col">
+          <!-- Approach Table -->
+          <div class="panel">
+            <div class="panel-head">
+              <div><p class="eyebrow">Approach Layer</p><h2 class="section-title">Google vs SUMO by Direction</h2></div>
+            </div>
+            <div class="panel-body" style="overflow-x:auto;">
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Direction</th><th>Google Corridor</th><th>Google Speed</th>
+                    <th>Live Demand</th><th>Sim Flow</th><th>Queue</th><th>Sim Speed</th><th>Lane Status</th>
+                  </tr>
+                </thead>
+                <tbody id="approach-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="twin-side-col">
+          <!-- Webster Panel -->
+          <div class="panel">
+            <div class="panel-head">
+              <div><p class="eyebrow">Signal Plan</p><h2 class="section-title">Current vs Webster</h2></div>
+              <span id="webster-mode-badge" class="badge badge-muted">Computing…</span>
+            </div>
+            <div class="panel-body">
+              <div id="webster-panel" class="webster-panel">
+                <div class="empty-state"><div class="spinner"></div><br>Computing optimal timing…</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Signal Details -->
+          <div class="panel">
+            <div class="panel-head">
+              <div><p class="eyebrow">Signal Controller</p><h2 class="section-title">Lane-by-Lane Signals</h2></div>
+            </div>
+            <div class="panel-body">
+              <p class="signal-explainer">Each section shows one approach with per-lane signal state, queue, speed, and vehicle count.</p>
+              <div id="signal-list" class="signal-list"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TAB 3: SIMULATION LAB
+         ═══════════════════════════════════════════════════════════ -->
+    <div id="tab-simulation" class="tab-content">
+      <div class="panel">
+        <div class="panel-head">
+          <div><p class="eyebrow">What-If Sandbox</p><h2 class="section-title">Signal Timing Simulation Lab</h2></div>
+          <span id="simulation-status" class="badge badge-muted">Ready</span>
+        </div>
+        <div class="panel-body">
+          <div class="simulation-lab-grid">
+            <div class="simulation-controls">
+              <div class="sim-section-head">
+                <span class="sim-section-title">⏱ الخطة المقترحة للإشارة</span>
+                <button id="sim-rebalance" class="btn btn-ghost sim-btn-sm" type="button">استخدم الحالي من اللايف ↺</button>
+              </div>
+              <div class="sim-control-row">
+                <label class="sim-label">شمال/جنوب</label>
+                <input id="sim-ns-green" type="range" min="7" max="90" value="35" class="sim-slider">
+                <span id="sim-ns-value" class="sim-val">35s</span>
+              </div>
+              <div class="sim-control-row">
+                <label class="sim-label">شرق</label>
+                <input id="sim-e-green" type="range" min="7" max="90" value="25" class="sim-slider">
+                <span id="sim-e-value" class="sim-val">25s</span>
+              </div>
+              <div class="sim-control-row">
+                <label class="sim-label">غرب</label>
+                <input id="sim-w-green" type="range" min="7" max="90" value="25" class="sim-slider">
+                <span id="sim-w-value" class="sim-val">25s</span>
+              </div>
+              <div class="sim-baseline-info" id="sim-baseline-info">
+                <span class="sim-section-title">📡 الخطة الحالية من اللايف</span>
+                <div id="sim-live-values" class="sim-live-values">جاري التحميل…</div>
+              </div>
+              <div class="sim-control-row sim-duration-row">
+                <label class="sim-label">مدة المحاكاة</label>
+                <input id="sim-duration" type="number" min="30" max="900" value="180" class="sim-duration-input">
+                <span class="sim-val">ثانية</span>
+              </div>
+              <div class="sim-engine-section">
+                <div class="sim-engine-head">
+                  <span class="sim-section-title">محرك المحاكاة</span>
+                  <span class="sim-engine-note">تقدير سريع للمقارنة أو محاكاة تفصيلية دقيقة</span>
+                </div>
+                <input id="sim-engine" type="hidden" value="math">
+                <div class="sim-engine-picker" role="radiogroup" aria-label="Simulation engine">
+                  <label class="sim-engine-card active" data-engine="math">
+                    <span class="sim-engine-choice-row">
+                      <input class="sim-engine-radio" type="radio" name="sim-engine-option" value="math" checked>
+                      <span class="sim-engine-copy-wrap">
+                        <strong class="sim-engine-name">Quick Estimate</strong>
+                        <span class="sim-engine-meta">Fast HCM model</span>
+                      </span>
+                    </span>
+                  </label>
+                  <label class="sim-engine-card" data-engine="sumo">
+                    <span class="sim-engine-choice-row">
+                      <input class="sim-engine-radio" type="radio" name="sim-engine-option" value="sumo">
+                      <span class="sim-engine-copy-wrap">
+                        <strong class="sim-engine-name">Detailed Digital Twin</strong>
+                        <span class="sim-engine-meta">Full SUMO simulation</span>
+                      </span>
+                    </span>
+                  </label>
+                </div>
+                <div id="sim-engine-help" class="sim-engine-help">
+                  Quick Estimate مناسب للمفاضلة السريعة، بينما Detailed Digital Twin يعطي محاكاة SUMO أكثر واقعية.
+                </div>
+              </div>
+              <button id="sim-run" class="btn btn-primary sim-run-btn" type="button">▶ تشغيل المحاكاة</button>
+            </div>
+            <div>
+              <canvas id="simulation-canvas" class="simulation-canvas" width="900" height="420"></canvas>
+              <canvas id="sim-queue-chart" class="sim-queue-chart" width="900" height="110"></canvas>
+              <div id="simulation-summary" class="simulation-summary">
+                <div class="empty-state">شغّل السيناريو لمشاهدة حركة السيارات في التقاطع.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TAB 4: ANALYTICS
+         ═══════════════════════════════════════════════════════════ -->
+    <div id="tab-analytics" class="tab-content">
+
+      <!-- Forecast Section -->
+      <div class="panel" style="margin-bottom:16px;">
+        <div class="panel-head">
+          <div><p class="eyebrow">AI Forecasting</p><h2 class="section-title">Predicted Traffic Volume by Direction</h2></div>
+          <span id="forecast-mode-badge" class="badge badge-muted">--</span>
+        </div>
+        <div class="panel-body">
+          <div id="forecast-grid" class="forecast-grid">
+            <div class="empty-state">Loading forecasts…</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analytics-grid">
+        <!-- Anomaly -->
+        <div class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">AI Anomaly Detection</p><h2 class="section-title">Per-Direction Anomaly Scores</h2></div>
+          </div>
+          <div class="panel-body">
+            <div id="anomaly-grid" class="anomaly-grid">
+              <div class="empty-state">Initializing detector…</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Congestion Shares -->
+        <div class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">Google Traffic</p><h2 class="section-title">Congestion Shares by Direction</h2></div>
+          </div>
+          <div class="panel-body">
+            <div id="congestion-shares"></div>
+          </div>
+        </div>
+
+        <!-- Counts + Utilization -->
+        <div class="panel" style="grid-column: 1 / -1;">
+          <div class="panel-head">
+            <div><p class="eyebrow">Operational Pressure</p><h2 class="section-title">Entries, Utilization, and Near-Term Risk</h2></div>
+          </div>
+          <div class="panel-body">
+            <div id="traffic-counts-grid" class="traffic-counts-grid">
+              <div class="empty-state">Loading traffic-count analytics…</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Peak Hours -->
+        <div class="panel" style="grid-column: 1 / -1;">
+          <div class="panel-head">
+            <div><p class="eyebrow">Historical Detector Data</p><h2 class="section-title">Peak Hours by Direction</h2></div>
+          </div>
+          <div class="panel-body">
+            <div id="peak-hours-chart" class="peak-hours-chart"></div>
+            <div id="peak-hours-grid" class="peak-hours-grid">
+              <div class="empty-state">Loading peak-hour analytics…</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Demand Pressure -->
+        <div class="panel" style="grid-column: 1 / -1;">
+          <div class="panel-head">
+            <div><p class="eyebrow">مراقبة الطاقة الاستيعابية</p><h2 class="section-title">Demand Pressure Index</h2></div>
+          </div>
+          <div class="panel-body">
+            <div id="demand-pressure"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Volume Heat Map -->
+      <div class="panel" style="margin-top:16px;">
+        <div class="panel-head">
+          <div><p class="eyebrow">Historical Detector Data</p><h2 class="section-title">Volume Heat Map</h2></div>
+        </div>
+        <div class="panel-body">
+          <div id="volume-heatmap" style="max-height: 360px !important; overflow-y: auto !important; display: block !important; padding-right: 8px;"></div>
+        </div>
+      </div>
+
+      <!-- Lane Occupancy -->
+      <div class="panel" style="margin-top:16px;">
+        <div class="panel-head">
+          <div><p class="eyebrow">Per-Lane</p><h2 class="section-title">Lane Occupancy</h2></div>
+        </div>
+        <div class="panel-body">
+          <div id="lane-occupancy"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TAB 5: REPLAY
+         ═══════════════════════════════════════════════════════════ -->
+    <div id="tab-replay" class="tab-content">
+      <div class="panel">
+        <div class="panel-head">
+          <div><p class="eyebrow">Operational Timeline</p><h2 class="section-title">Replay Buffer</h2></div>
+          <div class="rr-toolbar">
+            <span id="replay-count-badge" class="badge badge-muted">Snapshots: --</span>
+            <button id="replay-refresh-btn" class="btn btn-ghost" type="button">Refresh</button>
+            <button id="replay-play-btn" class="btn btn-primary" type="button">Play</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="rr-controls">
+            <label class="rr-field">
+              <span>Marker Filter</span>
+              <select id="replay-marker-filter" class="rr-select">
+                <option value="ALL">All snapshots</option>
+              </select>
+            </label>
+            <label class="rr-field rr-field-grow">
+              <span>Scrubber</span>
+              <input id="replay-slider" class="rr-slider" type="range" min="0" max="0" value="0" step="1">
+            </label>
+            <span id="replay-position-badge" class="badge">--</span>
+          </div>
+          <div id="replay-empty" class="empty-state">Open Replay to load the chronological buffer.</div>
+          <div id="replay-content" style="display:none;">
+            <div id="replay-kpi-grid" class="rr-kpi-grid"></div>
+            <div class="rr-two-col">
+              <section class="rr-card">
+                <div class="rr-card-head">
+                  <h3>Markers</h3>
+                  <span id="replay-marker-summary" class="badge badge-muted">--</span>
+                </div>
+                <div id="replay-markers" class="rr-marker-list"></div>
+              </section>
+              <section class="rr-card">
+                <div class="rr-card-head">
+                  <h3>Delta Summary</h3>
+                  <span id="replay-phase-badge" class="badge badge-muted">Phase: --</span>
+                </div>
+                <div id="replay-delta-summary" class="rr-delta-list"></div>
+              </section>
+            </div>
+            <section class="rr-card" style="margin-top:16px;">
+              <div class="rr-card-head">
+                <h3>Per-Direction Snapshot</h3>
+                <span id="replay-source-badge" class="badge badge-muted">Source: --</span>
+              </div>
+              <div style="overflow-x:auto;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Direction</th>
+                      <th>Queue</th>
+                      <th>Delta</th>
+                      <th>Flow</th>
+                      <th>Speed</th>
+                      <th>Delay</th>
+                    </tr>
+                  </thead>
+                  <tbody id="replay-direction-body"></tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TAB 6: REPORTS
+         ═══════════════════════════════════════════════════════════ -->
+    <div id="tab-reports" class="tab-content">
+      <div class="panel">
+        <div class="panel-head">
+          <div><p class="eyebrow">Operational Reporting</p><h2 class="section-title">Situation Reports</h2></div>
+          <div class="rr-toolbar">
+            <label class="rr-checkbox">
+              <input id="report-use-llm" type="checkbox">
+              <span>Use Ollama phrasing</span>
+            </label>
+            <div class="rr-toolbar-group">
+              <button id="report-download-json-btn" class="btn btn-ghost" type="button" disabled>Export JSON</button>
+              <button id="report-download-pdf-btn" class="btn btn-ghost" type="button" disabled>Export PDF</button>
+            </div>
+            <button id="report-refresh-btn" class="btn btn-ghost" type="button">Latest</button>
+            <button id="report-generate-btn" class="btn btn-primary" type="button">Generate Report</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="report-empty" class="empty-state">Open Reports to load the latest operational summary.</div>
+          <div id="report-content" style="display:none;">
+            <div id="report-meta-grid" class="rr-meta-grid"></div>
+            <div class="rr-two-col" style="margin-top:16px;">
+              <section class="rr-card">
+                <div class="rr-card-head">
+                  <h3>Network Status</h3>
+                  <span id="report-mode-badge" class="badge badge-muted">Mode: --</span>
+                </div>
+                <div id="report-status"></div>
+              </section>
+              <section class="rr-card">
+                <div class="rr-card-head">
+                  <h3>Recommended Actions</h3>
+                  <span id="report-llm-badge" class="badge badge-muted">LLM: --</span>
+                </div>
+                <div id="report-actions" class="rr-action-list"></div>
+              </section>
+            </div>
+            <section class="rr-card" style="margin-top:16px;">
+              <div class="rr-card-head">
+                <h3>Incidents</h3>
+                <span id="report-incident-badge" class="badge badge-muted">Incidents: --</span>
+              </div>
+              <div id="report-incidents"></div>
+            </section>
+            <section class="rr-card" style="margin-top:16px;">
+              <div class="rr-card-head">
+                <h3>Approach Snapshot</h3>
+                <span class="badge badge-muted">Live + trend</span>
+              </div>
+              <div style="overflow-x:auto;">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Direction</th>
+                      <th>Queue</th>
+                      <th>Queue Delta</th>
+                      <th>Flow</th>
+                      <th>Speed</th>
+                      <th>Delay</th>
+                      <th>Pressure</th>
+                    </tr>
+                  </thead>
+                  <tbody id="report-approach-body"></tbody>
+                </table>
+              </div>
+            </section>
+            <section class="rr-card" style="margin-top:16px;">
+              <div class="rr-card-head">
+                <h3>Forecast Outlook</h3>
+                <span id="report-forecast-badge" class="badge badge-muted">Forecast: --</span>
+              </div>
+              <div id="report-forecast-grid" class="rr-forecast-grid"></div>
+            </section>
+            <section class="rr-card" style="margin-top:16px;">
+              <div class="rr-card-head">
+                <h3>System Health</h3>
+                <span class="badge badge-muted">Runtime diagnostics</span>
+              </div>
+              <div id="report-health"></div>
+            </section>
+            <details id="report-raw-json" class="cref-raw-json" style="margin-top:16px;">
+              <summary>Report JSON</summary>
+              <pre><code id="report-raw-json-code"></code></pre>
+            </details>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TAB 7: CHAT
+         ═══════════════════════════════════════════════════════════ -->
+    <div id="tab-chat" class="tab-content">
+      <div class="chat-layout">
+        <section class="panel chat-main-panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">Grounded LLM</p><h2 class="section-title">Traffic Chat</h2></div>
+            <div class="chat-toolbar">
+              <span id="chat-health-badge" class="badge badge-muted">LLM: checking</span>
+              <button id="chat-reset-btn" class="btn btn-ghost" type="button" title="New conversation">New</button>
+            </div>
+          </div>
+          <div class="panel-body">
+            <div id="chat-unavailable" class="chat-unavailable" style="display:none;"></div>
+            <div id="chat-messages" class="assistant-messages chat-messages">
+              <div class="assistant-msg assistant-msg--system">
+                Ask about live congestion, historical incidents, signal phases, peak hours, emissions, or system data.
+              </div>
+            </div>
+            <div class="assistant-input-row chat-input-row">
+              <input id="chat-input" class="assistant-input" type="text"
+                placeholder="مثال: شو سبب الأزمة في جهة الشمال الآن؟" />
+              <button id="chat-send-btn" class="btn btn-primary" type="button">Ask</button>
+            </div>
+          </div>
+        </section>
+
+        <aside class="panel chat-reference-panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">References</p><h2 class="section-title">Source Data</h2></div>
+          </div>
+          <div class="panel-body">
+            <div id="chat-reference-empty" class="text-secondary">Select a citation to inspect the exact source data.</div>
+            <div id="chat-reference-content" class="chat-reference-content" style="display:none;"></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TAB 8: VIDEO ANALYTICS
+         ═══════════════════════════════════════════════════════════ -->
+    <div id="tab-video" class="tab-content">
+      <div id="va-root">
+        <div id="va-incidents"></div>
+        <div class="va-section">
+          <div class="va-section-head"><p class="eyebrow">Analytics Overview</p><h2>Video Processing Summary</h2></div>
+          <div id="va-kpi-strip" class="va-kpi-strip">
+            <div class="va-loading"><div class="spinner"></div><br>Loading analytics data…</div>
+          </div>
+        </div>
+        <div class="va-section" style="margin-top:16px;">
+          <div class="va-section-head"><p class="eyebrow">Field Recordings</p><h2>Wadi Saqra Video Gallery</h2></div>
+          <div id="va-gallery" class="va-gallery"></div>
+        </div>
+        <div id="va-player-section" class="va-player-section" style="display:none;margin-top:16px;">
+          <div>
+            <div class="va-section">
+              <div class="va-section-head"><p class="eyebrow">Object Detection + Tracking</p><h2>Video Player with YOLO Overlay</h2></div>
+              <div id="va-player-wrap" class="va-player-wrap">
+                <video id="va-player-video" class="va-player-video" muted playsinline></video>
+                <canvas id="va-player-canvas" class="va-player-canvas"></canvas>
+                <div class="va-player-overlay">
+                  <span id="va-overlay-info">--</span>
+                  <span id="va-overlay-time">0:00</span>
+                </div>
+                <div class="va-player-hud">
+                  <span id="va-hud-left">--</span>
+                  <span id="va-hud-right">--</span>
+                </div>
+              </div>
+              <div class="va-player-controls">
+                <button id="va-play-btn">▶ Play</button>
+                <input id="va-seek" class="va-seek" type="range" min="0" value="0" step="1">
+                <span id="va-time-label" class="va-player-time">0:00 / 0:00</span>
+              </div>
+              <div id="va-zone-toolbar" class="va-zone-toolbar">
+                <div class="va-zone-tools">
+                  <button id="va-zone-view" class="va-zone-tool active" type="button" title="View zones">👁 View</button>
+                  <button id="va-zone-draw" class="va-zone-tool" type="button" title="Draw zone by clicking points">✏️ Draw</button>
+                  <button id="va-zone-undo" class="va-zone-tool" type="button" title="Undo last point">↩ Undo</button>
+                  <button id="va-zone-clear" class="va-zone-tool" type="button" title="Clear draft">✕ Clear</button>
+                  <button id="va-zone-reset" class="va-zone-tool" type="button" title="Restore metadata default zones">Reset</button>
+                  <button id="va-zone-export" class="va-zone-tool" type="button" title="Copy current zone definitions">Export</button>
+                </div>
+                <div class="va-zone-point-row">
+                  <label class="va-zone-point-label">نقاط:</label>
+                  <select id="va-zone-point-count" class="va-zone-select" title="Number of points to place">
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4" selected>4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="8">8</option>
+                  </select>
+                </div>
+                <input id="va-zone-label" class="va-zone-input" type="text" placeholder="اسم الـ Zone">
+                <select id="va-zone-direction" class="va-zone-select" title="Direction">
+                  <option value="">لا اتجاه</option>
+                  <option value="northbound">شمال ↑</option>
+                  <option value="southbound">جنوب ↓</option>
+                  <option value="eastbound">شرق →</option>
+                  <option value="westbound">غرب ←</option>
+                </select>
+                <button id="va-zone-save" class="va-zone-tool primary" type="button" title="Save zone">💾 Save Zone</button>
+                <select id="va-zone-list" class="va-zone-select" title="Saved zones"></select>
+                <button id="va-zone-delete" class="va-zone-tool danger" type="button" title="Delete selected zone">🗑 Delete</button>
+              </div>
+              <div id="va-zone-draw-hint" class="va-zone-draw-hint"></div>
+            </div>
+            <div class="va-section" style="margin-top:16px;">
+              <div class="va-section-head"><p class="eyebrow">Temporal Analysis</p><h2>Traffic Density Timeline</h2></div>
+              <canvas id="va-timeline-canvas" class="va-timeline-canvas"></canvas>
+            </div>
+          </div>
+          <div class="va-section">
+            <div class="va-section-head"><p class="eyebrow">Event Log</p><h2>Detected Events</h2></div>
+            <div id="va-events-panel" class="va-events-sidebar"></div>
+          </div>
+        </div>
+        <div class="va-section" style="margin-top:16px;">
+          <div class="va-section-head"><p class="eyebrow">Capability Demonstration</p><h2>Proven Use Cases</h2></div>
+          <div id="va-use-cases" class="va-use-cases-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════════
+         TAB 9: SYSTEM
+         ═══════════════════════════════════════════════════════════ -->
+    <div id="tab-system" class="tab-content">
+      <div class="analytics-grid">
+        <!-- Connection -->
+        <div class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">Connection</p><h2 class="section-title">System Status</h2></div>
+          </div>
+          <div class="panel-body">
+            <div id="sys-connection-info">
+              <p class="text-secondary">Checking connection…</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Data Source -->
+        <div class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">Data</p><h2 class="section-title">Data Source Info</h2></div>
+          </div>
+          <div class="panel-body">
+            <div id="sys-data-source">
+              <p class="text-secondary">Loading…</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Keyboard Shortcuts -->
+        <div class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">Interaction</p><h2 class="section-title">Keyboard Shortcuts</h2></div>
+          </div>
+          <div class="panel-body">
+            <table class="data-table" id="shortcuts-table">
+              <thead><tr><th>Key</th><th>Action</th></tr></thead>
+              <tbody>
+                <tr><td><kbd>M</kbd></td><td>Toggle map mode (SUMO / Satellite)</td></tr>
+                <tr><td><kbd>A</kbd></td><td>Toggle adaptive signal control</td></tr>
+                <tr><td><kbd>F</kbd></td><td>Toggle sensor fusion</td></tr>
+                <tr><td><kbd>T</kbd></td><td>Toggle light / dark theme</td></tr>
+                <tr><td><kbd>+</kbd> / <kbd>-</kbd></td><td>Map zoom in / out</td></tr>
+                <tr><td><kbd>0</kbd></td><td>Reset map view</td></tr>
+                <tr><td><kbd>?</kbd></td><td>Show shortcuts toast</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- How to read -->
+        <div class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">Guide</p><h2 class="section-title">How To Read The Numbers</h2></div>
+          </div>
+          <div class="panel-body">
+            <div id="notes-grid" class="notes-grid"></div>
+          </div>
+        </div>
+
+        <!-- Chat Runtime -->
+        <div class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">LLM</p><h2 class="section-title">Chat Runtime</h2></div>
+            <span id="sys-chat-status-badge" class="badge badge-neutral">—</span>
+          </div>
+          <div class="panel-body">
+            <div id="sys-chat-runtime">
+              <p class="text-secondary">Checking chat runtime…</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Alert Dispatch -->
+        <div class="panel">
+          <div class="panel-head">
+            <div><p class="eyebrow">Operational</p><h2 class="section-title">Alert Dispatch</h2></div>
+            <span id="dispatch-status-badge" class="badge badge-neutral">—</span>
+          </div>
+          <div class="panel-body">
+            <div id="dispatch-info">
+              <p class="text-secondary">Loading dispatch status…</p>
+            </div>
+            <div id="dispatch-log" style="margin-top:12px;"></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /app-shell -->
+
+  <script src="/app/index.js?v=41" defer></script>
+  <script src="/app/replay.js?v=1" defer></script>
+  <script src="/app/reports.js?v=2" defer></script>
+  <script src="/app/video-analytics.js?v=15" defer></script>
+</body>
+</html>

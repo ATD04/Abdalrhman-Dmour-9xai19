@@ -1,0 +1,199 @@
+{
+  "timestamp": "2026-05-06T14:35:18+03:00",
+  "source": "detector_data",
+  "center": {
+    "lat": 31.964932,
+    "lon": 35.884545,
+    "distance_from_reference_m": 489.7
+  },
+  "approaches": {
+    "northbound": {
+      "origin": {
+        "lat": 31.952341,
+        "lon": 35.884545
+      },
+      "destination": {
+        "lat": 31.964932,
+        "lon": 35.884545
+      },
+      "distance_m": 1400,
+      "duration_s": 204.5,
+      "static_duration_s": 175.0,
+      "delay_s": 29.5,
+      "delay_ratio": 0.169,
+      "avg_speed_kmh": 24.6,
+      "free_flow_speed_kmh": 28.8,
+      "speed_ratio": 0.856,
+      "congestion_level": "light",
+      "polyline": [
+        {
+          "lat": 31.952341,
+          "lon": 35.884545
+        },
+        {
+          "lat": 31.964932,
+          "lon": 35.884545
+        }
+      ],
+      "traffic_segments": [
+        {
+          "speed": "NORMAL",
+          "points": [
+            {
+              "lat": 31.952341,
+              "lon": 35.884545
+            },
+            {
+              "lat": 31.964932,
+              "lon": 35.884545
+            }
+          ]
+        }
+      ],
+      "normal_share": 0.9,
+      "slow_share": 0.033,
+      "jam_share": 0.05
+    },
+    "southbound": {
+      "origin": {
+        "lat": 31.977523,
+        "lon": 35.884545
+      },
+      "destination": {
+        "lat": 31.964932,
+        "lon": 35.884545
+      },
+      "distance_m": 1400,
+      "duration_s": 340.9,
+      "static_duration_s": 175.0,
+      "delay_s": 165.9,
+      "delay_ratio": 0.948,
+      "avg_speed_kmh": 14.8,
+      "free_flow_speed_kmh": 28.8,
+      "speed_ratio": 0.513,
+      "congestion_level": "heavy",
+      "polyline": [
+        {
+          "lat": 31.977523,
+          "lon": 35.884545
+        },
+        {
+          "lat": 31.964932,
+          "lon": 35.884545
+        }
+      ],
+      "traffic_segments": [
+        {
+          "speed": "NORMAL",
+          "points": [
+            {
+              "lat": 31.977523,
+              "lon": 35.884545
+            },
+            {
+              "lat": 31.964932,
+              "lon": 35.884545
+            }
+          ]
+        }
+      ],
+      "normal_share": 0.9,
+      "slow_share": 0.033,
+      "jam_share": 0.05
+    },
+    "eastbound": {
+      "origin": {
+        "lat": 31.964931,
+        "lon": 35.867584
+      },
+      "destination": {
+        "lat": 31.964932,
+        "lon": 35.884545
+      },
+      "distance_m": 1600,
+      "duration_s": 316.1,
+      "static_duration_s": 200.0,
+      "delay_s": 116.1,
+      "delay_ratio": 0.581,
+      "avg_speed_kmh": 18.2,
+      "free_flow_speed_kmh": 28.8,
+      "speed_ratio": 0.633,
+      "congestion_level": "moderate",
+      "polyline": [
+        {
+          "lat": 31.964931,
+          "lon": 35.867584
+        },
+        {
+          "lat": 31.964932,
+          "lon": 35.884545
+        }
+      ],
+      "traffic_segments": [
+        {
+          "speed": "NORMAL",
+          "points": [
+            {
+              "lat": 31.964931,
+              "lon": 35.867584
+            },
+            {
+              "lat": 31.964932,
+              "lon": 35.884545
+            }
+          ]
+        }
+      ],
+      "normal_share": 0.9,
+      "slow_share": 0.033,
+      "jam_share": 0.05
+    },
+    "westbound": {
+      "origin": {
+        "lat": 31.964931,
+        "lon": 35.901506
+      },
+      "destination": {
+        "lat": 31.964932,
+        "lon": 35.884545
+      },
+      "distance_m": 1600,
+      "duration_s": 571.4,
+      "static_duration_s": 200.0,
+      "delay_s": 371.4,
+      "delay_ratio": 1.857,
+      "avg_speed_kmh": 10.1,
+      "free_flow_speed_kmh": 28.8,
+      "speed_ratio": 0.35,
+      "congestion_level": "severe",
+      "polyline": [
+        {
+          "lat": 31.964931,
+          "lon": 35.901506
+        },
+        {
+          "lat": 31.964932,
+          "lon": 35.884545
+        }
+      ],
+      "traffic_segments": [
+        {
+          "speed": "NORMAL",
+          "points": [
+            {
+              "lat": 31.964931,
+              "lon": 35.901506
+            },
+            {
+              "lat": 31.964932,
+              "lon": 35.884545
+            }
+          ]
+        }
+      ],
+      "normal_share": 0.9,
+      "slow_share": 0.033,
+      "jam_share": 0.05
+    }
+  }
+}

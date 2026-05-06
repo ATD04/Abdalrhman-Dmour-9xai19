@@ -1,0 +1,274 @@
+{
+  "intersection_id": "Wadi_Saqra",
+  "site_name": "Wadi Saqra Intersection, Amman, Jordan",
+  "camera_location": {
+    "latitude": 31.96387,
+    "longitude": 35.88957,
+    "altitude_m": 785,
+    "reference": "Roadside pole near Wadi Saqra / Wasfi Al Tal corridor"
+  },
+  "field_of_view": {
+    "camera_id": "CAM_WS_01",
+    "azimuth_deg": 208,
+    "tilt_deg": -19,
+    "horizontal_fov_deg": 87,
+    "vertical_fov_deg": 49,
+    "resolution": "1920x1080",
+    "frame_rate_fps": 25,
+    "coverage_distance_m": {
+      "near": 12,
+      "far": 240
+    }
+  },
+  "lane_configurations": {
+    "approach_1": {
+      "movement": "Northbound through",
+      "lane_count": 3
+    },
+    "approach_2": {
+      "movement": "Northbound left-turn pocket",
+      "lane_count": 1
+    },
+    "approach_3": {
+      "movement": "Northbound right-turn/slip",
+      "lane_count": 1
+    },
+    "approach_4": {
+      "movement": "Southbound through",
+      "lane_count": 3
+    },
+    "approach_5": {
+      "movement": "Southbound through (inner lanes)",
+      "lane_count": 2
+    },
+    "approach_6": {
+      "movement": "Southbound left-turn",
+      "lane_count": 1
+    },
+    "approach_7": {
+      "movement": "Eastbound through",
+      "lane_count": 3
+    },
+    "approach_8": {
+      "movement": "Eastbound right-turn",
+      "lane_count": 1
+    },
+    "approach_9": {
+      "movement": "Eastbound left-turn",
+      "lane_count": 1
+    },
+    "approach_10": {
+      "movement": "Westbound through",
+      "lane_count": 2
+    },
+    "approach_11": {
+      "movement": "Westbound through (outer lanes)",
+      "lane_count": 2
+    },
+    "approach_12": {
+      "movement": "Westbound dominant through",
+      "lane_count": 3
+    },
+    "approach_13": {
+      "movement": "Westbound protected left-turn",
+      "lane_count": 1
+    },
+    "approach_14": {
+      "movement": "Service/auxiliary slip movement",
+      "lane_count": 1
+    }
+  },
+  "approach_labels": {
+    "1": "Northbound_Main_Through_A",
+    "2": "Northbound_Left",
+    "3": "Northbound_Right",
+    "4": "Southbound_Main_Through_A",
+    "5": "Southbound_Main_Through_B",
+    "6": "Southbound_Left",
+    "7": "Eastbound_Main_Through_A",
+    "8": "Eastbound_Right",
+    "9": "Eastbound_Left",
+    "10": "Westbound_Main_Through_A",
+    "11": "Westbound_Main_Through_B",
+    "12": "Westbound_High_Volume_Through",
+    "13": "Westbound_Left",
+    "14": "Auxiliary_Slip"
+  },
+  "stop_line_positions": [
+    {
+      "approach_id": 1,
+      "line_points_px": [
+        [
+          332,
+          702
+        ],
+        [
+          476,
+          688
+        ]
+      ]
+    },
+    {
+      "approach_id": 4,
+      "line_points_px": [
+        [
+          1008,
+          516
+        ],
+        [
+          1148,
+          502
+        ]
+      ]
+    },
+    {
+      "approach_id": 7,
+      "line_points_px": [
+        [
+          640,
+          744
+        ],
+        [
+          812,
+          740
+        ]
+      ]
+    },
+    {
+      "approach_id": 10,
+      "line_points_px": [
+        [
+          540,
+          430
+        ],
+        [
+          698,
+          424
+        ]
+      ]
+    }
+  ],
+  "monitoring_zones": [
+    {
+      "zone_id": "QSB_NB_01",
+      "type": "queue_spillback",
+      "approaches": [
+        1,
+        2,
+        3
+      ],
+      "polygon_px": [
+        [
+          260,
+          760
+        ],
+        [
+          530,
+          730
+        ],
+        [
+          514,
+          640
+        ],
+        [
+          250,
+          668
+        ]
+      ]
+    },
+    {
+      "zone_id": "QSB_SB_01",
+      "type": "queue_spillback",
+      "approaches": [
+        4,
+        5,
+        6
+      ],
+      "polygon_px": [
+        [
+          924,
+          560
+        ],
+        [
+          1186,
+          528
+        ],
+        [
+          1160,
+          430
+        ],
+        [
+          900,
+          462
+        ]
+      ]
+    },
+    {
+      "zone_id": "QSB_EB_01",
+      "type": "queue_spillback",
+      "approaches": [
+        7,
+        8,
+        9
+      ],
+      "polygon_px": [
+        [
+          556,
+          822
+        ],
+        [
+          926,
+          804
+        ],
+        [
+          932,
+          710
+        ],
+        [
+          558,
+          724
+        ]
+      ]
+    },
+    {
+      "zone_id": "QSB_WB_01",
+      "type": "queue_spillback",
+      "approaches": [
+        10,
+        11,
+        12,
+        13,
+        14
+      ],
+      "polygon_px": [
+        [
+          458,
+          510
+        ],
+        [
+          776,
+          496
+        ],
+        [
+          784,
+          402
+        ],
+        [
+          462,
+          416
+        ]
+      ]
+    }
+  ],
+  "site_description": "Urban signalized multi-leg junction in Amman with strong PM commuter demand and weekend evening activity.",
+  "temporal_coverage": {
+    "start": "2023-12-30 00:00:00",
+    "end": "2024-01-06 23:45:00",
+    "timezone": "Asia/Amman",
+    "interval": "15 minutes"
+  },
+  "data_sources": {
+    "base_sensor_file": "Traffic Volume_almanhal.txt",
+    "processing_method": "parsed, cleaned (DA), and expanded to 22 detectors using calibrated lane-profile scaling"
+  }
+}

@@ -1,0 +1,128 @@
+{
+  "site_reference": {
+    "label": "Wadi Saqra camera reference",
+    "lat": 31.96387,
+    "lon": 35.88957
+  },
+  "network": {
+    "bbox_padding_degrees": {
+      "lat": 0.0045,
+      "lon": 0.0060
+    }
+  },
+  "google": {
+    "service_account_file": null,
+    "poll_interval_seconds": 30,
+    "probe_distance_meters": {
+      "northbound": 1400,
+      "southbound": 1400,
+      "eastbound": 1600,
+      "westbound": 1600
+    }
+  },
+  "sumo": {
+    "binary": "/Library/Frameworks/EclipseSUMO.framework/Versions/1.26.0/EclipseSUMO/bin/sumo",
+    "gui_binary": "/Library/Frameworks/EclipseSUMO.framework/Versions/1.26.0/EclipseSUMO/bin/sumo-gui",
+    "netconvert_binary": "/Library/Frameworks/EclipseSUMO.framework/Versions/1.26.0/EclipseSUMO/bin/netconvert",
+    "remote_port": 8813,
+    "step_length_seconds": 1.0,
+    "host": "127.0.0.1"
+  },
+  "simulation": {
+    "google_base_capacity_veh_h": 220,
+    "base_flow_floor_veh_h": 40,
+    "demand_sensitivity": 1.0,
+    "max_flow_veh_h": 600,
+    "history_seconds": 600,
+    "flow_rate_window_seconds": 300,
+    "vehicle_length_meters": 7.5,
+    "real_time_step_seconds": 1.0
+  },
+  "adaptive_signal": {
+    "enabled_on_start": true,
+    "queue_threshold_vehicles": 9,
+    "max_extension_seconds": 10
+  },
+  "server": {
+    "host": "0.0.0.0",
+    "port": 3100
+  },
+  "data_sources": {
+    "primary": "google",
+    "fallback_chain": ["detector"],
+    "fusion_enabled": false,
+    "fusion_weights": {
+      "google_routes": 0.6,
+      "video_yolo": 0.35,
+      "detector_data": 0.05
+    }
+  },
+  "live_video": {
+    "enabled": false,
+    "source": "Traffic_Data_Sandbox/live_stream/YTDown.com_YouTube_Media_52ao3WsInBo_001_1080p.mp4",
+    "yolo_weights": "yolo26x.pt",
+    "sample_fps": 5,
+    "device": "mps",
+    "min_confidence": 0.25,
+    "incident_detection": {
+      "enabled": false,
+      "weights": "models/wadi_saqra_incident_yolov8.pt",
+      "sample_stride": 3,
+      "dedup_window_s": 30
+    },
+    "approach_zones": {
+      "northbound": [0.40, 0.05, 0.65, 0.45],
+      "southbound": [0.30, 0.55, 0.75, 0.95],
+      "eastbound":  [0.65, 0.30, 0.98, 0.75],
+      "westbound":  [0.02, 0.30, 0.40, 0.75]
+    }
+  },
+  "forecasting": {
+    "enabled": true,
+    "model_path": "scripts/forecasting/model_artifact.pkl",
+    "default_horizon_minutes": 15,
+    "max_horizon_minutes": 30
+  },
+  "anomaly": {
+    "enabled": true,
+    "model_path": "scripts/anomaly/model_artifact.pkl",
+    "anomaly_threshold": 0.65,
+    "min_inference_interval_s": 10
+  },
+  "alert_dispatch": {
+    "enabled": false,
+    "min_severity": "HIGH",
+    "channels": ["noop"],
+    "webhook_url": null,
+    "request_timeout_seconds": 5,
+    "dedup_window_seconds": 900,
+    "email": {
+      "enabled": false,
+      "host": "localhost",
+      "port": 25,
+      "use_tls": false,
+      "username": null,
+      "password": null,
+      "from": "its@localhost",
+      "to": []
+    }
+  },
+  "llm": {
+    "provider": "ollama",
+    "enabled": true,
+    "model": "gemma4:latest",
+    "base_url": "http://127.0.0.1:11434",
+    "request_timeout_seconds": 90,
+    "max_tool_rounds": 8,
+    "temperature": 0.1,
+    "num_predict": 260,
+    "allow_cloud_fallback": false,
+    "cloud_provider": null
+  },
+  "emissions": {
+    "enabled": true
+  },
+  "simulation_extras": {
+    "disk_write_every_n_steps": 10
+  }
+}

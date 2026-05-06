@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "updated_at": "2026-05-05T06:26:54.153028+00:00",
+  "videos": {
+    "test": {
+      "label": "test",
+      "source_resolution": null,
+      "zones": [
+        {
+          "zone_id": "test_line_1",
+          "video_id": "test",
+          "label": "test line 1",
+          "kind": "line_zone",
+          "direction": null,
+          "approach_ids": [],
+          "points_norm": [
+            [
+              0.1,
+              0.108
+            ],
+            [
+              0.5,
+              0.508
+            ],
+            [
+              0.5,
+              0.492
+            ],
+            [
+              0.1,
+              0.092
+            ]
+          ],
+          "color": "#ffffff",
+          "enabled": true,
+          "count_on_entry": true,
+          "render_order": 100
+        }
+      ]
+    },
+    "img-5204": {
+      "label": "img-5204",
+      "source_resolution": null,
+      "zones": []
+    },
+    "img-5208": {
+      "label": "img-5208",
+      "source_resolution": null,
+      "zones": []
+    }
+  }
+}

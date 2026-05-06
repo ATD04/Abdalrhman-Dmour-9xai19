@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s http://127.0.0.1:3100/api/health)",
+      "Bash(curl -s http://127.0.0.1:3101/api/health)"
+    ]
+  }
+}

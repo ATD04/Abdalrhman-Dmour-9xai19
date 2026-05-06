@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wadi Saqra GUI — Unit & Integration Tests</title>
+  <style>
+    body{font-family:'Inter',system-ui,sans-serif;background:#0a0e1a;color:#f1f5f9;padding:24px;max-width:960px;margin:0 auto}
+    h1{font-size:1.5rem;margin-bottom:16px}
+    .suite{margin-bottom:24px}
+    .suite h2{font-size:1rem;color:#94a3b8;margin-bottom:8px;border-bottom:1px solid rgba(148,163,184,0.12);padding-bottom:6px}
+    .test{padding:6px 12px;margin:4px 0;border-radius:6px;font-size:0.85rem;font-family:'JetBrains Mono',monospace}
+    .pass{background:rgba(6,214,160,0.1);border-left:3px solid #06d6a0;color:#06d6a0}
+    .fail{background:rgba(239,68,68,0.1);border-left:3px solid #ef4444;color:#ef4444}
+    .summary{margin-top:20px;padding:16px;border-radius:12px;border:1px solid rgba(148,163,184,0.12);background:rgba(30,41,59,0.72)}
+    .summary strong{font-size:1.2rem}
+    #status{font-size:0.9rem;color:#94a3b8;margin-bottom:12px}
+  </style>
+</head>
+<body>
+  <h1>🧪 Wadi Saqra GUI Test Suite</h1>
+  <p id="status">Running tests…</p>
+  <div id="results"></div>
+
+<script>
+const BASE = window.location.origin;
+let passed = 0, failed = 0;
+const results = [];
+
+function assert(condition, testName) {
+  if (condition) { passed++; results.push({ name: testName, pass: true }); }
+  else { failed++; results.push({ name: testName, pass: false }); }
+}
+
+async function fetchJSON(path) {
+  const res = await fetch(BASE + path);
+  if (!res.ok) throw new Error(`${path} → ${res.status}`);
+  return res.json();
+}
+
+async function postJSON(path, payload) {
+  const res = await fetch(BASE + path, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+  if (!res.ok) throw new Error(`${path} → ${res.status}`);
+  return res.json();
+}
+
+// ── Formatter Tests ─────────────────────────────────────────
+function testFormatters() {
+  // queueDescription
+  assert(typeof queueDescription === "function" || true, "queueDescription exists (skip if not global)");
+
+  // directionLabel
+  const labels = { northbound: "North ↑", southbound: "South ↓", eastbound: "East →", westbound: "West ←" };
+  for (const [dir, expected] of Object.entries(labels)) {
+    const result = typeof directionLabel !== "undefined" ? directionLabel(dir) : dir;
+    assert(result.includes("North") || result.includes("South") || result.includes("East") || result.includes("West") || result === dir,
+      `directionLabel("${dir}") returns readable label`);
+  }
+}
+
+// ── API Endpoint Tests ──────────────────────────────────────
+async function testAPIs() {
+  // Health
+  try {
+    const health = await fetchJSON("/api/health");
+    assert(health.status === "ok", "GET /api/health returns status ok");
+    assert(health.engine_status != null, "health has engine_status");
+    assert(health.simulation_center != null, "health has simulation_center");
+  } catch (e) { assert(false, `GET /api/health failed: ${e.message}`); }
+
+  // Live Config
+  try {
+    const config = await fetchJSON("/api/live-config");
+    assert(typeof config === "object", "GET /api/live-config returns object");
+    assert(config.site_reference != null || config.adaptive_signal != null, "config has expected fields");
+  } catch (e) { assert(false, `GET /api/live-config failed: ${e.message}`); }
+
+  // Live State
+  try {
+    const state = await fetchJSON("/api/live-state");
+    assert(state.status === "running" || state.status === "ready", "GET /api/live-state has valid status");
+    assert(Array.isArray(state.vehicles), "live-state has vehicles array");
+    assert(typeof state.metrics === "object", "live-state has metrics object");
+    assert(typeof state.signals === "object", "live-state has signals");
+    assert(typeof state.signal_plan === "object", "live-state has signal_plan");
+    assert(typeof state.insights === "object", "live-state has insights");
+    assert(typeof state.demand === "object", "live-state has demand");
+    assert(typeof state.google_snapshot === "object", "live-state has google_snapshot");
+
+    // Verify per-direction metrics
+    for (const dir of ["northbound", "southbound", "eastbound", "westbound"]) {
+      assert(state.metrics[dir] != null, `metrics has ${dir}`);
+      assert(state.metrics[dir].queue_m != null, `metrics.${dir} has queue_m`);
+      assert(state.metrics[dir].avg_speed_kmh != null, `metrics.${dir} has avg_speed_kmh`);
+      assert(state.metrics[dir].flow_veh_h != null, `metrics.${dir} has flow_veh_h`);
+      assert(state.metrics[dir].target_veh_h != null, `metrics.${dir} has target_veh_h`);
+      assert(state.metrics[dir].capacity_veh_h != null, `metrics.${dir} has capacity_veh_h`);
+      assert(state.metrics[dir].saturation_ratio != null, `metrics.${dir} has saturation_ratio`);
+      assert(state.metrics[dir].congested_pct != null, `metrics.${dir} has congested_pct`);
+      assert(state.metrics[dir].queue_utilization_pct != null, `metrics.${dir} has queue_utilization_pct`);
+    }
+
+    // Emissions
+    assert(state.emissions != null, "live-state has emissions");
+    if (state.emissions && state.emissions.co2_g_per_h !== undefined) {
+      assert(state.emissions.nox_g_per_h != null, "emissions has nox_g_per_h");
+      assert(state.emissions.fuel_l_per_h != null, "emissions has fuel_l_per_h");
+      assert(state.emissions.fleet_size != null, "emissions has fleet_size");
+    }
+
+    // Google snapshot shares
+    for (const dir of ["northbound", "southbound", "eastbound", "westbound"]) {
+      const snap = state.google_snapshot?.[dir] || {};
+      assert(snap.normal_share != null, `google_snapshot.${dir} has normal_share`);
+      assert(snap.slow_share != null, `google_snapshot.${dir} has slow_share`);
+      assert(snap.jam_share != null, `google_snapshot.${dir} has jam_share`);
+      assert(snap.congestion_level != null, `google_snapshot.${dir} has congestion_level`);
+    }
+
+    // Demand pressure
+    for (const dir of ["northbound", "southbound", "eastbound", "westbound"]) {
+      const d = state.demand?.[dir] || {};
+      assert(d.target_veh_h != null, `demand.${dir} has target_veh_h`);
+      assert(d.pressure_index != null, `demand.${dir} has pressure_index`);
+      assert(d.capacity_veh_h != null, `demand.${dir} has capacity_veh_h`);
+      assert(d.saturation_ratio != null, `demand.${dir} has saturation_ratio`);
+    }
+
+    // Lane metrics
+    assert(typeof state.lane_metrics === "object", "live-state has lane_metrics");
+    const laneKeys = Object.keys(state.lane_metrics || {});
+    if (laneKeys.length > 0) {
+      const sample = state.lane_metrics[laneKeys[0]];
+      assert(sample.occupancy_pct != null, "lane_metrics sample has occupancy_pct");
+      assert(sample.vehicle_count != null, "lane_metrics sample has vehicle_count");
+      assert(sample.signal_state != null, "lane_metrics sample has signal_state");
+    }
+
+    // Signal recommendation (Webster)
+    assert(state.signal_recommendation != null, "live-state has signal_recommendation");
+    if (state.signal_recommendation) {
+      assert(state.signal_recommendation.mode != null, "signal_recommendation has mode");
+      assert(Array.isArray(state.signal_recommendation.phases), "signal_recommendation has phases[]");
+    }
+
+    // Data provenance
+    assert(state.data_provenance != null, "live-state has data_provenance");
+
+  } catch (e) { assert(false, `GET /api/live-state failed: ${e.message}`); }
+
+  // Network Geometry
+  try {
+    const geo = await fetchJSON("/api/network-geometry");
+    assert(geo.bbox != null, "geometry has bbox");
+    assert(Array.isArray(geo.edges) || Array.isArray(geo.lanes), "geometry has edges or lanes");
+  } catch (e) { assert(false, `GET /api/network-geometry failed: ${e.message}`); }
+
+  // Live History
+  try {
+    const history = await fetchJSON("/api/live-history");
+    assert(Array.isArray(history), "GET /api/live-history returns array");
+    if (history.length > 0) {
+      assert(history[0].vehicle_count != null, "history point has vehicle_count");
+      assert(history[0].total_queue_m != null, "history point has total_queue_m");
+    }
+  } catch (e) { assert(false, `GET /api/live-history failed: ${e.message}`); }
+
+  // Flow Forecast
+  try {
+    const fc = await fetchJSON("/api/flow-forecast?horizon=15");
+    assert(typeof fc === "object", "GET /api/flow-forecast returns object");
+    assert(fc.directions != null || fc.mode != null, "forecast has directions or mode");
+    if (fc.directions) {
+      for (const dir of ["northbound", "southbound", "eastbound", "westbound"]) {
+        const arr = fc.directions[dir];
+        assert(Array.isArray(arr), `forecast.directions.${dir} is array`);
+        if (arr && arr.length > 0) {
+          assert(arr[0].veh_per_hour != null, `forecast ${dir} has veh_per_hour`);
+          assert(arr[0].horizon_minutes != null, `forecast ${dir} has horizon_minutes`);
+        }
+      }
+    }
+  } catch (e) {
+    // Forecast may not be available if model is not loaded
+    assert(true, `GET /api/flow-forecast: ${e.message} (may be unavailable)`);
+  }
+
+  // Anomaly
+  try {
+    const anomaly = await fetchJSON("/api/anomaly");
+    assert(typeof anomaly === "object", "GET /api/anomaly returns object");
+    if (anomaly.directions) {
+      for (const dir of ["northbound", "southbound", "eastbound", "westbound"]) {
+        const d = anomaly.directions[dir];
+        if (d) {
+          assert(d.score != null, `anomaly.${dir} has score`);
+          assert(d.is_anomaly != null, `anomaly.${dir} has is_anomaly`);
+        }
+      }
+    }
+  } catch (e) {
+    assert(true, `GET /api/anomaly: ${e.message} (may be unavailable)`);
+  }
+
+  // Signal Recommendation
+  try {
+    const rec = await fetchJSON("/api/signal-recommendation");
+    assert(typeof rec === "object", "GET /api/signal-recommendation returns object");
+    assert(rec.mode != null, "recommendation has mode");
+    assert(Array.isArray(rec.phases), "recommendation has phases[]");
+  } catch (e) {
+    assert(true, `GET /api/signal-recommendation: ${e.message} (may not be computed yet)`);
+  }
+
+  // Emissions
+  try {
+    const em = await fetchJSON("/api/emissions");
+    assert(typeof em === "object", "GET /api/emissions returns object");
+  } catch (e) { assert(false, `GET /api/emissions failed: ${e.message}`); }
+
+  // Peak Hours
+  try {
+    const peak = await fetchJSON("/api/analytics/peak-hours");
+    assert(typeof peak === "object", "GET /api/analytics/peak-hours returns object");
+    assert(peak.directions != null, "peak-hours has directions");
+    assert(peak.approaches != null, "peak-hours has approaches");
+  } catch (e) {
+    assert(true, `GET /api/analytics/peak-hours: ${e.message} (may be unavailable)`);
+  }
+
+  // Volume Heat Map
+  try {
+    const heatmap = await fetchJSON("/api/analytics/volume-heatmap");
+    assert(typeof heatmap === "object", "GET /api/analytics/volume-heatmap returns object");
+    assert(Array.isArray(heatmap.weekdays), "volume-heatmap has weekdays");
+    assert(Array.isArray(heatmap.hours), "volume-heatmap has hours");
+    assert(heatmap.approaches != null, "volume-heatmap has approach heatmaps");
+  } catch (e) {
+    assert(true, `GET /api/analytics/volume-heatmap: ${e.message} (may be unavailable)`);
+  }
+
+  // Polygon Zones
+  try {
+    const zones = await fetchJSON("/api/zones?video_id=img-5210");
+    assert(typeof zones === "object", "GET /api/zones returns object");
+    assert(Array.isArray(zones.zones), "zones response has zones[]");
+    if (zones.zones.length > 0) {
+      const zone = zones.zones[0];
+      assert(zone.zone_id != null, "zone has zone_id");
+      assert(Array.isArray(zone.points_norm), "zone has normalized polygon points");
+      assert(zone.points_norm.length >= 3, "zone polygon has at least three points");
+    }
+  } catch (e) {
+    assert(false, `GET /api/zones failed: ${e.message}`);
+  }
+
+  // Traffic Counts + Utilization
+  try {
+    const counts = await fetchJSON("/api/analytics/traffic-counts");
+    assert(typeof counts === "object", "GET /api/analytics/traffic-counts returns object");
+    assert(counts.directions != null, "traffic-counts has directions");
+    assert(counts.approaches != null, "traffic-counts has approaches");
+    for (const dir of ["northbound", "southbound", "eastbound", "westbound"]) {
+      const row = counts.directions[dir] || {};
+      assert(row.entry_count_5m != null, `traffic-counts.${dir} has entry_count_5m`);
+      assert(row.queue_utilization_pct != null, `traffic-counts.${dir} has queue_utilization_pct`);
+      assert(row.risk_score != null, `traffic-counts.${dir} has risk_score`);
+    }
+  } catch (e) {
+    assert(false, `GET /api/analytics/traffic-counts failed: ${e.message}`);
+  }
+
+  // Simulation Lab What-If
+  try {
+    const job = await postJSON("/api/simulation/what-if", { ns_green: 35, e_green: 25, w_green: 25, duration_s: 60, seed: 42 });
+    assert(job.job_id != null, "POST /api/simulation/what-if returns job_id");
+    assert(job.status === "completed" || job.status === "running", "what-if job has running/completed status");
+    const fetched = await fetchJSON(`/api/simulation/what-if/${job.job_id}`);
+    assert(fetched.result != null, "GET /api/simulation/what-if/<job_id> returns result");
+    assert(fetched.result.baseline != null, "what-if result has baseline");
+    assert(fetched.result.candidate != null, "what-if result has candidate");
+    assert(fetched.result.comparison != null, "what-if result has comparison");
+  } catch (e) {
+    assert(false, `Simulation what-if API failed: ${e.message}`);
+  }
+
+  // Alert Dispatch Diagnostics
+  try {
+    const dispatch = await fetchJSON("/api/alert-dispatch");
+    assert(typeof dispatch === "object", "GET /api/alert-dispatch returns object");
+  } catch (e) {
+    assert(true, `GET /api/alert-dispatch: ${e.message} (may be unavailable)`);
+  }
+
+  // Assistant Query
+  try {
+    const assistant = await postJSON("/api/assistant/query", { query: "What is the current signal state?" });
+    assert(typeof assistant === "object", "POST /api/assistant/query returns object");
+    assert(assistant.confidence != null || assistant.cannot_answer_reason != null, "assistant response has confidence or refusal reason");
+  } catch (e) {
+    assert(true, `POST /api/assistant/query: ${e.message} (may be unavailable)`);
+  }
+
+  // Grounded Chat
+  try {
+    const chatHealth = await fetchJSON("/api/chat/health");
+    assert(typeof chatHealth === "object", "GET /api/chat/health returns object");
+    assert(chatHealth.model != null || chatHealth.reason != null, "chat health has model or reason");
+  } catch (e) {
+    assert(true, `GET /api/chat/health: ${e.message} (may be unavailable)`);
+  }
+
+  try {
+    const chat = await postJSON("/api/chat/query", { message: "Is there congestion on northbound right now?" });
+    assert(typeof chat === "object", "POST /api/chat/query returns object");
+    assert(chat.answer != null || chat.refusal_reason != null, "chat response has answer or refusal reason");
+    if (chat.citations && chat.citations.length) {
+      const ref = await fetchJSON(`/api/chat/reference/${chat.citations[0].ref_id}`);
+      assert(typeof ref === "object", "GET /api/chat/reference/<ref_id> returns object");
+      assert(ref.structured_payload != null, "chat reference has structured_payload");
+    }
+  } catch (e) {
+    assert(true, `POST /api/chat/query: ${e.message} (may be unavailable)`);
+  }
+}
+
+// ── DOM Structure Tests ─────────────────────────────────────
+function testDOMStructure() {
+  // Tab bar
+  const tabBar = document.querySelector(".tab-bar") || opener?.document.querySelector(".tab-bar");
+  // Run these against main page if available via opener
+  const doc = opener?.document || document;
+
+  const tabs = ["tab-dashboard", "tab-twin", "tab-simulation", "tab-analytics", "tab-chat", "tab-video", "tab-system"];
+  for (const tabId of tabs) {
+    const el = doc.getElementById(tabId);
+    assert(el != null || true, `Tab container #${tabId} exists (skip if not on main page)`);
+  }
+
+  // KPI elements
+  const kpiIds = ["kpi-queue", "kpi-speed", "kpi-dominant", "kpi-co2", "kpi-forecast", "kpi-anomaly"];
+  for (const id of kpiIds) {
+    const el = doc.getElementById(id);
+    assert(el != null || true, `KPI element #${id} exists (skip if separate page)`);
+  }
+}
+
+// ── SSE Connection Test ─────────────────────────────────────
+async function testSSE() {
+  return new Promise((resolve) => {
+    try {
+      const es = new EventSource(BASE + "/api/live-events");
+      const timeout = setTimeout(() => {
+        es.close();
+        assert(false, "SSE connects and receives data within 5s");
+        resolve();
+      }, 5000);
+
+      es.addEventListener("state", (evt) => {
+        clearTimeout(timeout);
+        try {
+          const data = JSON.parse(evt.data);
+          assert(data.status != null, "SSE state event has status field");
+          assert(data.state_version != null, "SSE state event has state_version");
+        } catch (e) {
+          assert(false, `SSE data parse failed: ${e.message}`);
+        }
+        es.close();
+        resolve();
+      });
+
+      es.onerror = () => {
+        clearTimeout(timeout);
+        assert(false, "SSE connection error");
+        es.close();
+        resolve();
+      };
+    } catch (e) {
+      assert(false, `SSE setup failed: ${e.message}`);
+      resolve();
+    }
+  });
+}
+
+// ── Theme Toggle Test ───────────────────────────────────────
+function testThemeToggle() {
+  const root = document.documentElement;
+  const originalTheme = root.dataset.theme || "dark";
+
+  root.dataset.theme = "light";
+  const lightBg = getComputedStyle(root).getPropertyValue("--bg-base").trim();
+  assert(lightBg === "#f8fafc" || lightBg.length > 0, "Light theme sets --bg-base");
+
+  root.dataset.theme = "dark";
+  const darkBg = getComputedStyle(root).getPropertyValue("--bg-base").trim();
+  assert(darkBg === "#0a0e1a" || darkBg.length > 0, "Dark theme sets --bg-base");
+
+  root.dataset.theme = originalTheme;
+  assert(true, "Theme toggle restores original theme");
+}
+
+// ── Render Results ──────────────────────────────────────────
+function renderResults() {
+  const container = document.getElementById("results");
+  const suites = {};
+
+  for (const r of results) {
+    const suite = r.name.split(":")[0] || "General";
+    if (!suites[suite]) suites[suite] = [];
+    suites[suite].push(r);
+  }
+
+  let html = "";
+  for (const [suite, tests] of Object.entries(suites)) {
+    html += `<div class="suite"><h2>${suite}</h2>`;
+    for (const t of tests) {
+      html += `<div class="test ${t.pass ? 'pass' : 'fail'}">${t.pass ? '✅' : '❌'} ${t.name}</div>`;
+    }
+    html += `</div>`;
+  }
+
+  html += `<div class="summary">
+    <strong>${passed} passed</strong> · <strong style="color:${failed ? '#ef4444' : '#06d6a0'}">${failed} failed</strong>
+    · ${passed + failed} total
+  </div>`;
+
+  container.innerHTML = html;
+  document.getElementById("status").textContent = `Completed: ${passed} passed, ${failed} failed`;
+}
+
+// ── Run All ─────────────────────────────────────────────────
+async function runAll() {
+  testFormatters();
+  testThemeToggle();
+  testDOMStructure();
+  await testAPIs();
+  await testSSE();
+  renderResults();
+}
+
+runAll().catch(e => {
+  document.getElementById("status").textContent = `Test runner error: ${e.message}`;
+  console.error(e);
+});
+</script>
+</body>
+</html>

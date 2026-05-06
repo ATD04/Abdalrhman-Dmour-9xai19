@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "updated_at": "2026-05-06T10:04:55.593499+00:00",
+  "videos": {
+    "*": {
+      "label": "Fallback zones",
+      "source_resolution": null,
+      "zones": []
+    },
+    "img-5204": {
+      "label": "img-5204",
+      "source_resolution": null,
+      "zones": []
+    }
+  }
+}

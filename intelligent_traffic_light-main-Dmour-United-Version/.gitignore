@@ -1,0 +1,33 @@
+# Large Files & Media
+Traffic_Project_Simulation/app/media/
+Traffic_Project_Simulation/models/*.pt
+Traffic_Project_Simulation/models/*.onnx
+
+# SUMO temporary files
+*.tr
+*.out
+*.xml
+*.xml.gz
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Tracking Data (Heavy JSONs)
+Traffic_Project_Simulation/app/data/video_tracking/
+Traffic_Project_Simulation/app/data/latest_flow_forecast.json
+Traffic_Project_Simulation/app/data/latest_situation_report.json
+
+# Local tasks
+new_features/

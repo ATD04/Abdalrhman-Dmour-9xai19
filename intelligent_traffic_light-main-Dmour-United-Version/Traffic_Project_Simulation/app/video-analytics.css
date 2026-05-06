@@ -1,0 +1,625 @@
+/* ═══════════════════════════════════════════════════════════════
+   VIDEO ANALYTICS TAB – Wadi Saqra Traffic Control Room
+   Uses the same CSS variables as index.css for full light/dark
+   theme support.  No hardcoded dark colours.
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Tab bar ──────────────────────────────────────────────────── */
+.main-tab-bar {
+  display: flex;
+  gap: 4px;
+  margin: 0 0 20px;
+  padding: 4px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  width: fit-content;
+}
+
+.main-tab-btn {
+  padding: 10px 28px;
+  border: none;
+  border-radius: 12px;
+  background: transparent;
+  color: var(--muted);
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  transition: all 0.25s ease;
+  white-space: nowrap;
+}
+
+.main-tab-btn:hover {
+  color: var(--text);
+  background: rgba(255, 179, 71, 0.10);
+}
+
+.main-tab-btn.active {
+  background: linear-gradient(135deg, #ffb347, #ff9500);
+  color: #0e1e25;
+  box-shadow: 0 4px 18px rgba(255, 179, 71, 0.30);
+}
+
+.main-tab-btn .tab-icon {
+  margin-right: 8px;
+  font-size: 1rem;
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+/* ── Video Analytics page ─────────────────────────────────────── */
+#va-root {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+/* ── Summary KPI strip ────────────────────────────────────────── */
+.va-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+}
+
+.va-kpi {
+  padding: 18px 20px;
+  border-radius: 16px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  text-align: center;
+}
+
+.va-kpi span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 6px;
+  font-family: Menlo, Monaco, monospace;
+}
+
+.va-kpi strong {
+  display: block;
+  font-size: 1.7rem;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.va-kpi small {
+  color: var(--muted);
+  font-size: 0.73rem;
+}
+
+/* ── Video gallery ────────────────────────────────────────────── */
+.va-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.va-video-card {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.va-video-card:hover {
+  border-color: var(--amber);
+  transform: translateY(-3px);
+  box-shadow: var(--shadow);
+}
+
+.va-video-card.selected {
+  border-color: var(--amber);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--amber) 25%, transparent), var(--shadow);
+}
+
+.va-video-thumb {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  display: block;
+  background: var(--map-bg);
+}
+
+.va-video-card-body {
+  padding: 14px 16px;
+}
+
+.va-video-card-body h4 {
+  margin: 0 0 6px;
+  font-size: 0.88rem;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.va-video-meta {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.va-video-meta span {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-family: Menlo, monospace;
+}
+
+.va-event-count-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  font-family: Menlo, monospace;
+}
+
+.va-event-count-badge.high {
+  background: rgba(243, 87, 87, 0.90);
+  color: #fff;
+}
+
+.va-event-count-badge.medium {
+  background: rgba(255, 209, 102, 0.90);
+  color: #1a1a1a;
+}
+
+.va-event-count-badge.low {
+  background: rgba(98, 208, 195, 0.90);
+  color: #1a1a1a;
+}
+
+/* ── Player area ──────────────────────────────────────────────── */
+.va-player-section {
+  display: grid;
+  grid-template-columns: 1fr 360px;
+  gap: 18px;
+}
+
+@media (max-width: 1024px) {
+  .va-player-section { grid-template-columns: 1fr; }
+}
+
+.va-player-wrap {
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: #030a10;   /* video area stays dark regardless of theme */
+  position: relative;
+}
+
+.va-player-video {
+  width: 100%;
+  display: block;
+  background: #000;
+  border-radius: 20px 20px 0 0;
+}
+
+.va-player-canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.va-player-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 14px 18px;
+  pointer-events: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  font-family: Menlo, monospace;
+  font-size: 0.76rem;
+  color: rgba(241, 250, 250, 0.90);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  background: linear-gradient(to bottom, rgba(0,0,0,0.45), transparent);
+}
+
+.va-player-hud {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 18px;
+  font-family: Menlo, monospace;
+  font-size: 0.74rem;
+  color: rgba(241, 250, 250, 0.85);
+  background: linear-gradient(to top, rgba(0,0,0,0.50), transparent);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.va-player-controls {
+  padding: 12px 18px;
+  background: var(--panel-strong);
+  border-top: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.va-player-controls button {
+  background: color-mix(in srgb, var(--amber) 15%, transparent);
+  border: 1px solid color-mix(in srgb, var(--amber) 35%, transparent);
+  color: var(--amber);
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: 0.2s;
+}
+
+.va-player-controls button:hover {
+  background: color-mix(in srgb, var(--amber) 25%, transparent);
+}
+
+.va-player-controls .va-seek {
+  flex: 1;
+  accent-color: var(--amber);
+  height: 4px;
+}
+
+.va-player-time {
+  font-family: Menlo, monospace;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+/* ── Event sidebar ────────────────────────────────────────────── */
+.va-events-sidebar {
+  max-height: 520px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-right: 4px;
+}
+
+.va-events-sidebar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.va-events-sidebar::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--amber) 35%, transparent);
+  border-radius: 99px;
+}
+
+.va-event-card {
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.va-event-card:hover {
+  border-color: color-mix(in srgb, var(--amber) 35%, transparent);
+  background: var(--panel-strong);
+}
+
+.va-event-card.selected {
+  border-color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 8%, transparent);
+}
+
+.va-event-card .ev-type {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: Menlo, monospace;
+  margin-bottom: 6px;
+}
+
+.va-event-card .ev-type.high {
+  background: color-mix(in srgb, var(--danger) 18%, transparent);
+  color: var(--danger);
+}
+
+.va-event-card .ev-type.medium {
+  background: color-mix(in srgb, var(--amber) 16%, transparent);
+  color: var(--amber);
+}
+
+.va-event-card .ev-type.low {
+  background: color-mix(in srgb, var(--teal) 14%, transparent);
+  color: var(--teal);
+}
+
+.va-event-card .ev-desc {
+  font-size: 0.82rem;
+  color: var(--text);
+  line-height: 1.45;
+  margin-bottom: 6px;
+}
+
+.va-event-card .ev-rec {
+  font-size: 0.76rem;
+  color: var(--muted);
+  line-height: 1.4;
+  padding-left: 12px;
+  border-left: 2px solid color-mix(in srgb, var(--amber) 35%, transparent);
+}
+
+.va-event-card .ev-time {
+  font-size: 0.7rem;
+  color: var(--muted);
+  font-family: Menlo, monospace;
+  margin-top: 6px;
+}
+
+/* ── Use case cards ───────────────────────────────────────────── */
+.va-use-cases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.va-uc-card {
+  padding: 20px 22px;
+  border-radius: 18px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  position: relative;
+  overflow: hidden;
+  transition: 0.3s ease;
+}
+
+.va-uc-card:hover {
+  border-color: color-mix(in srgb, var(--amber) 35%, transparent);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.va-uc-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+
+.va-uc-card.proven::before {
+  background: linear-gradient(90deg, var(--teal), color-mix(in srgb, var(--teal) 75%, #fff));
+}
+
+.va-uc-card.supported::before {
+  background: linear-gradient(90deg, var(--amber), color-mix(in srgb, var(--amber) 75%, #fff));
+}
+
+.va-uc-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 12px;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: Menlo, monospace;
+  margin-bottom: 10px;
+}
+
+.va-uc-card.proven .va-uc-status {
+  background: color-mix(in srgb, var(--teal) 14%, transparent);
+  color: var(--teal);
+}
+
+.va-uc-card.supported .va-uc-status {
+  background: color-mix(in srgb, var(--amber) 14%, transparent);
+  color: var(--amber);
+}
+
+.va-uc-card h3 {
+  margin: 0 0 8px;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.va-uc-card p {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.va-uc-evidence {
+  font-size: 0.72rem;
+  color: var(--muted);
+  font-family: Menlo, monospace;
+}
+
+/* ── Incident alert banner ────────────────────────────────────── */
+.va-incident-banner {
+  padding: 18px 22px;
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--danger) 8%, var(--panel));
+  border: 1px solid color-mix(in srgb, var(--danger) 35%, transparent);
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  animation: va-pulse-border 2.5s ease infinite;
+}
+
+@keyframes va-pulse-border {
+  0%, 100% { border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
+  50%       { border-color: color-mix(in srgb, var(--danger) 70%, transparent); }
+}
+
+.va-incident-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.va-incident-body h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  color: var(--danger);
+}
+
+.va-incident-body p {
+  margin: 0 0 4px;
+  font-size: 0.84rem;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.va-incident-body small {
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
+/* ── Section wrapper ──────────────────────────────────────────── */
+.va-section {
+  padding: 22px 26px;
+  border-radius: 22px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.va-section-head {
+  margin-bottom: 16px;
+}
+
+.va-section-head .eyebrow {
+  margin: 0 0 6px;
+  color: var(--amber);
+  font-size: 0.72rem;
+  font-family: Menlo, monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+}
+
+.va-section-head h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  color: var(--text);
+}
+
+/* ── Placeholder / loading ────────────────────────────────────── */
+.va-loading {
+  text-align: center;
+  padding: 60px 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.va-loading .spinner {
+  display: inline-block;
+  width: 28px;
+  height: 28px;
+  border: 3px solid color-mix(in srgb, var(--amber) 20%, transparent);
+  border-top-color: var(--amber);
+  border-radius: 50%;
+  animation: va-spin 0.8s linear infinite;
+  margin-bottom: 12px;
+}
+
+@keyframes va-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── Timeline chart ───────────────────────────────────────────── */
+.va-timeline-canvas {
+  width: 100%;
+  height: 100px;
+  border-radius: 12px;
+  background: var(--chart-bg);
+  border: 1px solid var(--line);
+}
+
+/* ── Live Event Overlay (fixed pop-up) ────────────────────────── */
+.va-live-event-alert {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 380px;
+  background: var(--panel-strong);
+  border: 1px solid color-mix(in srgb, var(--amber) 45%, transparent);
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: var(--shadow);
+  z-index: 999999;
+  backdrop-filter: blur(12px);
+  animation: slide-in 0.3s ease-out;
+}
+
+.va-live-event-alert .alert-content {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.va-live-event-alert .alert-icon {
+  font-size: 24px;
+}
+
+.va-live-event-alert h3 {
+  margin: 0 0 4px 0;
+  font-size: 0.95rem;
+}
+
+.va-live-event-alert .text-crash {
+  color: var(--danger);
+}
+
+.va-live-event-alert .text-warn {
+  color: var(--amber);
+}
+
+.va-live-event-alert p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text);
+  line-height: 1.4;
+}
+
+.va-live-event-alert small {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.flash-alert {
+  border-color: var(--danger);
+  animation: flash-border 1.5s infinite;
+}
+
+@keyframes flash-border {
+  0%   { border-color: var(--danger); box-shadow: 0 0 15px color-mix(in srgb, var(--danger) 60%, transparent); }
+  50%  { border-color: color-mix(in srgb, var(--danger) 30%, transparent); box-shadow: none; }
+  100% { border-color: var(--danger); box-shadow: 0 0 15px color-mix(in srgb, var(--danger) 60%, transparent); }
+}
+
+@keyframes slide-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
