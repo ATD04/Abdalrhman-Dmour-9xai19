@@ -9,8 +9,8 @@
 ## 📋 The Basics
 
 **Your Name**: Abdalrhman Dmour
-**Date**: 5/5/2026 
-**This is my**: ✅ Tuesday check-in ⬜ Thursday check-in
+**Date**: 5/5/2026 + 7/5/2026
+**This is my**: ✅ Tuesday check-in ✅ Thursday check-in
 
 ---
 
@@ -188,34 +188,32 @@ For the API lag: implemented a local congestion cache so the dashboard still sho
 
 | # | Goal I Set on Sunday | Status | Notes |
 |---|---|:---:|---|
-| 1 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
-| 2 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
-| 3 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
-| 4 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
-| 5 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
+| 1 |Finish the Traffic System| ✅ Done ⬜ Partial ⬜ Not Started | | 
+| 2 | Start a new usecase | ✅ Done ⬜ Partial ⬜ Not Started | _______________ |
+
 
 **If something didn't get done — what happened?**  
-_____________________________________________
+Nothing , Everyhting is done ✅
 
 **Was my Sunday plan realistic?**  
-- [ ] Yes — I estimated well
+- [x] Yes — I estimated well
 - [ ] Too ambitious — I set too many goals
 - [ ] Too easy — I finished early and could have done more
 - [ ] Mixed — some goals were right, others were off
 
 ### Week Summary
 
-**Hours I put in this week (approx.)**: _____ hours
+**Hours I put in this week (approx.)**: 27 hours
 
-**My biggest strength this week**: _______________
+**My biggest strength this week**: Finishing my work early and reviewing other teammates' work , also finish all my required work alone 
 
-**The skill I most need to level up**: _______________
+**The skill I most need to level up**: To know more technologies and improve my Technical skills 
 
-**If I had to give myself a grade this week (A-F)**: _____  
-**Why?**: _______________
+**If I had to give myself a grade this week (A-F)**:A  
+**Why?**: Because I finished my work early and helped others
 
 **What I want to focus on next week** (this feeds into Sunday's plan):  
-_____________________________________________
+To start a new project , Building the system very well and to know more technologies to get  best skills
 
 ---
 
