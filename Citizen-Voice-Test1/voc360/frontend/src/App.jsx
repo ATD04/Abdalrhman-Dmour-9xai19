@@ -1,1090 +1,764 @@
-import { useState, useEffect } from 'react'
-import {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-  PieChart, Pie, Cell, ResponsiveContainer,
-} from 'recharts'
+import { useState, useEffect, useCallback } from "react";
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, LineChart, Line } from "recharts";
 
-const API = 'http://localhost:8000'
+const API = "http://localhost:8000/api";
 
-const ENTITY_AR = {
-  MOH: '\u0648\u0632\u0627\u0631\u0629 \u0627\u0644\u0635\u062d\u0629',
-  GAM: '\u0623\u0645\u0627\u0646\u0629 \u0639\u0645\u0627\u0646 \u0627\u0644\u0643\u0628\u0631\u0649',
-  CSPD: '\u062f\u0627\u0626\u0631\u0629 \u0627\u0644\u0623\u062d\u0648\u0627\u0644 \u0627\u0644\u0645\u062f\u0646\u064a\u0629',
-  MOL: '\u0648\u0632\u0627\u0631\u0629 \u0627\u0644\u0639\u0645\u0644',
-  MOE: '\u0648\u0632\u0627\u0631\u0629 \u0627\u0644\u062a\u0631\u0628\u064a\u0629',
-}
-const ENTITY_COLOR = {
-  MOH: '#ef4444', GAM: '#3b82f6', CSPD: '#8b5cf6', MOL: '#f59e0b', MOE: '#06b6d4',
-}
-const SOURCE_AR = {
-  bekhedmetkom: '\u0628\u062e\u062f\u0645\u062a\u0643\u0645',
-  call_center: '\u0645\u0631\u0643\u0632 \u0627\u0644\u0627\u062a\u0635\u0627\u0644',
-  email: '\u0627\u0644\u0628\u0631\u064a\u062f \u0627\u0644\u0625\u0644\u0643\u062a\u0631\u0648\u0646\u064a',
-  survey: '\u0627\u0644\u0627\u0633\u062a\u0628\u064a\u0627\u0646',
-  app: '\u0627\u0644\u062a\u0637\u0628\u064a\u0642',
-}
-const ROOT_CAUSE_AR = {
-  infrastructure_deficit: '\u0646\u0642\u0635 \u0627\u0644\u0628\u0646\u064a\u0629 \u0627\u0644\u062a\u062d\u062a\u064a\u0629',
-  process_failure: '\u0641\u0634\u0644 \u0625\u062c\u0631\u0627\u0626\u064a',
-  policy_gap: '\u0641\u062c\u0648\u0629 \u0641\u064a \u0627\u0644\u0633\u064a\u0627\u0633\u0629',
-  communication_breakdown: '\u0627\u0646\u0647\u064a\u0627\u0631 \u0627\u0644\u062a\u0648\u0627\u0635\u0644',
-  staff_capacity: '\u0642\u062f\u0631\u0629 \u0627\u0644\u0643\u0648\u0627\u062f\u0631',
-}
-const SEVERITY_AR = { critical: '\u062d\u0631\u062c', high: '\u0639\u0627\u0644\u064d', medium: '\u0645\u062a\u0648\u0633\u0637' }
-const SEVERITY_COLOR = { critical: '#ef4444', high: '#f97316', medium: '#f59e0b' }
-const PRIORITY_AR = { gold: '\u0630\u0647\u0628\u064a\u0629', silver: '\u0641\u0636\u064a\u0629', quick_win: '\u0625\u0646\u062c\u0627\u0632 \u0633\u0631\u064a\u0639' }
-const PRIORITY_COLOR = { gold: '#f59e0b', silver: '#9ca3af', quick_win: '#00d4aa' }
-const STATUS_ACTION_AR = {
-  proposed: '\u0645\u0642\u062a\u0631\u062d', approved: '\u0645\u0639\u062a\u0645\u062f',
-  in_progress: '\u062c\u0627\u0631\u064d \u0627\u0644\u062a\u0646\u0641\u064a\u0630', completed: '\u0645\u0643\u062a\u0645\u0644',
-}
-const STATUS_ACTION_COLOR = {
-  proposed: '#6b7280', approved: '#3b82f6', in_progress: '#f59e0b', completed: '#10b981',
-}
-const PIE_COLORS = ['#00d4aa', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#06b6d4', '#84cc16', '#f97316']
+const G = {
+  nav: "#004d29",
+  primary: "#006633",
+  primaryLight: "#008040",
+  gold: "#c9a227",
+  goldLight: "#e0b83a",
+  bg: "#f0f5f2",
+  card: "#ffffff",
+  border: "#c8ddd2",
+  text: "#1a2e22",
+  textMuted: "#5a7a66",
+  danger: "#c0392b",
+  success: "#27ae60",
+  warning: "#f39c12",
+};
 
-const fmt1 = (n) => typeof n === 'number' ? n.toFixed(1) : '\u2014'
+const ENTITY_COLORS = {
+  MOH: "#006633", GAM: "#c9a227", CSPD: "#1a5276",
+  MOL: "#7d3c98", MOE: "#d35400",
+};
 
-// ── Shared UI ─────────────────────────────────────────────────────────────────
-
-function Spinner() {
-  return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', padding: 60 }}>
-      <div style={{
-        width: 40, height: 40, borderRadius: '50%',
-        border: '4px solid #00d4aa33', borderTop: '4px solid #00d4aa',
-        animation: 'spin 1s linear infinite',
-      }} />
-    </div>
-  )
+function api(path, opts = {}) {
+  const auth = JSON.parse(localStorage.getItem("voc360_auth") || "null");
+  const headers = { "Content-Type": "application/json", ...(opts.headers || {}) };
+  if (auth?.token) headers["Authorization"] = `Bearer ${auth.token}`;
+  return fetch(`${API}${path}`, { ...opts, headers });
 }
 
-function Card({ children, style }) {
-  return (
-    <div style={{
-      background: '#1a1d2e', borderRadius: 12,
-      border: '1px solid #2a2d3e', padding: 16, ...style,
-    }}>
-      {children}
-    </div>
-  )
-}
+// ─── LOGIN / SIGNUP SCREEN ──────────────────────────────────────────────────
+function AuthScreen({ onAuth }) {
+  const [mode, setMode] = useState("login");
+  const [form, setForm] = useState({ name: "", email: "", username: "", password: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-function Badge({ text, color = '#6b7280' }) {
-  return (
-    <span style={{
-      background: color + '22', color, borderRadius: 6, padding: '2px 8px',
-      fontSize: 12, fontWeight: 600, border: `1px solid ${color}44`, whiteSpace: 'nowrap',
-    }}>
-      {text}
-    </span>
-  )
-}
+  const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
 
-function SectionTitle({ children }) {
-  return (
-    <h2 style={{
-      color: '#fff', fontSize: 15, fontWeight: 700, marginBottom: 14, marginTop: 0,
-      borderRight: '3px solid #00d4aa', paddingRight: 10,
-    }}>
-      {children}
-    </h2>
-  )
-}
-
-// ── Screen 1: Dashboard ───────────────────────────────────────────────────────
-
-function KpiTile({ label, value, badge, badgeColor = '#6b7280' }) {
-  return (
-    <Card>
-      <div style={{ color: '#9ca3af', fontSize: 12, marginBottom: 4 }}>{label}</div>
-      <div style={{ color: '#fff', fontSize: 30, fontWeight: 800, lineHeight: 1.2 }}>{value}</div>
-      <div style={{ marginTop: 8 }}>
-        <Badge text={badge} color={badgeColor} />
-      </div>
-    </Card>
-  )
-}
-
-function CxiBar({ entity, score }) {
-  const color = score >= 75 ? '#00d4aa' : score >= 60 ? '#f59e0b' : '#ef4444'
-  return (
-    <div style={{ marginBottom: 10 }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-        <span style={{ color: '#9ca3af', fontSize: 13 }}>{ENTITY_AR[entity] || entity}</span>
-        <span style={{ color, fontSize: 13, fontWeight: 700 }}>{fmt1(score)}</span>
-      </div>
-      <div style={{ background: '#0f1117', borderRadius: 4, height: 7, overflow: 'hidden' }}>
-        <div style={{ width: `${Math.min(score, 100)}%`, height: '100%', background: color, borderRadius: 4 }} />
-      </div>
-    </div>
-  )
-}
-
-function DashboardScreen() {
-  const [data, setData] = useState(null)
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetch(`${API}/api/dashboard/national`)
-      .then(r => r.json())
-      .then(d => { setData(d); setLoading(false) })
-      .catch(() => setLoading(false))
-  }, [])
-
-  if (loading) return <Spinner />
-  if (!data) return (
-    <div style={{ color: '#ef4444', textAlign: 'center', padding: 48, fontSize: 16 }}>
-      {'\u062e\u0637\u0623 \u0641\u064a \u062a\u062d\u0645\u064a\u0644 \u0627\u0644\u0628\u064a\u0627\u0646\u0627\u062a \u2014 \u062a\u0623\u0643\u062f \u0645\u0646 \u062a\u0634\u063a\u064a\u0644 \u0627\u0644\u062e\u0627\u062f\u0645 \u0627\u0644\u062e\u0644\u0641\u064a'}
-    </div>
-  )
-
-  const slaColor = data.sla_compliance_rate >= 95 ? '#00d4aa' : data.sla_compliance_rate >= 90 ? '#f59e0b' : '#ef4444'
-  const cxiColor = data.national_cxi >= 75 ? '#00d4aa' : data.national_cxi >= 60 ? '#f59e0b' : '#ef4444'
+  async function submit(e) {
+    e.preventDefault();
+    setError(""); setLoading(true);
+    try {
+      const endpoint = mode === "login" ? "/auth/login" : "/auth/signup";
+      const body = mode === "login"
+        ? { email: form.email, password: form.password }
+        : { name: form.name, email: form.email, username: form.username, password: form.password };
+      const res = await fetch(`${API}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) { setError(data.detail || "حدث خطأ"); return; }
+      const authData = { token: data.access_token, user: data.user };
+      localStorage.setItem("voc360_auth", JSON.stringify(authData));
+      onAuth(authData);
+    } catch {
+      setError("تعذّر الاتصال بالخادم");
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div style={{ padding: '24px 32px', display: 'flex', flexDirection: 'column', gap: 18 }}>
-      {/* Row 1 — KPI tiles */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: 14 }}>
-        <KpiTile
-          label={'\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u0634\u0643\u0627\u0648\u0649'}
-          value={data.total_complaints.toLocaleString('ar')}
-          badge={'\u0627\u0644\u0631\u0628\u0639 \u0627\u0644\u0623\u0648\u0644 2026'} badgeColor="#00d4aa"
-        />
-        <KpiTile
-          label={'\u0634\u0643\u0627\u0648\u0649 \u0645\u0641\u062a\u0648\u062d\u0629'}
-          value={data.open_complaints.toLocaleString('ar')}
-          badge={`${fmt1(data.open_rate_percent)}% \u0645\u0646 \u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a`} badgeColor="#ef4444"
-        />
-        <KpiTile
-          label={'\u0642\u064a\u062f \u0627\u0644\u0645\u0639\u0627\u0644\u062c\u0629'}
-          value={data.in_progress_complaints.toLocaleString('ar')}
-          badge={'\u062c\u0627\u0631\u064d \u0627\u0644\u0645\u0639\u0627\u0644\u062c\u0629'} badgeColor="#f59e0b"
-        />
-        <KpiTile
-          label={'\u0645\u062a\u0648\u0633\u0637 \u0627\u0644\u0627\u0633\u062a\u062c\u0627\u0628\u0629'}
-          value={`${fmt1(data.avg_response_time_hours / 24)} \u064a\u0648\u0645`}
-          badge={`${fmt1(data.sla_compliance_rate)}% SLA`} badgeColor={slaColor}
-        />
-        <KpiTile
-          label={'\u0645\u0639\u062f\u0644 \u0627\u0644\u0627\u0645\u062a\u062b\u0627\u0644 SLA'}
-          value={`${fmt1(data.sla_compliance_rate)}%`}
-          badge={data.sla_compliance_rate >= 95 ? '\u0645\u0645\u062a\u0627\u0632 \u2713' : data.sla_compliance_rate >= 90 ? '\u062c\u064a\u062f' : '\u064a\u062d\u062a\u0627\u062c \u062a\u062d\u0633\u064a\u0646'}
-          badgeColor={slaColor}
-        />
+    <div style={{ minHeight: "100vh", background: G.bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "'Tajawal', sans-serif" }}>
+      {/* Header bar */}
+      <div style={{ background: G.nav, width: "100%", padding: "14px 32px", display: "flex", alignItems: "center", gap: 14, position: "fixed", top: 0, left: 0 }}>
+        <span style={{ fontSize: 28, color: G.gold }}>⚜️</span>
+        <div>
+          <div style={{ color: "#fff", fontWeight: 800, fontSize: 16, letterSpacing: 1 }}>منصة بخدمتكم</div>
+          <div style={{ color: G.gold, fontSize: 11 }}>المملكة الأردنية الهاشمية — صوت المواطن 360</div>
+        </div>
       </div>
 
-      {/* Row 2 — CXI card + trend chart */}
-      <div style={{ display: 'grid', gridTemplateColumns: '38% 62%', gap: 16 }}>
-        <Card>
-          <SectionTitle>{'\u0645\u0624\u0634\u0631 \u062a\u062c\u0631\u0628\u0629 \u0627\u0644\u0645\u0648\u0627\u0637\u0646 \u0627\u0644\u0648\u0637\u0646\u064a'}</SectionTitle>
-          <div style={{ textAlign: 'center', padding: '8px 0 16px' }}>
-            <div style={{ fontSize: 60, fontWeight: 900, color: cxiColor, lineHeight: 1 }}>
-              {fmt1(data.national_cxi)}
-            </div>
-            <div style={{ color: '#6b7280', fontSize: 13, marginTop: 4 }}>{'\u0645\u0646 \u0623\u0635\u0644 100 \u0646\u0642\u0637\u0629'}</div>
+      {/* Card */}
+      <div style={{ background: G.card, borderRadius: 16, boxShadow: "0 4px 32px rgba(0,77,41,0.13)", padding: "40px 44px", width: 400, maxWidth: "90vw", marginTop: 80, border: `1px solid ${G.border}` }}>
+        <div style={{ textAlign: "center", marginBottom: 28 }}>
+          <div style={{ fontSize: 40, marginBottom: 8 }}>⚜️</div>
+          <div style={{ fontSize: 20, fontWeight: 800, color: G.text }}>
+            {mode === "login" ? "تسجيل الدخول" : "إنشاء حساب جديد"}
           </div>
-          {Object.entries(data.cxi_breakdown).map(([entity, score]) => (
-            <CxiBar key={entity} entity={entity} score={score} />
-          ))}
-        </Card>
+          <div style={{ fontSize: 12, color: G.textMuted, marginTop: 4 }}>Voice of Citizen 360</div>
+        </div>
 
-        <Card>
-          <SectionTitle>{'\u0627\u0644\u0645\u0633\u0627\u0631 \u0627\u0644\u0634\u0647\u0631\u064a \u0644\u0644\u0634\u0643\u0627\u0648\u0649 \u2014 \u0627\u0644\u0631\u0628\u0639 \u0627\u0644\u0623\u0648\u0644 2026'}</SectionTitle>
-          <ResponsiveContainer width="100%" height={240}>
-            <BarChart data={data.monthly_trend} margin={{ top: 5, right: 16, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#2a2d3e" />
-              <XAxis dataKey="month" tick={{ fill: '#9ca3af', fontSize: 12 }} />
-              <YAxis tick={{ fill: '#9ca3af', fontSize: 12 }} />
-              <Tooltip
-                contentStyle={{ background: '#1a1d2e', border: '1px solid #2a2d3e', borderRadius: 8, fontFamily: 'Tajawal, sans-serif' }}
-                labelStyle={{ color: '#fff' }} itemStyle={{ color: '#9ca3af' }}
-              />
-              <Legend
-                wrapperStyle={{ color: '#9ca3af', fontSize: 13 }}
-                formatter={v => v === 'total' ? '\u0625\u062c\u0645\u0627\u0644\u064a' : '\u0645\u0641\u062a\u0648\u062d\u0629'}
-              />
-              <Bar dataKey="total" name="total" fill="#00d4aa" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="open" name="open" fill="#ef4444" radius={[4, 4, 0, 0]} />
+        {error && (
+          <div style={{ background: "#fdf0ef", border: `1px solid ${G.danger}`, borderRadius: 8, padding: "10px 14px", marginBottom: 18, color: G.danger, fontSize: 13, textAlign: "center" }}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          {mode === "signup" && (
+            <>
+              <input required value={form.name} onChange={set("name")} placeholder="الاسم الكامل" style={inputStyle} />
+              <input required value={form.username} onChange={set("username")} placeholder="اسم المستخدم (username)" style={inputStyle} dir="ltr" />
+            </>
+          )}
+          <input required type="email" value={form.email} onChange={set("email")} placeholder="البريد الإلكتروني" style={inputStyle} dir="ltr" />
+          <input required type="password" value={form.password} onChange={set("password")} placeholder="كلمة المرور" style={inputStyle} dir="ltr" />
+          <button type="submit" disabled={loading} style={{
+            background: loading ? G.primaryLight : G.primary, color: "#fff", border: "none",
+            borderRadius: 8, padding: "13px 0", fontSize: 15, fontWeight: 700,
+            cursor: loading ? "not-allowed" : "pointer", marginTop: 4,
+            fontFamily: "'Tajawal', sans-serif",
+          }}>
+            {loading ? "جاري..." : mode === "login" ? "دخول" : "إنشاء حساب"}
+          </button>
+        </form>
+
+        <div style={{ textAlign: "center", marginTop: 20, fontSize: 13 }}>
+          {mode === "login" ? (
+            <span style={{ color: G.textMuted }}>ليس لديك حساب؟{" "}
+              <button onClick={() => { setMode("signup"); setError(""); }} style={linkBtn}>أنشئ حساباً</button>
+            </span>
+          ) : (
+            <span style={{ color: G.textMuted }}>لديك حساب بالفعل؟{" "}
+              <button onClick={() => { setMode("login"); setError(""); }} style={linkBtn}>سجّل الدخول</button>
+            </span>
+          )}
+        </div>
+
+        {mode === "login" && (
+          <div style={{ marginTop: 20, background: "#f0f5f2", borderRadius: 8, padding: "10px 14px", fontSize: 12, color: G.textMuted, textAlign: "center", border: `1px solid ${G.border}` }}>
+            <strong style={{ color: G.primary }}>المدير الافتراضي:</strong><br />
+            admin@voc360.jo / Admin@2026
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const inputStyle = {
+  padding: "11px 14px", border: `1px solid #c8ddd2`, borderRadius: 8,
+  fontSize: 14, fontFamily: "'Tajawal', sans-serif", background: "#fafffe",
+  color: "#1a2e22", outline: "none", width: "100%", boxSizing: "border-box",
+};
+const linkBtn = {
+  background: "none", border: "none", color: "#006633", cursor: "pointer",
+  fontWeight: 700, fontSize: 13, fontFamily: "'Tajawal', sans-serif", padding: 0,
+};
+
+// ─── NAVIGATION ─────────────────────────────────────────────────────────────
+function Nav({ tabs, active, setActive, auth, onLogout }) {
+  return (
+    <div style={{ background: G.nav, padding: "0 24px", display: "flex", alignItems: "center", justifyContent: "space-between", boxShadow: "0 2px 12px rgba(0,0,0,0.25)", position: "sticky", top: 0, zIndex: 100 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "10px 0" }}>
+        <span style={{ fontSize: 26, color: G.gold }}>⚜️</span>
+        <div>
+          <div style={{ color: "#fff", fontWeight: 800, fontSize: 15 }}>منصة بخدمتكم</div>
+          <div style={{ color: G.gold, fontSize: 10 }}>صوت المواطن 360</div>
+        </div>
+      </div>
+      <div style={{ display: "flex", gap: 4 }}>
+        {tabs.map((t, i) => (
+          <button key={i} onClick={() => setActive(i)} style={{
+            background: active === i ? G.gold : "transparent",
+            color: active === i ? G.nav : "#c8e6d8",
+            border: "none", padding: "8px 16px", borderRadius: 8,
+            cursor: "pointer", fontWeight: 600, fontSize: 13,
+            fontFamily: "'Tajawal', sans-serif", transition: "all .2s",
+          }}>{t.label}</button>
+        ))}
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+        <div style={{ textAlign: "right" }}>
+          <div style={{ color: "#fff", fontSize: 13, fontWeight: 600 }}>{auth.user.name}</div>
+          <div style={{ color: G.gold, fontSize: 10 }}>{auth.user.role === "admin" ? "مدير النظام" : "مواطن"}</div>
+        </div>
+        <button onClick={onLogout} style={{
+          background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
+          color: "#fff", padding: "6px 14px", borderRadius: 8, cursor: "pointer",
+          fontSize: 12, fontFamily: "'Tajawal', sans-serif",
+        }}>خروج</button>
+      </div>
+    </div>
+  );
+}
+
+// ─── STAT CARD ───────────────────────────────────────────────────────────────
+function StatCard({ label, value, icon, sub, color }) {
+  return (
+    <div style={{ background: G.card, borderRadius: 12, padding: "20px 24px", border: `1px solid ${G.border}`, flex: 1, minWidth: 160 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+        <div>
+          <div style={{ fontSize: 28, fontWeight: 800, color: color || G.primary }}>{value}</div>
+          <div style={{ fontSize: 13, color: G.textMuted, marginTop: 2 }}>{label}</div>
+          {sub && <div style={{ fontSize: 11, color: G.gold, marginTop: 4 }}>{sub}</div>}
+        </div>
+        <div style={{ fontSize: 28 }}>{icon}</div>
+      </div>
+    </div>
+  );
+}
+
+// ─── DASHBOARD SCREEN ────────────────────────────────────────────────────────
+function DashboardScreen({ auth }) {
+  const [stats, setStats] = useState(null);
+  const [clusters, setClusters] = useState([]);
+  const [kpis, setKpis] = useState([]);
+  const [recent, setRecent] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [sRes, cRes, kRes, rRes] = await Promise.all([
+        api("/stats"), api("/clusters"), api("/kpis"), api("/complaints?limit=10"),
+      ]);
+      if (sRes.ok) setStats(await sRes.json());
+      if (cRes.ok) setClusters(await cRes.json());
+      if (kRes.ok) setKpis(await kRes.json());
+      if (rRes.ok) setRecent((await rRes.json()).complaints || []);
+    } finally { setLoading(false); }
+  }, []);
+
+  useEffect(() => { load(); }, [load]);
+
+  if (loading) return <div style={{ textAlign: "center", padding: 60, color: G.textMuted }}>جاري التحميل...</div>;
+
+  const entityDist = stats?.entity_distribution
+    ? Object.entries(stats.entity_distribution).map(([k, v]) => ({ name: k, value: v }))
+    : [];
+  const catDist = stats?.category_distribution
+    ? Object.entries(stats.category_distribution).slice(0, 5).map(([k, v]) => ({ name: k, value: v }))
+    : [];
+
+  return (
+    <div style={{ padding: "24px 28px", background: G.bg, minHeight: "100vh" }}>
+      {/* Top stats */}
+      <div style={{ display: "flex", gap: 16, marginBottom: 24, flexWrap: "wrap" }}>
+        <StatCard label="إجمالي الشكاوى" value={stats?.total_complaints ?? "—"} icon="📋" color={G.primary} sub={`منها ${stats?.pending_count ?? 0} معلّقة`} />
+        <StatCard label="معالجة بالذكاء الاصطناعي" value={stats?.ai_processed ?? "—"} icon="🤖" color="#1a5276" />
+        <StatCard label="عالية الأولوية" value={stats?.high_priority ?? "—"} icon="🚨" color={G.danger} />
+        <StatCard label="مجموعات نشطة" value={clusters.length} icon="🗂️" color="#7d3c98" />
+      </div>
+
+      <div style={{ display: "flex", gap: 20, flexWrap: "wrap", marginBottom: 24 }}>
+        {/* Entity pie */}
+        <div style={{ background: G.card, borderRadius: 12, padding: 20, border: `1px solid ${G.border}`, flex: "1 1 320px" }}>
+          <h3 style={{ margin: "0 0 16px", color: G.text, fontSize: 15 }}>توزيع الجهات</h3>
+          <ResponsiveContainer width="100%" height={220}>
+            <PieChart>
+              <Pie data={entityDist} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={85} label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`} labelLine={false} fontSize={11}>
+                {entityDist.map((e) => <Cell key={e.name} fill={ENTITY_COLORS[e.name] || "#999"} />)}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
+        </div>
+
+        {/* Category bar */}
+        <div style={{ background: G.card, borderRadius: 12, padding: 20, border: `1px solid ${G.border}`, flex: "1 1 320px" }}>
+          <h3 style={{ margin: "0 0 16px", color: G.text, fontSize: 15 }}>أبرز التصنيفات</h3>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={catDist} layout="vertical">
+              <XAxis type="number" tick={{ fontSize: 10 }} />
+              <YAxis type="category" dataKey="name" width={90} tick={{ fontSize: 10 }} />
+              <Tooltip />
+              <Bar dataKey="value" fill={G.primary} radius={[0, 4, 4, 0]} />
             </BarChart>
           </ResponsiveContainer>
-        </Card>
+        </div>
       </div>
 
-      {/* Row 3 — Category donut + source bars */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <Card>
-          <SectionTitle>{'\u062a\u0648\u0632\u064a\u0639 \u0627\u0644\u0634\u0643\u0627\u0648\u0649 \u062d\u0633\u0628 \u0627\u0644\u0641\u0626\u0629'}</SectionTitle>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-            <div style={{ flexShrink: 0 }}>
-              <PieChart width={200} height={200}>
-                <Pie
-                  data={data.category_distribution} dataKey="count" nameKey="category"
-                  cx="50%" cy="50%" innerRadius={55} outerRadius={92}
-                >
-                  {data.category_distribution.map((_, i) => (
-                    <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{ background: '#1a1d2e', border: '1px solid #2a2d3e', borderRadius: 8 }}
-                  itemStyle={{ color: '#9ca3af' }}
-                />
-              </PieChart>
-            </div>
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
-              {data.category_distribution.map((c, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                  <div style={{ width: 9, height: 9, borderRadius: 2, background: PIE_COLORS[i % PIE_COLORS.length], flexShrink: 0 }} />
-                  <span style={{ color: '#9ca3af', fontSize: 11, flex: 1 }}>{c.category}</span>
-                  <span style={{ color: '#fff', fontSize: 11, fontWeight: 600 }}>{fmt1(c.percentage)}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </Card>
-
-        <Card>
-          <SectionTitle>{'\u062a\u0648\u0632\u064a\u0639 \u062d\u0633\u0628 \u0642\u0646\u0627\u0629 \u0627\u0644\u062a\u0648\u0627\u0635\u0644'}</SectionTitle>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {data.source_distribution.map((s, i) => (
-              <div key={i}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 5 }}>
-                  <span style={{ color: '#e5e7eb', fontSize: 13 }}>{SOURCE_AR[s.source] || s.source}</span>
-                  <div style={{ display: 'flex', gap: 10 }}>
-                    <span style={{ color: '#6b7280', fontSize: 12 }}>{s.count.toLocaleString('ar')}</span>
-                    <span style={{ color: PIE_COLORS[i % PIE_COLORS.length], fontSize: 12, fontWeight: 700 }}>
-                      {fmt1(s.percentage)}%
-                    </span>
-                  </div>
-                </div>
-                <div style={{ background: '#0f1117', borderRadius: 4, height: 8, overflow: 'hidden' }}>
-                  <div style={{
-                    width: `${s.percentage}%`, height: '100%',
-                    background: PIE_COLORS[i % PIE_COLORS.length], borderRadius: 4,
-                  }} />
+      {/* KPIs */}
+      {kpis.length > 0 && (
+        <div style={{ background: G.card, borderRadius: 12, padding: 20, border: `1px solid ${G.border}`, marginBottom: 24 }}>
+          <h3 style={{ margin: "0 0 16px", color: G.text, fontSize: 15 }}>مؤشرات الأداء (KPIs)</h3>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            {kpis.slice(0, 6).map((k) => (
+              <div key={k.id} style={{ background: G.bg, borderRadius: 8, padding: "12px 16px", flex: "1 1 160px", border: `1px solid ${G.border}` }}>
+                <div style={{ fontSize: 20, fontWeight: 800, color: k.status === "on_track" ? G.success : G.warning }}>{k.current_value.toFixed(0)}</div>
+                <div style={{ fontSize: 11, color: G.textMuted }}>{k.name}</div>
+                <div style={{ fontSize: 10, color: k.status === "on_track" ? G.success : G.warning, marginTop: 2 }}>
+                  {k.status === "on_track" ? "✓ على المسار" : "⚠ يحتاج مراجعة"}
                 </div>
               </div>
             ))}
           </div>
-        </Card>
+        </div>
+      )}
+
+      {/* Recent complaints */}
+      <div style={{ background: G.card, borderRadius: 12, padding: 20, border: `1px solid ${G.border}` }}>
+        <h3 style={{ margin: "0 0 14px", color: G.text, fontSize: 15 }}>آخر الشكاوى</h3>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr style={{ background: G.bg }}>
+                {["الرقم", "الجهة", "التصنيف", "الأولوية", "الحالة", "التاريخ"].map((h) => (
+                  <th key={h} style={{ padding: "10px 12px", textAlign: "right", color: G.textMuted, fontWeight: 600, borderBottom: `2px solid ${G.border}`, whiteSpace: "nowrap" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {recent.map((c, i) => (
+                <tr key={c.id} style={{ background: i % 2 ? G.bg : G.card, borderBottom: `1px solid ${G.border}` }}>
+                  <td style={{ padding: "9px 12px", color: G.textMuted, fontSize: 11 }}>{c.id?.slice(0, 8)}…</td>
+                  <td style={{ padding: "9px 12px" }}>
+                    <span style={{ background: ENTITY_COLORS[c.entity] || "#999", color: "#fff", borderRadius: 4, padding: "2px 8px", fontSize: 11 }}>{c.entity}</span>
+                  </td>
+                  <td style={{ padding: "9px 12px" }}>{c.category || "—"}</td>
+                  <td style={{ padding: "9px 12px" }}>
+                    <span style={{ color: c.urgency_score > 7 ? G.danger : c.urgency_score > 4 ? G.warning : G.success, fontWeight: 600 }}>
+                      {c.urgency_score > 7 ? "عالية" : c.urgency_score > 4 ? "متوسطة" : "منخفضة"}
+                    </span>
+                  </td>
+                  <td style={{ padding: "9px 12px", color: G.textMuted }}>{c.status || "—"}</td>
+                  <td style={{ padding: "9px 12px", color: G.textMuted, fontSize: 11 }}>{c.created_at ? new Date(c.created_at).toLocaleDateString("ar-JO") : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
-  )
+  );
 }
 
-// ── Screen 2: AI Intelligence ─────────────────────────────────────────────────
-
-function ClusterCard({ cluster }) {
-  const sevColor = SEVERITY_COLOR[cluster.severity] || '#6b7280'
-  const entColor = ENTITY_COLOR[cluster.entity] || '#6b7280'
-  return (
-    <Card style={{ marginBottom: 12 }}>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
-        <Badge text={SEVERITY_AR[cluster.severity] || cluster.severity} color={sevColor} />
-        <Badge text={cluster.entity} color={entColor} />
-        <Badge text={`${(cluster.confidence_score * 100).toFixed(0)}% \u062b\u0642\u0629`} color="#00d4aa" />
-      </div>
-      <div style={{ color: '#fff', fontSize: 14, fontWeight: 700, marginBottom: 6, lineHeight: 1.5 }}>
-        {cluster.title_ar}
-      </div>
-      <div style={{ color: '#9ca3af', fontSize: 12, marginBottom: 12, lineHeight: 1.7 }}>
-        {cluster.root_cause_ar}
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 6 }}>
-        <div style={{ color: '#6b7280', fontSize: 12 }}>
-          <span style={{ color: '#00d4aa', fontWeight: 700 }}>{cluster.size}</span>
-          {' \u0634\u0643\u0648\u0649'}
-        </div>
-        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-          {cluster.open_rate > 0 && (
-            <Badge
-              text={`${fmt1(cluster.open_rate)}% \u0645\u0641\u062a\u0648\u062d\u0629`}
-              color={cluster.open_rate > 20 ? '#ef4444' : cluster.open_rate > 10 ? '#f59e0b' : '#6b7280'}
-            />
-          )}
-          <Badge text={ROOT_CAUSE_AR[cluster.root_cause_type] || cluster.root_cause_type} color="#8b5cf6" />
-        </div>
-      </div>
-    </Card>
-  )
-}
-
-function ActionCard({ action }) {
-  return (
-    <Card style={{ marginBottom: 12 }}>
-      <div style={{ display: 'flex', gap: 6, marginBottom: 8, flexWrap: 'wrap' }}>
-        <Badge text={PRIORITY_AR[action.priority] || action.priority} color={PRIORITY_COLOR[action.priority] || '#6b7280'} />
-        <Badge text={STATUS_ACTION_AR[action.status] || action.status} color={STATUS_ACTION_COLOR[action.status] || '#6b7280'} />
-      </div>
-      <div style={{ color: '#fff', fontSize: 13, fontWeight: 700, marginBottom: 4, lineHeight: 1.5 }}>
-        {action.title_ar}
-      </div>
-      <div style={{ color: '#6b7280', fontSize: 11, marginBottom: 12 }}>{action.owner}</div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}>
-        <span style={{ color: '#9ca3af' }}>{action.implementation_days} {'\u064a\u0648\u0645 \u062a\u0646\u0641\u064a\u0630'}</span>
-        <span style={{ color: '#00d4aa', fontWeight: 700 }}>{fmt1(action.expected_impact_percent)}% {'\u0623\u062b\u0631 \u0645\u062a\u0648\u0642\u0639'}</span>
-      </div>
-      <div style={{ background: '#0f1117', borderRadius: 4, height: 6, overflow: 'hidden' }}>
-        <div style={{
-          width: `${Math.min(action.expected_impact_percent, 100)}%`,
-          height: '100%', background: '#00d4aa', borderRadius: 4,
-        }} />
-      </div>
-    </Card>
-  )
-}
-
-function AIScreen() {
-  const [clusters, setClusters] = useState([])
-  const [actions, setActions] = useState([])
-  const [loading, setLoading] = useState(true)
+// ─── AI SCREEN ───────────────────────────────────────────────────────────────
+function AIScreen({ auth }) {
+  const [text, setText] = useState("");
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [signals, setSignals] = useState([]);
 
   useEffect(() => {
-    Promise.all([
-      fetch(`${API}/api/clusters`).then(r => r.json()),
-      fetch(`${API}/api/actions`).then(r => r.json()),
-    ])
-      .then(([c, a]) => { setClusters(c); setActions(a); setLoading(false) })
-      .catch(() => setLoading(false))
-  }, [])
+    api("/signals").then((r) => r.ok && r.json()).then((d) => d && setSignals(d.slice(0, 4)));
+  }, []);
 
-  if (loading) return <Spinner />
-
-  const avgConf = clusters.length
-    ? (clusters.reduce((s, c) => s + c.confidence_score, 0) / clusters.length * 100).toFixed(0)
-    : '0'
-
-  return (
-    <div style={{ padding: '24px 32px' }}>
-      {/* Summary bar */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 20 }}>
-        <Card>
-          <div style={{ color: '#9ca3af', fontSize: 12, marginBottom: 4 }}>{'\u0639\u062f\u062f \u0627\u0644\u0645\u062c\u0645\u0648\u0639\u0627\u062a \u0627\u0644\u0646\u0634\u0637\u0629'}</div>
-          <div style={{ color: '#00d4aa', fontSize: 30, fontWeight: 800 }}>{clusters.length}</div>
-        </Card>
-        <Card>
-          <div style={{ color: '#9ca3af', fontSize: 12, marginBottom: 4 }}>{'\u0645\u062a\u0648\u0633\u0637 \u0627\u0644\u062b\u0642\u0629'}</div>
-          <div style={{ color: '#00d4aa', fontSize: 30, fontWeight: 800 }}>{avgConf}%</div>
-        </Card>
-        <Card>
-          <div style={{ color: '#9ca3af', fontSize: 12, marginBottom: 4 }}>{'\u0625\u062c\u0645\u0627\u0644\u064a \u0627\u0644\u0625\u062c\u0631\u0627\u0621\u0627\u062a \u0627\u0644\u0645\u0642\u062a\u0631\u062d\u0629'}</div>
-          <div style={{ color: '#00d4aa', fontSize: 30, fontWeight: 800 }}>{actions.length}</div>
-        </Card>
-      </div>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '55% 45%', gap: 20 }}>
-        <div>
-          <SectionTitle>{'\u0645\u062c\u0645\u0648\u0639\u0627\u062a \u0627\u0644\u0634\u0643\u0627\u0648\u0649 \u0648\u0627\u0644\u0623\u0633\u0628\u0627\u0628 \u0627\u0644\u062c\u0630\u0631\u064a\u0629'}</SectionTitle>
-          <div style={{ maxHeight: '72vh', overflowY: 'auto', paddingLeft: 6 }}>
-            {clusters.map(c => <ClusterCard key={c.id} cluster={c} />)}
-          </div>
-        </div>
-        <div>
-          <SectionTitle>{'\u0627\u0644\u0625\u062c\u0631\u0627\u0621\u0627\u062a \u0627\u0644\u0645\u064a\u062f\u0627\u0646\u064a\u0629 \u0627\u0644\u0627\u0633\u062a\u0628\u0627\u0642\u064a\u0629'}</SectionTitle>
-          <div style={{ maxHeight: '72vh', overflowY: 'auto', paddingLeft: 6 }}>
-            {actions.map(a => <ActionCard key={a.id} action={a} />)}
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-// ── Screen 3: Simulation ──────────────────────────────────────────────────────
-
-function SimCard({ sim, onRefetch }) {
-  const [busy, setBusy] = useState(false)
-  const isRunning = sim.status === 'running'
-
-  async function handleAction() {
-    setBusy(true)
+  async function classify() {
+    if (!text.trim()) return;
+    setLoading(true); setResult(null);
     try {
-      const endpoint = isRunning ? 'reset' : 'trigger'
-      await fetch(`${API}/api/simulations/${sim.id}/${endpoint}`, { method: 'POST' })
-      onRefetch()
-    } finally { setBusy(false) }
+      const res = await api("/ai/classify", { method: "POST", body: JSON.stringify({ text }) });
+      if (res.ok) setResult(await res.json());
+    } finally { setLoading(false); }
   }
 
-  return (
-    <Card>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10, gap: 6, flexWrap: 'wrap' }}>
-        <Badge text={sim.scenario_type} color="#8b5cf6" />
-        {isRunning ? (
-          <span style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#00d4aa', fontSize: 12, fontWeight: 700 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#00d4aa', display: 'inline-block', animation: 'livePulse 1s ease-in-out infinite' }} />
-            {'\u064a\u0639\u0645\u0644 \u0627\u0644\u0622\u0646'}
-          </span>
-        ) : (
-          <Badge text={'\u063a\u064a\u0631 \u0646\u0634\u0637'} color="#6b7280" />
-        )}
-      </div>
-      <div style={{ color: '#fff', fontSize: 14, fontWeight: 700, marginBottom: 6 }}>{sim.name}</div>
-      <div style={{ color: '#9ca3af', fontSize: 12, lineHeight: 1.7, marginBottom: 12 }}>{sim.description}</div>
-      <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 12 }}>
-        {(sim.affected_entities || []).map(e => (
-          <Badge key={e} text={e} color={ENTITY_COLOR[e] || '#6b7280'} />
-        ))}
-      </div>
-      <div style={{ background: '#0f1117', borderRadius: 8, padding: '10px 12px', marginBottom: 14 }}>
-        <div style={{ color: '#6b7280', fontSize: 11, marginBottom: 6, fontWeight: 600 }}>{'\u062a\u0623\u062b\u064a\u0631\u0627\u062a \u0627\u0644\u0645\u0624\u0634\u0631\u0627\u062a'}</div>
-        {Object.entries(sim.kpi_effects || {}).map(([k, v]) => (
-          <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 3 }}>
-            <span style={{ color: '#6b7280' }}>{k}</span>
-            <span style={{ color: '#9ca3af', fontWeight: 600 }}>{String(v)}</span>
-          </div>
-        ))}
-      </div>
-      <button
-        onClick={handleAction}
-        disabled={busy}
-        style={{
-          width: '100%', border: 'none', borderRadius: 8, padding: '10px 16px',
-          fontSize: 13, fontWeight: 700, cursor: busy ? 'not-allowed' : 'pointer',
-          opacity: busy ? 0.7 : 1, fontFamily: 'Tajawal, sans-serif',
-          background: isRunning ? '#ef4444' : '#00d4aa',
-          color: isRunning ? '#fff' : '#000',
-        }}
-      >
-        {busy ? '...' : isRunning ? '\u0625\u064a\u0642\u0627\u0641 \u0648\u0625\u0639\u0627\u062f\u0629 \u062a\u0639\u064a\u064a\u0646' : '\u062a\u0634\u063a\u064a\u0644 \u0627\u0644\u0645\u062d\u0627\u0643\u0627\u0629'}
-      </button>
-    </Card>
-  )
-}
-
-function SignalCard({ signal }) {
-  const sevColor = signal.severity === 'critical' ? '#ef4444'
-    : signal.severity === 'high' ? '#f97316'
-    : signal.severity === 'medium_high' ? '#f59e0b' : '#6b7280'
-  const isPulsing = signal.severity === 'critical' || signal.severity === 'high'
-
-  return (
-    <Card>
-      <div style={{ textAlign: 'center', marginBottom: 12, position: 'relative', paddingTop: 8 }}>
-        {isPulsing && (
-          <div style={{
-            position: 'absolute', top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
-            width: 72, height: 72, borderRadius: '50%',
-            background: sevColor + '22',
-            animation: 'pulseRing 2s ease-in-out infinite',
-          }} />
-        )}
-        <div style={{ fontSize: 44, fontWeight: 900, color: sevColor, position: 'relative', lineHeight: 1 }}>
-          {fmt1(signal.signal_value)}%
-        </div>
-      </div>
-      <div style={{ display: 'flex', gap: 6, justifyContent: 'center', flexWrap: 'wrap', marginBottom: 8 }}>
-        <Badge text={signal.severity} color={sevColor} />
-        <Badge text={signal.signal_type} color="#8b5cf6" />
-      </div>
-      <div style={{ textAlign: 'center', marginBottom: 4 }}>
-        <Badge text={signal.entity} color={ENTITY_COLOR[signal.entity] || '#6b7280'} />
-      </div>
-      <div style={{ color: '#9ca3af', fontSize: 12, textAlign: 'center', marginBottom: 4 }}>
-        {ENTITY_AR[signal.entity] || signal.entity} {'\u2014'} {signal.governorate}
-      </div>
-      <div style={{ color: '#e5e7eb', fontSize: 12, textAlign: 'center', marginBottom: 10 }}>
-        {signal.interpretation}
-      </div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
-        <span style={{ color: '#6b7280', fontSize: 11 }}>{'\u0627\u0644\u062b\u0642\u0629'}</span>
-        <span style={{ color: '#00d4aa', fontSize: 12, fontWeight: 700 }}>
-          {(signal.confidence * 100).toFixed(0)}%
-        </span>
-      </div>
-      <div style={{ background: '#0f1117', borderRadius: 8, padding: '8px 10px' }}>
-        {Object.entries(signal.supporting_data || {}).map(([k, v]) => (
-          <div key={k} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, marginBottom: 2 }}>
-            <span style={{ color: '#6b7280' }}>{k}</span>
-            <span style={{ color: '#9ca3af' }}>{String(v)}</span>
-          </div>
-        ))}
-      </div>
-    </Card>
-  )
-}
-
-function SimulationScreen() {
-  const [sims, setSims] = useState([])
-  const [signals, setSignals] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  const fetchAll = () => {
-    Promise.all([
-      fetch(`${API}/api/simulations`).then(r => r.json()),
-      fetch(`${API}/api/signals`).then(r => r.json()),
-    ])
-      .then(([s, sig]) => { setSims(s); setSignals(sig); setLoading(false) })
-      .catch(() => setLoading(false))
-  }
-
-  useEffect(() => { fetchAll() }, [])
-
-  if (loading) return <Spinner />
-
-  return (
-    <div style={{ padding: '24px 32px' }}>
-      <div style={{ marginBottom: 24 }}>
-        <h2 style={{ color: '#fff', fontSize: 22, fontWeight: 800, margin: '0 0 6px 0' }}>
-          {'\u0645\u062d\u0631\u0643 \u0627\u0644\u0645\u062d\u0627\u0643\u0627\u0629 \u0627\u0644\u0627\u0633\u062a\u0631\u0627\u062a\u064a\u062c\u064a\u0629'}
-        </h2>
-        <p style={{ color: '#6b7280', fontSize: 13, margin: 0 }}>
-          {'\u0627\u062e\u062a\u0628\u0631 \u0633\u064a\u0646\u0627\u0631\u064a\u0648\u0647\u0627\u062a \u0627\u0644\u0623\u0632\u0645\u0627\u062a \u0642\u0628\u0644 \u0648\u0642\u0648\u0639\u0647\u0627'}
-        </p>
-      </div>
-
-      <SectionTitle>{'\u0627\u0644\u0633\u064a\u0646\u0627\u0631\u064a\u0648\u0647\u0627\u062a \u0627\u0644\u0645\u062a\u0627\u062d\u0629'}</SectionTitle>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 36 }}>
-        {sims.map(s => <SimCard key={s.id} sim={s} onRefetch={fetchAll} />)}
-      </div>
-
-      <SectionTitle>{'\u0627\u0644\u0625\u0634\u0627\u0631\u0627\u062a \u0627\u0644\u0627\u0633\u062a\u0628\u0627\u0642\u064a\u0629 \u0627\u0644\u0645\u062a\u0642\u062f\u0645\u0629'}</SectionTitle>
-      <p style={{ color: '#6b7280', fontSize: 12, marginBottom: 16, marginTop: -8 }}>
-        {'\u0625\u0634\u0627\u0631\u0627\u062a \u063a\u064a\u0631 \u0634\u0643\u0648\u0649 \u062a\u0646\u0628\u0626 \u0628\u0645\u0634\u0627\u0643\u0644 \u0642\u0627\u062f\u0645\u0629'}
-      </p>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
-        {signals.map(s => <SignalCard key={s.id} signal={s} />)}
-      </div>
+  const Badge = ({ label, value, color }) => (
+    <div style={{ background: G.bg, borderRadius: 8, padding: "12px 16px", border: `1px solid ${G.border}` }}>
+      <div style={{ fontSize: 11, color: G.textMuted, marginBottom: 4 }}>{label}</div>
+      <div style={{ fontWeight: 700, color: color || G.primary }}>{value}</div>
     </div>
-  )
-}
-
-
-// ── Submit Complaint ───────────────────────────────────────────────────────────────────
-
-function ProgressBar({ duration = 30000 }) {
-  const [pct, setPct] = useState(0)
-  useEffect(() => {
-    const start = Date.now()
-    const t = setInterval(() => {
-      const p = Math.min((Date.now() - start) / duration * 100, 100)
-      setPct(p)
-      if (p >= 100) clearInterval(t)
-    }, 200)
-    return () => clearInterval(t)
-  }, [duration])
-  return (
-    <div style={{ background: '#0f1117', borderRadius: 4, height: 8, overflow: 'hidden', width: '100%' }}>
-      <div style={{
-        width: `${pct}%`, height: '100%', background: '#00d4aa',
-        borderRadius: 4, transition: 'width 0.2s linear',
-      }} />
-    </div>
-  )
-}
-
-function TrackingModal({ trackingNumber, onClose }) {
-  const [query, setQuery] = useState(trackingNumber || '')
-  const [result, setResult] = useState(null)
-  const [searching, setSearching] = useState(false)
-  const [err, setErr] = useState('')
-
-  async function search() {
-    const clean = query.trim().replace('VOC-', '').toLowerCase()
-    if (!clean) return
-    setSearching(true); setErr(''); setResult(null)
-    try {
-      const res = await fetch(`${API}/api/complaints/track/${clean}`)
-      if (!res.ok) throw new Error('not found')
-      setResult(await res.json())
-    } catch { setErr('لم يتم العثور على الشكوى / Complaint not found') }
-    finally { setSearching(false) }
-  }
-
-  const statusColor = { open: '#ef4444', in_progress: '#f59e0b', resolved: '#10b981' }
+  );
 
   return (
-    <div
-      style={{
-        position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.82)', zIndex: 1000,
-        display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 20,
-      }}
-      onClick={e => e.target === e.currentTarget && onClose()}
-    >
-      <div style={{
-        background: '#1a1d2e', borderRadius: 16, border: '1px solid #2a2d3e',
-        padding: 28, width: '100%', maxWidth: 500, position: 'relative',
-      }}>
-        <button onClick={onClose} style={{
-          position: 'absolute', top: 16, left: 16, background: 'transparent',
-          border: 'none', color: '#6b7280', fontSize: 20, cursor: 'pointer', lineHeight: 1,
-          fontFamily: 'Tajawal, sans-serif',
-        }}>✕</button>
-        <h3 style={{ color: '#fff', fontSize: 16, fontWeight: 700, margin: '0 0 20px', textAlign: 'center' }}>
-          {'تتبع حالة الشكوى / Track Complaint Status'}
-        </h3>
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-          <input
-            value={query}
-            onChange={e => setQuery(e.target.value)}
-            onKeyDown={e => e.key === 'Enter' && search()}
-            placeholder="VOC-XXXXXXXX"
-            style={{
-              flex: 1, background: '#0f1117', border: '1px solid #2a2d3e',
-              borderRadius: 8, padding: '10px 14px', color: '#fff', fontSize: 14,
-              fontFamily: 'monospace', outline: 'none',
-            }}
-          />
-          <button onClick={search} disabled={searching} style={{
-            background: '#00d4aa', color: '#000', border: 'none', borderRadius: 8,
-            padding: '10px 18px', fontWeight: 700, cursor: searching ? 'not-allowed' : 'pointer',
-            fontSize: 14, fontFamily: 'Tajawal, sans-serif', opacity: searching ? 0.7 : 1,
-          }}>
-            {searching ? '...' : 'بحث / Search'}
-          </button>
-        </div>
-        {err && (
-          <div style={{ color: '#ef4444', fontSize: 13, marginBottom: 12, textAlign: 'center' }}>{err}</div>
-        )}
+    <div style={{ padding: "24px 28px", background: G.bg, minHeight: "100vh" }}>
+      <div style={{ background: G.card, borderRadius: 12, padding: 24, border: `1px solid ${G.border}`, marginBottom: 24 }}>
+        <h2 style={{ margin: "0 0 16px", color: G.text, fontSize: 16 }}>🤖 محرّك التصنيف الذكي</h2>
+        <textarea
+          value={text} onChange={(e) => setText(e.target.value)}
+          placeholder="اكتب نص الشكوى هنا للتصنيف الفوري..."
+          rows={5}
+          style={{ width: "100%", padding: 14, borderRadius: 8, border: `1px solid ${G.border}`, fontSize: 14, fontFamily: "'Tajawal', sans-serif", resize: "vertical", boxSizing: "border-box", background: "#fafffe" }}
+        />
+        <button onClick={classify} disabled={loading || !text.trim()} style={{
+          marginTop: 12, background: G.primary, color: "#fff", border: "none",
+          borderRadius: 8, padding: "10px 28px", fontSize: 14, fontWeight: 700,
+          cursor: "pointer", fontFamily: "'Tajawal', sans-serif",
+        }}>
+          {loading ? "جاري التحليل..." : "حلّل الشكوى"}
+        </button>
         {result && (
-          <div style={{ background: '#0f1117', borderRadius: 12, padding: 16, border: '1px solid #2a2d3e' }}>
-            <div style={{ textAlign: 'center', marginBottom: 14 }}>
-              <div style={{ color: '#00d4aa', fontSize: 22, fontWeight: 800, fontFamily: 'monospace' }}>
-                {result.tracking_number}
-              </div>
-            </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 12 }}>
-              <div>
-                <div style={{ color: '#6b7280', fontSize: 11, marginBottom: 3 }}>
-                  {'الحالة / Status'}
-                </div>
-                <Badge text={result.status_ar} color={statusColor[result.status] || '#6b7280'} />
-              </div>
-              <div>
-                <div style={{ color: '#6b7280', fontSize: 11, marginBottom: 3 }}>
-                  {'الجهة / Entity'}
-                </div>
-                <div style={{ color: '#fff', fontSize: 13, fontWeight: 600 }}>{result.entity_ar}</div>
-              </div>
-              <div>
-                <div style={{ color: '#6b7280', fontSize: 11, marginBottom: 3 }}>
-                  {'الفئة / Category'}
-                </div>
-                <div style={{ color: '#9ca3af', fontSize: 12 }}>{result.category}</div>
-              </div>
-              <div>
-                <div style={{ color: '#6b7280', fontSize: 11, marginBottom: 3 }}>
-                  {'تاريخ التقديم'}
-                </div>
-                <div style={{ color: '#9ca3af', fontSize: 12 }}>
-                  {new Date(result.submitted_at).toLocaleDateString('ar-JO')}
-                </div>
-              </div>
-            </div>
-            <div style={{ textAlign: 'center' }}>
-              {result.processed_by_ai
-                ? <span style={{ color: '#10b981', fontSize: 13, fontWeight: 700 }}>{'\u2713 معالج بالذكاء الاصطناعي'}</span>
-                : <span style={{ color: '#f59e0b', fontSize: 13, fontWeight: 700 }}>{'⏳ قيد المعالجة'}</span>}
-            </div>
+          <div style={{ marginTop: 20, display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <Badge label="الجهة" value={result.entity} color={ENTITY_COLORS[result.entity]} />
+            <Badge label="التصنيف" value={result.category} />
+            <Badge label="المشاعر" value={result.sentiment} color={result.sentiment === "negative" ? G.danger : G.success} />
+            <Badge label="الأولوية" value={`${result.urgency_score}/10`} color={result.urgency_score > 7 ? G.danger : G.warning} />
           </div>
         )}
       </div>
+
+      {signals.length > 0 && (
+        <div style={{ background: G.card, borderRadius: 12, padding: 24, border: `1px solid ${G.border}` }}>
+          <h3 style={{ margin: "0 0 16px", color: G.text, fontSize: 15 }}>📡 الإشارات المتقدمة</h3>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {signals.map((s, i) => (
+              <div key={i} style={{ background: G.bg, borderRadius: 8, padding: "12px 16px", border: `1px solid ${G.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontWeight: 700, color: G.text, fontSize: 13 }}>{s.signal_type}</div>
+                  <div style={{ fontSize: 12, color: G.textMuted, marginTop: 2 }}>{s.description}</div>
+                </div>
+                <div style={{ textAlign: "left" }}>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: s.severity > 7 ? G.danger : G.warning }}>{s.severity.toFixed(1)}</div>
+                  <div style={{ fontSize: 10, color: G.textMuted }}>خطورة</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
-  )
+  );
 }
+
+// ─── SUBMIT SCREEN ───────────────────────────────────────────────────────────
+const ENTITIES = [
+  { value: "MOH", label: "وزارة الصحة", dept: "الخدمات الطبية" },
+  { value: "GAM", label: "أمانة عمّان", dept: "الخدمات البلدية" },
+  { value: "CSPD", label: "مديرية الأمن العام", dept: "الأمن والسلامة" },
+  { value: "MOL", label: "وزارة العمل", dept: "شؤون العمل" },
+  { value: "MOE", label: "وزارة التعليم", dept: "الخدمات التعليمية" },
+];
+const CATS = ["جودة الخدمة", "تأخير", "فساد", "سلوك موظف", "بنية تحتية", "أخرى"];
+const GOVS = ["عمّان", "إربد", "الزرقاء", "العقبة", "المفرق", "الكرك", "السلط", "جرش", "عجلون", "مادبا", "الطفيلة", "معان"];
 
 function LiveFeed() {
-  const [items, setItems] = useState([])
-  const [loading, setLoading] = useState(true)
-
-  function load() {
-    fetch(`${API}/api/complaints/recent`)
-      .then(r => r.json())
-      .then(d => { setItems(d); setLoading(false) })
-      .catch(() => setLoading(false))
-  }
-
+  const [items, setItems] = useState([]);
   useEffect(() => {
-    load()
-    const t = setInterval(load, 15000)
-    return () => clearInterval(t)
-  }, [])
-
-  const urgColor = { critical: '#ef4444', high: '#f97316', medium: '#f59e0b', low: '#10b981' }
-  const urgAr = {
-    critical: 'حرج',
-    high: 'عالٍ',
-    medium: 'متوسط',
-    low: 'منخفض',
-  }
-  const entBadge = {
-    MOH: { ar: 'وزارة الصحة', color: '#3b82f6' },
-    GAM: { ar: 'أمانة عمان', color: '#10b981' },
-    CSPD: { ar: 'الأحوال المدنية', color: '#8b5cf6' },
-    MOL: { ar: 'وزارة العمل', color: '#f59e0b' },
-    MOE: { ar: 'التربية', color: '#06b6d4' },
-  }
-  const sentEmoji = { angry: '😠', negative: '😞', neutral: '😐', positive: '😊' }
-
+    const load = () => api("/complaints?limit=5").then((r) => r.ok && r.json()).then((d) => d?.complaints && setItems(d.complaints));
+    load();
+    const t = setInterval(load, 12000);
+    return () => clearInterval(t);
+  }, []);
   return (
-    <Card style={{ height: 'fit-content' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', marginBottom: 14 }}>
-        <SectionTitle>{'آخر الشكاوى المستلمة'}</SectionTitle>
-        <span style={{ color: '#6b7280', fontSize: 11 }}>
-          {'يتجدد كل 15 ثانية'}
-        </span>
+    <div style={{ background: G.card, borderRadius: 12, padding: 20, border: `1px solid ${G.border}`, marginBottom: 20 }}>
+      <div style={{ fontWeight: 700, color: G.text, marginBottom: 12, display: "flex", alignItems: "center", gap: 8 }}>
+        <span style={{ width: 8, height: 8, borderRadius: "50%", background: G.success, display: "inline-block", animation: "pulse 2s infinite" }} />
+        التغذية الراجعة المباشرة
       </div>
-      {loading ? (
-        <div style={{ color: '#6b7280', textAlign: 'center', padding: 32, fontSize: 14 }}>
-          {'جارٍ التحميل...'}
+      {items.length === 0 && <div style={{ color: G.textMuted, fontSize: 13 }}>لا توجد بيانات بعد</div>}
+      {items.map((c, i) => (
+        <div key={c.id} style={{ borderBottom: i < items.length - 1 ? `1px solid ${G.border}` : "none", padding: "8px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <div style={{ fontSize: 13, color: G.text, maxWidth: "70%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {c.text?.slice(0, 60)}…
+          </div>
+          <span style={{ background: ENTITY_COLORS[c.entity] || "#999", color: "#fff", borderRadius: 4, padding: "2px 8px", fontSize: 11 }}>{c.entity}</span>
         </div>
-      ) : items.length === 0 ? (
-        <div style={{ color: '#6b7280', textAlign: 'center', padding: 48, fontSize: 14 }}>
-          {'لا توجد شكاوى حتى الآن'}
-        </div>
-      ) : (
-        <div style={{ maxHeight: 580, overflowY: 'auto', paddingLeft: 4 }}>
-          {items.map(item => {
-            const eb = entBadge[item.entity] || { ar: item.entity, color: '#6b7280' }
-            return (
-              <div key={item.id} style={{
-                background: '#0f1117', borderRadius: 10, border: '1px solid #2a2d3e',
-                padding: '10px 12px', marginBottom: 8,
-              }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 5 }}>
-                  <span style={{ color: '#00d4aa', fontSize: 11, fontFamily: 'monospace', fontWeight: 700 }}>
-                    {item.tracking_number}
-                  </span>
-                  <Badge
-                    text={urgAr[item.urgency] || item.urgency}
-                    color={urgColor[item.urgency] || '#6b7280'}
-                  />
-                </div>
-                <div style={{
-                  color: '#e5e7eb', fontSize: 12, lineHeight: 1.5, marginBottom: 7,
-                  display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden',
-                }}>
-                  {item.text_preview}
-                </div>
-                <div style={{ display: 'flex', gap: 6, alignItems: 'center', flexWrap: 'wrap' }}>
-                  <Badge text={eb.ar} color={eb.color} />
-                  <span style={{ color: '#6b7280', fontSize: 11 }}>{item.governorate}</span>
-                  <span style={{ fontSize: 13 }}>{sentEmoji[item.sentiment] || '😐'}</span>
-                  {item.category !== 'pending'
-                    ? <span style={{ color: '#00d4aa', fontSize: 11, fontWeight: 700 }}>{'\u26a1 AI'}</span>
-                    : <span style={{ color: '#6b7280', fontSize: 11 }}>{'\u23f3'}</span>}
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
-    </Card>
-  )
+      ))}
+    </div>
+  );
 }
 
-function SubmitScreen() {
-  const [lang, setLang] = useState('ar')
-  const ar = lang === 'ar'
-  const [text, setText] = useState('')
-  const [gov, setGov] = useState('عمّان')
-  const [source, setSource] = useState('bekhedmetkom')
-  const [name, setName] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-  const [error, setError] = useState('')
-  const [success, setSuccess] = useState(null)
-  const [showModal, setShowModal] = useState(false)
+function TrackingModal({ id, onClose }) {
+  const [data, setData] = useState(null);
+  useEffect(() => {
+    api(`/complaints/${id}/track`).then((r) => r.ok && r.json()).then(setData);
+  }, [id]);
+  return (
+    <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>
+      <div style={{ background: G.card, borderRadius: 16, padding: 28, maxWidth: 480, width: "90vw", position: "relative" }}>
+        <button onClick={onClose} style={{ position: "absolute", top: 14, left: 16, background: "none", border: "none", fontSize: 20, cursor: "pointer", color: G.textMuted }}>✕</button>
+        <h3 style={{ margin: "0 0 18px", color: G.text }}>تتبع الشكوى</h3>
+        {!data ? <div style={{ color: G.textMuted }}>جاري التحميل...</div> : (
+          <div style={{ fontSize: 13, display: "flex", flexDirection: "column", gap: 10 }}>
+            <div><strong>رقم الشكوى:</strong> <span style={{ fontFamily: "monospace" }}>{data.complaint_id?.slice(0, 16)}…</span></div>
+            <div><strong>الجهة:</strong> {data.entity}</div>
+            <div><strong>الحالة:</strong> {data.status}</div>
+            <div><strong>التصنيف:</strong> {data.category}</div>
+            <div><strong>الأولوية:</strong> {data.urgency_score}/10</div>
+            <div><strong>المشاعر:</strong> {data.sentiment}</div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
-  const govs = [
-    'عمّان', 'إربد', 'الزرقاء',
-    'العقبة', 'المفرق', 'جرش',
-    'مادبا', 'الكرك', 'عجلون',
-    'الطفيلة', 'معان', 'البلقاء',
-  ]
+function SubmitScreen({ auth }) {
+  const [form, setForm] = useState({ entity: "MOH", text: "", category: "جودة الخدمة", name: "", phone: "", governorate: "عمّان", source: "web" });
+  const [status, setStatus] = useState(null);
+  const [trackId, setTrackId] = useState(null);
+  const [showTrack, setShowTrack] = useState(false);
+  const [dragging, setDragging] = useState(false);
+  const [files, setFiles] = useState([]);
 
-  async function handleSubmit() {
-    if (text.trim().length < 3) {
-      setError(ar
-        ? 'يرجى كتابة نص الشكوى (3 أحرف على الأقل)'
-        : 'Please enter complaint text (at least 3 characters)')
-      return
-    }
-    setSubmitting(true); setError('')
+  const set = (k) => (e) => setForm((p) => ({ ...p, [k]: e.target.value }));
+
+  async function submit(e) {
+    e.preventDefault();
+    setStatus("loading");
     try {
-      const res = await fetch(`${API}/api/complaints/submit`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ text: text.trim(), source, governorate: gov, name: name || undefined, language: lang }),
-      })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.detail || 'Error')
-      setSuccess(data)
-    } catch {
-      setError(ar
-        ? 'حدث خطأ في الإرسال. يرجى المحاولة مجدداً.'
-        : 'Submission error. Please try again.')
-    } finally { setSubmitting(false) }
+      const payload = { text: form.text, entity: form.entity, source: form.source, governorate: form.governorate, name: form.name || null, phone: form.phone || null, language: "ar" };
+      const headers = { "Content-Type": "application/json" };
+      if (auth?.token) headers["Authorization"] = `Bearer ${auth.token}`;
+      const res = await fetch(`${API}/complaints/submit`, { method: "POST", headers, body: JSON.stringify(payload) });
+      if (res.ok) {
+        const d = await res.json();
+        setTrackId(d.complaint_id);
+        setStatus("ok");
+        setForm((p) => ({ ...p, text: "", name: "", phone: "" }));
+        setFiles([]);
+      } else { setStatus("err"); }
+    } catch { setStatus("err"); }
   }
 
-  function reset() {
-    setText('')
-    setGov('عمّان')
-    setSource('bekhedmetkom')
-    setName('')
-    setError('')
-    setSuccess(null)
-    setShowModal(false)
-  }
-
-  const inputStyle = {
-    width: '100%', background: '#0f1117', border: '1px solid #2a2d3e',
-    borderRadius: 8, padding: '10px 14px', color: '#fff', fontSize: 14,
-    fontFamily: 'Tajawal, sans-serif', outline: 'none', boxSizing: 'border-box',
-  }
-  const labelStyle = {
-    color: '#9ca3af', fontSize: 13, display: 'block', marginBottom: 6, fontWeight: 600,
-  }
+  const entityInfo = ENTITIES.find((e) => e.value === form.entity);
 
   return (
-    <div style={{ padding: '24px 32px' }}>
-      {showModal && success && (
-        <TrackingModal trackingNumber={success.tracking_number} onClose={() => setShowModal(false)} />
-      )}
-      <div style={{ display: 'grid', gridTemplateColumns: '55% 45%', gap: 20 }}>
-        {/* LEFT — Form */}
-        <Card>
-          <SectionTitle>
-            {ar ? 'تقديم شكوى جديدة' : 'Submit a New Complaint'}
-          </SectionTitle>
-          {/* Language toggle */}
-          <div style={{ display: 'flex', gap: 6, marginBottom: 20, direction: 'ltr' }}>
-            {['ar', 'en'].map(l => (
-              <button key={l} onClick={() => setLang(l)} style={{
-                padding: '6px 16px', borderRadius: 8, border: 'none',
-                background: lang === l ? '#00d4aa' : '#0f1117',
-                color: lang === l ? '#000' : '#9ca3af',
-                fontWeight: 700, cursor: 'pointer', fontSize: 13,
-                fontFamily: 'Tajawal, sans-serif',
-              }}>
-                {l === 'ar' ? 'العربية' : 'English'}
-              </button>
-            ))}
-          </div>
+    <div style={{ padding: "24px 28px", background: G.bg, minHeight: "100vh" }}>
+      <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+        <div style={{ flex: "2 1 500px" }}>
+          <div style={{ background: G.card, borderRadius: 12, padding: 28, border: `1px solid ${G.border}` }}>
+            <h2 style={{ margin: "0 0 6px", color: G.text, fontSize: 17 }}>✍️ تقديم شكوى أو اقتراح</h2>
+            <p style={{ color: G.textMuted, fontSize: 12, margin: "0 0 22px" }}>ستُحلَّل شكواك بواسطة الذكاء الاصطناعي وتُوجَّه للجهة المختصة</p>
 
-          {!success ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              <div>
-                <label style={labelStyle}>
-                  {ar ? 'نص الشكوى *' : 'Complaint Text *'}
-                </label>
-                <textarea
-                  value={text}
-                  onChange={e => setText(e.target.value)}
-                  placeholder={ar
-                    ? 'اكتب شكواك هنا بالتفصيل... كلما كانت أكثر تفصيلاً كلما كانت المعالجة أدق'
-                    : 'Describe your complaint in detail. The more detail, the better the AI can process it.'}
-                  style={{ ...inputStyle, minHeight: 140, resize: 'vertical' }}
-                />
+            {status === "ok" && (
+              <div style={{ background: "#eafaf1", border: `1px solid ${G.success}`, borderRadius: 8, padding: "12px 16px", marginBottom: 18, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <span style={{ color: G.success, fontWeight: 700 }}>✓ تم تقديم شكواك بنجاح!</span>
+                {trackId && <button onClick={() => setShowTrack(true)} style={{ ...linkBtn, color: G.primary }}>تتبع الشكوى</button>}
               </div>
-              <div>
-                <label style={labelStyle}>
-                  {ar ? 'المحافظة' : 'Governorate'}
-                </label>
-                <select value={gov} onChange={e => setGov(e.target.value)} style={inputStyle}>
-                  {govs.map(g => <option key={g} value={g}>{g}</option>)}
-                </select>
+            )}
+            {status === "err" && <div style={{ background: "#fdf0ef", border: `1px solid ${G.danger}`, borderRadius: 8, padding: "12px 16px", marginBottom: 18, color: G.danger }}>حدث خطأ أثناء الإرسال</div>}
+
+            <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+              <div style={{ display: "flex", gap: 12 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={labelStyle}>الجهة الحكومية</label>
+                  <select value={form.entity} onChange={set("entity")} style={selectStyle}>
+                    {ENTITIES.map((e) => <option key={e.value} value={e.value}>{e.label}</option>)}
+                  </select>
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={labelStyle}>المحافظة</label>
+                  <select value={form.governorate} onChange={set("governorate")} style={selectStyle}>
+                    {GOVS.map((g) => <option key={g}>{g}</option>)}
+                  </select>
+                </div>
               </div>
+
               <div>
-                <label style={labelStyle}>
-                  {ar ? 'قناة التواصل' : 'Submission Channel'}
-                </label>
-                <select value={source} onChange={e => setSource(e.target.value)} style={inputStyle}>
-                  <option value="bekhedmetkom">{ar ? 'بخدمتكم' : 'Bekhedmetkom'}</option>
-                  <option value="email">{ar ? 'البريد الإلكتروني' : 'Email'}</option>
-                  <option value="app">{ar ? 'التطبيق' : 'Mobile App'}</option>
-                </select>
+                <label style={labelStyle}>تصنيف الشكوى</label>
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {CATS.map((c) => (
+                    <button key={c} type="button" onClick={() => setForm((p) => ({ ...p, category: c }))}
+                      style={{ padding: "6px 14px", borderRadius: 20, border: `1px solid ${form.category === c ? G.primary : G.border}`, background: form.category === c ? G.primary : "transparent", color: form.category === c ? "#fff" : G.textMuted, cursor: "pointer", fontSize: 12, fontFamily: "'Tajawal', sans-serif" }}>
+                      {c}
+                    </button>
+                  ))}
+                </div>
               </div>
+
               <div>
-                <label style={labelStyle}>
-                  {ar ? 'الاسم (اختياري)' : 'Name (optional)'}
-                </label>
-                <input
-                  value={name}
-                  onChange={e => setName(e.target.value)}
-                  placeholder={ar ? 'مواطن' : 'Citizen'}
-                  style={inputStyle}
-                />
+                <label style={labelStyle}>تفاصيل الشكوى *</label>
+                <textarea required value={form.text} onChange={set("text")} rows={5}
+                  placeholder="اشرح شكواك أو اقتراحك بالتفصيل..."
+                  style={{ ...selectStyle, resize: "vertical", minHeight: 120 }} />
               </div>
-              {error && <div style={{ color: '#ef4444', fontSize: 13 }}>{error}</div>}
-              <button
-                onClick={handleSubmit}
-                disabled={submitting}
-                style={{
-                  width: '100%', background: submitting ? '#00d4aa99' : '#00d4aa',
-                  color: '#000', border: 'none', borderRadius: 10, padding: '12px 20px',
-                  fontSize: 15, fontWeight: 800, cursor: submitting ? 'not-allowed' : 'pointer',
-                  fontFamily: 'Tajawal, sans-serif',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                }}
-              >
-                {submitting ? (
-                  <>
-                    <div style={{
-                      width: 16, height: 16, borderRadius: '50%',
-                      border: '2px solid #00000033', borderTop: '2px solid #000',
-                      animation: 'spin 0.8s linear infinite',
-                    }} />
-                    {ar ? 'جارٍ الإرسال...' : 'Sending...'}
-                  </>
-                ) : (
-                  ar ? 'إرسال الشكوى ←' : 'Submit Complaint →'
-                )}
+
+              <div style={{ display: "flex", gap: 12 }}>
+                <div style={{ flex: 1 }}>
+                  <label style={labelStyle}>الاسم (اختياري)</label>
+                  <input value={form.name} onChange={set("name")} placeholder="اسمك الكريم" style={selectStyle} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <label style={labelStyle}>رقم الجوال (اختياري)</label>
+                  <input value={form.phone} onChange={set("phone")} placeholder="07xxxxxxxx" style={{ ...selectStyle }} dir="ltr" />
+                </div>
+              </div>
+
+              {/* Drag drop area */}
+              <div
+                onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+                onDragLeave={() => setDragging(false)}
+                onDrop={(e) => { e.preventDefault(); setDragging(false); setFiles([...files, ...e.dataTransfer.files]); }}
+                style={{ border: `2px dashed ${dragging ? G.primary : G.border}`, borderRadius: 8, padding: "20px", textAlign: "center", background: dragging ? "#e8f5ee" : G.bg, cursor: "pointer", fontSize: 13, color: G.textMuted, transition: "all .2s" }}>
+                <div>📎 اسحب الملفات هنا أو <label style={{ color: G.primary, cursor: "pointer", fontWeight: 700 }}>
+                  <input type="file" multiple hidden onChange={(e) => setFiles([...files, ...e.target.files])} />
+                  انقر للرفع
+                </label></div>
+              </div>
+              {files.length > 0 && (
+                <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+                  {files.map((f, i) => (
+                    <div key={i} style={{ background: G.bg, borderRadius: 6, padding: "6px 12px", display: "flex", justifyContent: "space-between", fontSize: 12, border: `1px solid ${G.border}` }}>
+                      <span>📄 {f.name}</span>
+                      <button type="button" onClick={() => setFiles(files.filter((_, j) => j !== i))} style={{ background: "none", border: "none", color: G.danger, cursor: "pointer", fontSize: 13 }}>✕</button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <button type="submit" disabled={status === "loading"} style={{
+                background: G.primary, color: "#fff", border: "none", borderRadius: 8,
+                padding: "13px 0", fontSize: 15, fontWeight: 700, cursor: "pointer",
+                fontFamily: "'Tajawal', sans-serif", marginTop: 4,
+              }}>
+                {status === "loading" ? "جاري الإرسال..." : "📤 إرسال الشكوى"}
               </button>
-            </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 18, padding: '12px 0' }}>
-              <div style={{ fontSize: 64, color: '#10b981', lineHeight: 1, textAlign: 'center' }}>✓</div>
-              <div style={{ color: '#fff', fontSize: 20, fontWeight: 800, textAlign: 'center' }}>
-                {ar ? 'تم استلام شكواك!' : 'Complaint Received!'}
-              </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap', justifyContent: 'center' }}>
-                <span style={{ color: '#00d4aa', fontSize: 22, fontWeight: 900, fontFamily: 'monospace' }}>
-                  {success.tracking_number}
-                </span>
-                <button
-                  onClick={() => navigator.clipboard?.writeText(success.tracking_number)}
-                  style={{
-                    background: '#0f1117', border: '1px solid #2a2d3e', borderRadius: 6,
-                    padding: '4px 10px', color: '#9ca3af', fontSize: 12, cursor: 'pointer',
-                    fontFamily: 'Tajawal, sans-serif',
-                  }}
-                >
-                  {ar ? 'نسخ' : 'Copy'}
-                </button>
-              </div>
-              <div style={{ color: '#9ca3af', fontSize: 13, textAlign: 'center' }}>
-                {ar
-                  ? 'يعالج الذكاء الاصطناعي شكواك الآن...'
-                  : 'AI is processing your complaint...'}
-              </div>
-              <div style={{ width: '100%' }}>
-                <ProgressBar duration={30000} />
-              </div>
-              <div style={{ display: 'flex', gap: 10, width: '100%' }}>
-                <button
-                  onClick={() => setShowModal(true)}
-                  style={{
-                    flex: 1, background: 'transparent', border: '2px solid #00d4aa',
-                    color: '#00d4aa', borderRadius: 10, padding: '10px 0',
-                    fontWeight: 700, cursor: 'pointer', fontSize: 14, fontFamily: 'Tajawal, sans-serif',
-                  }}
-                >
-                  {ar ? 'تتبع الشكوى' : 'Track Status'}
-                </button>
-                <button
-                  onClick={reset}
-                  style={{
-                    flex: 1, background: '#2a2d3e', border: 'none',
-                    color: '#9ca3af', borderRadius: 10, padding: '10px 0',
-                    fontWeight: 700, cursor: 'pointer', fontSize: 14, fontFamily: 'Tajawal, sans-serif',
-                  }}
-                >
-                  {ar ? 'شكوى جديدة' : 'New Complaint'}
-                </button>
+            </form>
+          </div>
+        </div>
+
+        <div style={{ flex: "1 1 280px", display: "flex", flexDirection: "column", gap: 16 }}>
+          <LiveFeed />
+          {entityInfo && (
+            <div style={{ background: G.card, borderRadius: 12, padding: 20, border: `1px solid ${G.border}` }}>
+              <div style={{ fontWeight: 700, color: G.text, marginBottom: 8 }}>الجهة المختارة</div>
+              <div style={{ fontSize: 22, fontWeight: 800, color: ENTITY_COLORS[form.entity] }}>{entityInfo.label}</div>
+              <div style={{ color: G.textMuted, fontSize: 12, marginTop: 4 }}>{entityInfo.dept}</div>
+              <div style={{ marginTop: 10, padding: "8px 12px", background: G.bg, borderRadius: 6, fontSize: 11, color: G.textMuted, border: `1px solid ${G.border}` }}>
+                سيتم توجيه شكواك تلقائياً بعد تحليلها بالذكاء الاصطناعي
               </div>
             </div>
           )}
-        </Card>
-        {/* RIGHT — Live feed */}
-        <LiveFeed />
-      </div>
-    </div>
-  )
-}
-
-// ── App shell ─────────────────────────────────────────────────────────────────
-
-const TABS = [
-  { label: '\u0644\u0648\u062d\u0629 360', Screen: DashboardScreen },
-  { label: '\u0627\u0644\u0630\u0643\u0627\u0621 \u0627\u0644\u0627\u0635\u0637\u0646\u0627\u0639\u064a', Screen: AIScreen },
-  { label: '\u270d\ufe0f \u062a\u0642\u062f\u064a\u0645 \u0634\u0643\u0648\u0649', Screen: SubmitScreen },
-  { label: '\u0627\u0644\u0645\u062d\u0627\u0643\u0627\u0629', Screen: SimulationScreen },
-]
-
-export default function App() {
-  const [tab, setTab] = useState(0)
-
-  useEffect(() => {
-    const link = document.createElement('link')
-    link.href = 'https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&display=swap'
-    link.rel = 'stylesheet'
-    document.head.appendChild(link)
-    document.body.style.margin = '0'
-    document.body.style.background = '#0f1117'
-  }, [])
-
-  const { Screen } = TABS[tab]
-  const dateStr = new Date().toLocaleDateString('ar-JO', { year: 'numeric', month: 'long', day: 'numeric' })
-
-  return (
-    <>
-      <style>{`
-        *, *::before, *::after { box-sizing: border-box; }
-        body { margin: 0; padding: 0; background: #0f1117; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulseRing {
-          0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
-          50% { opacity: 0.7; transform: translate(-50%, -50%) scale(1.25); }
-        }
-        @keyframes livePulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.25; } }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #0f1117; }
-        ::-webkit-scrollbar-thumb { background: #2a2d3e; border-radius: 3px; }
-      `}</style>
-
-      <div dir="rtl" style={{ fontFamily: 'Tajawal, sans-serif', background: '#0f1117', minHeight: '100vh' }}>
-        {/* Fixed top nav */}
-        <nav style={{
-          position: 'fixed', top: 0, right: 0, left: 0, height: 64, zIndex: 200,
-          background: '#1a1d2e', borderBottom: '2px solid #00d4aa',
-          display: 'flex', alignItems: 'center', padding: '0 28px', gap: 20,
-        }}>
-          {/* Brand */}
-          <div style={{ minWidth: 170 }}>
-            <div style={{ color: '#00d4aa', fontSize: 18, fontWeight: 800, lineHeight: 1.2 }}>
-              {'\u0645\u0646\u0635\u0629 \u0628\u062e\u062f\u0645\u062a\u0643\u0645'}
-            </div>
-            <div style={{ color: '#6b7280', fontSize: 11 }}>Voice of Citizen 360</div>
-          </div>
-
-          {/* Tabs */}
-          <div style={{ flex: 1, display: 'flex', justifyContent: 'center', gap: 8 }}>
-            {TABS.map((t, i) => (
-              <button
-                key={i}
-                onClick={() => setTab(i)}
-                style={{
-                  background: tab === i ? '#00d4aa' : 'transparent',
-                  color: tab === i ? '#000' : '#9ca3af',
-                  border: `1px solid ${tab === i ? '#00d4aa' : '#2a2d3e'}`,
-                  borderRadius: 8, padding: '6px 22px', fontSize: 14, fontWeight: 700,
-                  cursor: 'pointer', fontFamily: 'Tajawal, sans-serif', transition: 'all 0.15s',
-                }}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Live dot + date */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, minWidth: 150 }}>
-            <span style={{
-              display: 'inline-block', width: 9, height: 9, borderRadius: '50%',
-              background: '#00d4aa', animation: 'livePulse 2s ease-in-out infinite',
-            }} />
-            <div>
-              <div style={{ color: '#00d4aa', fontSize: 12, fontWeight: 700 }}>{'\u0628\u064a\u0627\u0646\u0627\u062a \u0645\u0628\u0627\u0634\u0631\u0629'}</div>
-              <div style={{ color: '#6b7280', fontSize: 10 }}>{dateStr}</div>
-            </div>
-          </div>
-        </nav>
-
-        {/* Page body */}
-        <div style={{ paddingTop: 64 }}>
-          <Screen />
         </div>
       </div>
-    </>
-  )
+      {showTrack && trackId && <TrackingModal id={trackId} onClose={() => setShowTrack(false)} />}
+    </div>
+  );
+}
+
+const labelStyle = { display: "block", fontSize: 12, color: G.textMuted, marginBottom: 6, fontWeight: 600 };
+const selectStyle = {
+  width: "100%", padding: "10px 14px", border: `1px solid ${G.border}`, borderRadius: 8,
+  fontSize: 14, fontFamily: "'Tajawal', sans-serif", background: "#fafffe", color: G.text,
+  boxSizing: "border-box", outline: "none",
+};
+
+// ─── SIMULATION SCREEN ───────────────────────────────────────────────────────
+function SimulationScreen({ auth }) {
+  const [sims, setSims] = useState([]);
+  const [selected, setSelected] = useState(null);
+
+  useEffect(() => {
+    api("/simulations").then((r) => r.ok && r.json()).then((d) => {
+      setSims(d || []);
+      if (d?.length) setSelected(d[0]);
+    });
+  }, []);
+
+  return (
+    <div style={{ padding: "24px 28px", background: G.bg, minHeight: "100vh" }}>
+      <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+        <div style={{ flex: "1 1 220px" }}>
+          <div style={{ background: G.card, borderRadius: 12, padding: 16, border: `1px solid ${G.border}` }}>
+            <h3 style={{ margin: "0 0 14px", color: G.text, fontSize: 14 }}>السيناريوهات</h3>
+            {sims.map((s) => (
+              <div key={s.id} onClick={() => setSelected(s)} style={{
+                padding: "10px 14px", borderRadius: 8, cursor: "pointer", marginBottom: 6,
+                background: selected?.id === s.id ? G.primary : G.bg,
+                color: selected?.id === s.id ? "#fff" : G.text,
+                border: `1px solid ${selected?.id === s.id ? G.primary : G.border}`,
+                fontSize: 13, fontWeight: 600,
+              }}>
+                {s.name}
+              </div>
+            ))}
+          </div>
+        </div>
+        <div style={{ flex: "3 1 400px" }}>
+          {selected ? (
+            <div style={{ background: G.card, borderRadius: 12, padding: 24, border: `1px solid ${G.border}` }}>
+              <h2 style={{ margin: "0 0 8px", color: G.text, fontSize: 16 }}>{selected.name}</h2>
+              <p style={{ color: G.textMuted, fontSize: 13, marginBottom: 20 }}>{selected.description}</p>
+              {selected.projected_data && (() => {
+                let chartData = [];
+                try { chartData = typeof selected.projected_data === "string" ? JSON.parse(selected.projected_data) : selected.projected_data; } catch {}
+                return Array.isArray(chartData) && chartData.length > 0 ? (
+                  <div>
+                    <h4 style={{ margin: "0 0 12px", color: G.text, fontSize: 13 }}>البيانات المتوقعة</h4>
+                    <ResponsiveContainer width="100%" height={260}>
+                      <LineChart data={chartData}>
+                        <XAxis dataKey="month" tick={{ fontSize: 11 }} />
+                        <YAxis tick={{ fontSize: 11 }} />
+                        <Tooltip />
+                        <Line type="monotone" dataKey="complaints" stroke={G.primary} strokeWidth={2} dot={false} />
+                        {chartData[0]?.resolved !== undefined && <Line type="monotone" dataKey="resolved" stroke={G.gold} strokeWidth={2} dot={false} />}
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                ) : null;
+              })()}
+              <div style={{ display: "flex", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
+                <div style={{ background: G.bg, borderRadius: 8, padding: "12px 16px", border: `1px solid ${G.border}`, flex: 1 }}>
+                  <div style={{ fontSize: 11, color: G.textMuted }}>معدل النجاح المتوقع</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: G.success }}>{selected.success_rate ? `${selected.success_rate}%` : "—"}</div>
+                </div>
+                <div style={{ background: G.bg, borderRadius: 8, padding: "12px 16px", border: `1px solid ${G.border}`, flex: 1 }}>
+                  <div style={{ fontSize: 11, color: G.textMuted }}>الجهة</div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: ENTITY_COLORS[selected.entity] || G.primary }}>{selected.entity || "—"}</div>
+                </div>
+              </div>
+            </div>
+          ) : <div style={{ color: G.textMuted, textAlign: "center", padding: 60 }}>اختر سيناريو للعرض</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── USERS ADMIN SCREEN ──────────────────────────────────────────────────────
+function UsersScreen({ auth }) {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    api("/admin/users").then((r) => r.ok && r.json()).then((d) => { setUsers(d || []); setLoading(false); });
+  }, []);
+  return (
+    <div style={{ padding: "24px 28px", background: G.bg, minHeight: "100vh" }}>
+      <div style={{ background: G.card, borderRadius: 12, padding: 24, border: `1px solid ${G.border}` }}>
+        <h2 style={{ margin: "0 0 18px", color: G.text, fontSize: 16 }}>👥 إدارة المستخدمين</h2>
+        {loading ? <div style={{ color: G.textMuted }}>جاري التحميل...</div> : (
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr style={{ background: G.bg }}>
+                {["الاسم", "البريد الإلكتروني", "اسم المستخدم", "الدور", "تاريخ الإنشاء"].map((h) => (
+                  <th key={h} style={{ padding: "10px 12px", textAlign: "right", color: G.textMuted, fontWeight: 600, borderBottom: `2px solid ${G.border}` }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {users.map((u, i) => (
+                <tr key={u.id} style={{ background: i % 2 ? G.bg : G.card, borderBottom: `1px solid ${G.border}` }}>
+                  <td style={{ padding: "9px 12px", fontWeight: 600 }}>{u.name}</td>
+                  <td style={{ padding: "9px 12px", color: G.textMuted, fontSize: 12 }} dir="ltr">{u.email}</td>
+                  <td style={{ padding: "9px 12px", color: G.textMuted, fontSize: 12 }} dir="ltr">{u.username}</td>
+                  <td style={{ padding: "9px 12px" }}>
+                    <span style={{ background: u.role === "admin" ? G.primary : G.gold, color: u.role === "admin" ? "#fff" : G.nav, borderRadius: 4, padding: "2px 10px", fontSize: 11, fontWeight: 700 }}>
+                      {u.role === "admin" ? "مدير" : "مواطن"}
+                    </span>
+                  </td>
+                  <td style={{ padding: "9px 12px", color: G.textMuted, fontSize: 11 }}>{u.created_at ? new Date(u.created_at).toLocaleDateString("ar-JO") : "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── ROOT APP ────────────────────────────────────────────────────────────────
+export default function App() {
+  const [auth, setAuth] = useState(() => JSON.parse(localStorage.getItem("voc360_auth") || "null"));
+  const [activeTab, setActiveTab] = useState(0);
+
+  function handleAuth(authData) { setAuth(authData); setActiveTab(0); }
+  function handleLogout() { localStorage.removeItem("voc360_auth"); setAuth(null); setActiveTab(0); }
+
+  if (!auth) return <AuthScreen onAuth={handleAuth} />;
+
+  const isAdmin = auth.user?.role === "admin";
+
+  const ADMIN_TABS = [
+    { label: "لوحة 360", Screen: DashboardScreen },
+    { label: "الذكاء الاصطناعي", Screen: AIScreen },
+    { label: "✍️ تقديم شكوى", Screen: SubmitScreen },
+    { label: "المحاكاة", Screen: SimulationScreen },
+    { label: "👥 المستخدمون", Screen: UsersScreen },
+  ];
+
+  const USER_TABS = [
+    { label: "✍️ تقديم شكوى", Screen: SubmitScreen },
+  ];
+
+  const tabs = isAdmin ? ADMIN_TABS : USER_TABS;
+  const safeActive = Math.min(activeTab, tabs.length - 1);
+  const ActiveScreen = tabs[safeActive].Screen;
+
+  return (
+    <div dir="rtl" style={{ fontFamily: "'Tajawal', sans-serif", background: G.bg, minHeight: "100vh" }}>
+      <Nav tabs={tabs} active={safeActive} setActive={setActiveTab} auth={auth} onLogout={handleLogout} />
+      <ActiveScreen auth={auth} />
+    </div>
+  );
 }

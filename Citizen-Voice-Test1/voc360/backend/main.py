@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from typing import Optional
 from sqlalchemy.orm import Session
 from sqlalchemy import func, desc
@@ -12,8 +12,12 @@ from datetime import datetime
 from dotenv import load_dotenv
 from database import init_db, get_db, SessionLocal
 from data_generator import generate_all_data
-from models import Complaint, Cluster, KPI, Action, Simulation, AdvancedSignal
+from models import Complaint, Cluster, KPI, Action, Simulation, AdvancedSignal, User
 from ai_engine import process_complaint as ai_process
+from auth import (
+    verify_password, hash_password, create_access_token,
+    get_current_user, get_current_user_optional, require_admin,
+)
 
 load_dotenv()
 
@@ -34,16 +38,41 @@ app = FastAPI(title="Voice of Citizen 360", version="0.1.0")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.getenv("FRONTEND_URL", "http://localhost:3000")],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 
+def _seed_default_admin():
+    """Create a default admin account if none exists."""
+    db = SessionLocal()
+    try:
+        existing = db.query(User).filter(User.role == "admin").first()
+        if not existing:
+            admin = User(
+                id=uuid_module.uuid4(),
+                email="admin@voc360.jo",
+                username="admin",
+                name="مدير النظام",
+                password_hash=hash_password("Admin@2026"),
+                role="admin",
+                is_active=True,
+            )
+            db.add(admin)
+            db.commit()
+            print("[startup] Default admin created: admin@voc360.jo / Admin@2026")
+    except Exception as e:
+        print(f"[startup] Admin seed error: {e}")
+    finally:
+        db.close()
+
+
 @app.on_event("startup")
 def on_startup():
     init_db()
+    _seed_default_admin()
 
 
 @app.get("/")
@@ -317,8 +346,90 @@ def get_signals(db: Session = Depends(get_db)):
 
 # ── Complaint submission ──────────────────────────────────────────────────────
 
+# ── Auth schemas ─────────────────────────────────────────────────────────────
+
+class SignupRequest(BaseModel):
+    name: str
+    email: str
+    username: str
+    password: str
+
+
+class LoginRequest(BaseModel):
+    email: str
+    password: str
+
+
+@app.post("/api/auth/signup")
+def signup(body: SignupRequest, db: Session = Depends(get_db)):
+    if db.query(User).filter(User.email == body.email).first():
+        raise HTTPException(status_code=400, detail="البريد الإلكتروني مسجّل مسبقاً")
+    if db.query(User).filter(User.username == body.username).first():
+        raise HTTPException(status_code=400, detail="اسم المستخدم محجوز مسبقاً")
+    if len(body.password) < 6:
+        raise HTTPException(status_code=400, detail="كلمة المرور يجب أن تكون 6 أحرف على الأقل")
+    user = User(
+        id=uuid_module.uuid4(),
+        email=body.email.lower().strip(),
+        username=body.username.strip(),
+        name=body.name.strip(),
+        password_hash=hash_password(body.password),
+        role="user",
+        is_active=True,
+    )
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    token = create_access_token(str(user.id), user.role, user.name, user.email)
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {"id": str(user.id), "name": user.name, "email": user.email, "role": user.role},
+    }
+
+
+@app.post("/api/auth/login")
+def login(body: LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(User).filter(User.email == body.email.lower().strip()).first()
+    if not user or not verify_password(body.password, user.password_hash):
+        raise HTTPException(status_code=401, detail="البريد الإلكتروني أو كلمة المرور غير صحيحة")
+    if not user.is_active:
+        raise HTTPException(status_code=403, detail="الحساب معطّل")
+    token = create_access_token(str(user.id), user.role, user.name, user.email)
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "user": {"id": str(user.id), "name": user.name, "email": user.email, "role": user.role},
+    }
+
+
+@app.get("/api/auth/me")
+def me(current_user: User = Depends(get_current_user)):
+    return {
+        "id": str(current_user.id),
+        "name": current_user.name,
+        "email": current_user.email,
+        "username": current_user.username,
+        "role": current_user.role,
+    }
+
+
+@app.get("/api/admin/users")
+def list_users(current_user: User = Depends(require_admin), db: Session = Depends(get_db)):
+    users = db.query(User).order_by(User.created_at.desc()).all()
+    return [
+        {"id": str(u.id), "name": u.name, "email": u.email,
+         "username": u.username, "role": u.role, "is_active": u.is_active,
+         "created_at": u.created_at.isoformat()}
+        for u in users
+    ]
+
+
+# ── Complaint submission ──────────────────────────────────────────────────────
+
 class ComplaintSubmission(BaseModel):
     text: str
+    entity: str = "MOH"
     source: str = "bekhedmetkom"
     governorate: str = "\u0639\u0645\u0651\u0627\u0646"
     name: Optional[str] = "\u0645\u0648\u0627\u0637\u0646"
@@ -344,7 +455,7 @@ def submit_complaint(body: ComplaintSubmission, db: Session = Depends(get_db)):
         sentiment="neutral",
         urgency="medium",
         archetype="objective",
-        entity="MOH",
+        entity=body.entity,
         submitted_hour=datetime.utcnow().hour,
         created_at=datetime.utcnow(),
     )
