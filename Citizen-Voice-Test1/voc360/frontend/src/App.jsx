@@ -209,12 +209,12 @@ function DashboardScreen({ auth }) {
     setLoading(true);
     try {
       const [sRes, cRes, kRes, rRes] = await Promise.all([
-        api("/stats"), api("/clusters"), api("/kpis"), api("/complaints?limit=10"),
+        api("/dashboard/national"), api("/clusters"), api("/kpis"), api("/complaints/recent"),
       ]);
       if (sRes.ok) setStats(await sRes.json());
       if (cRes.ok) setClusters(await cRes.json());
       if (kRes.ok) setKpis(await kRes.json());
-      if (rRes.ok) setRecent((await rRes.json()).complaints || []);
+      if (rRes.ok) setRecent(await rRes.json());
     } finally { setLoading(false); }
   }, []);
 
@@ -225,15 +225,17 @@ function DashboardScreen({ auth }) {
   const entityDist = stats?.entity_distribution
     ? Object.entries(stats.entity_distribution).map(([k, v]) => ({ name: k, value: v }))
     : [];
-  const catDist = stats?.category_distribution
-    ? Object.entries(stats.category_distribution).slice(0, 5).map(([k, v]) => ({ name: k, value: v }))
-    : [];
+  const catDist = Array.isArray(stats?.category_distribution)
+    ? stats.category_distribution.slice(0, 5).map((r) => ({ name: r.category || r.name, value: r.count || r.value }))
+    : stats?.category_distribution
+      ? Object.entries(stats.category_distribution).slice(0, 5).map(([k, v]) => ({ name: k, value: v }))
+      : [];
 
   return (
     <div style={{ padding: "24px 28px", background: G.bg, minHeight: "100vh" }}>
       {/* Top stats */}
       <div style={{ display: "flex", gap: 16, marginBottom: 24, flexWrap: "wrap" }}>
-        <StatCard label="إجمالي الشكاوى" value={stats?.total_complaints ?? "—"} icon="📋" color={G.primary} sub={`منها ${stats?.pending_count ?? 0} معلّقة`} />
+        <StatCard label="إجمالي الشكاوى" value={stats?.total_complaints ?? "—"} icon="📋" color={G.primary} sub={`منها ${stats?.open_complaints ?? 0} مفتوحة`} />
         <StatCard label="معالجة بالذكاء الاصطناعي" value={stats?.ai_processed ?? "—"} icon="🤖" color="#1a5276" />
         <StatCard label="عالية الأولوية" value={stats?.high_priority ?? "—"} icon="🚨" color={G.danger} />
         <StatCard label="مجموعات نشطة" value={clusters.length} icon="🗂️" color="#7d3c98" />
@@ -274,8 +276,8 @@ function DashboardScreen({ auth }) {
           <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
             {kpis.slice(0, 6).map((k) => (
               <div key={k.id} style={{ background: G.bg, borderRadius: 8, padding: "12px 16px", flex: "1 1 160px", border: `1px solid ${G.border}` }}>
-                <div style={{ fontSize: 20, fontWeight: 800, color: k.status === "on_track" ? G.success : G.warning }}>{k.current_value.toFixed(0)}</div>
-                <div style={{ fontSize: 11, color: G.textMuted }}>{k.name}</div>
+                  <div style={{ fontSize: 28, fontWeight: 800, color: k.status === "on_track" ? G.success : G.warning }}>{typeof k.current_value === "number" ? k.current_value.toFixed(1) : "—"}</div>
+                <div style={{ fontSize: 11, color: G.textMuted }}>{k.name || k.entity}</div>
                 <div style={{ fontSize: 10, color: k.status === "on_track" ? G.success : G.warning, marginTop: 2 }}>
                   {k.status === "on_track" ? "✓ على المسار" : "⚠ يحتاج مراجعة"}
                 </div>
@@ -306,12 +308,12 @@ function DashboardScreen({ auth }) {
                   </td>
                   <td style={{ padding: "9px 12px" }}>{c.category || "—"}</td>
                   <td style={{ padding: "9px 12px" }}>
-                    <span style={{ color: c.urgency_score > 7 ? G.danger : c.urgency_score > 4 ? G.warning : G.success, fontWeight: 600 }}>
-                      {c.urgency_score > 7 ? "عالية" : c.urgency_score > 4 ? "متوسطة" : "منخفضة"}
+                    <span style={{ color: c.urgency === "critical" || c.urgency === "high" ? G.danger : c.urgency === "medium" ? G.warning : G.success, fontWeight: 600 }}>
+                      {c.urgency === "critical" ? "حرجة" : c.urgency === "high" ? "عالية" : c.urgency === "medium" ? "متوسطة" : "منخفضة"}
                     </span>
                   </td>
                   <td style={{ padding: "9px 12px", color: G.textMuted }}>{c.status || "—"}</td>
-                  <td style={{ padding: "9px 12px", color: G.textMuted, fontSize: 11 }}>{c.created_at ? new Date(c.created_at).toLocaleDateString("ar-JO") : "—"}</td>
+                  <td style={{ padding: "9px 12px", color: G.textMuted, fontSize: 11 }}>{(c.submitted_at || c.created_at) ? new Date(c.submitted_at || c.created_at).toLocaleDateString("ar-JO") : "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -370,8 +372,8 @@ function AIScreen({ auth }) {
           <div style={{ marginTop: 20, display: "flex", gap: 12, flexWrap: "wrap" }}>
             <Badge label="الجهة" value={result.entity} color={ENTITY_COLORS[result.entity]} />
             <Badge label="التصنيف" value={result.category} />
-            <Badge label="المشاعر" value={result.sentiment} color={result.sentiment === "negative" ? G.danger : G.success} />
-            <Badge label="الأولوية" value={`${result.urgency_score}/10`} color={result.urgency_score > 7 ? G.danger : G.warning} />
+            <Badge label="المشاعر" value={result.sentiment} color={result.sentiment === "negative" || result.sentiment === "angry" ? G.danger : G.success} />
+            <Badge label="الأولوية" value={result.urgency_score ? `${result.urgency_score}/10` : result.urgency} color={result.urgency === "critical" || result.urgency === "high" ? G.danger : G.warning} />
           </div>
         )}
       </div>
@@ -384,10 +386,12 @@ function AIScreen({ auth }) {
               <div key={i} style={{ background: G.bg, borderRadius: 8, padding: "12px 16px", border: `1px solid ${G.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
                 <div>
                   <div style={{ fontWeight: 700, color: G.text, fontSize: 13 }}>{s.signal_type}</div>
-                  <div style={{ fontSize: 12, color: G.textMuted, marginTop: 2 }}>{s.description}</div>
+                  <div style={{ fontSize: 12, color: G.textMuted, marginTop: 2 }}>{s.interpretation || s.description || s.entity}</div>
                 </div>
                 <div style={{ textAlign: "left" }}>
-                  <div style={{ fontSize: 18, fontWeight: 800, color: s.severity > 7 ? G.danger : G.warning }}>{s.severity.toFixed(1)}</div>
+                  <div style={{ fontSize: 14, fontWeight: 800, color: s.severity === "critical" || s.severity === "high" ? G.danger : G.warning }}>
+                    {s.severity === "critical" ? "حرجي" : s.severity === "high" ? "عالي" : s.severity === "medium_high" ? "متوسط-عالي" : s.severity === "medium" ? "متوسط" : "منخفض"}
+                  </div>
                   <div style={{ fontSize: 10, color: G.textMuted }}>خطورة</div>
                 </div>
               </div>
@@ -413,7 +417,7 @@ const GOVS = ["عمّان", "إربد", "الزرقاء", "العقبة", "ال�
 function LiveFeed() {
   const [items, setItems] = useState([]);
   useEffect(() => {
-    const load = () => api("/complaints?limit=5").then((r) => r.ok && r.json()).then((d) => d?.complaints && setItems(d.complaints));
+    const load = () => api("/complaints/recent").then((r) => r.ok && r.json()).then((d) => d && setItems(d.slice(0, 5)));
     load();
     const t = setInterval(load, 12000);
     return () => clearInterval(t);
@@ -428,7 +432,7 @@ function LiveFeed() {
       {items.map((c, i) => (
         <div key={c.id} style={{ borderBottom: i < items.length - 1 ? `1px solid ${G.border}` : "none", padding: "8px 0", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ fontSize: 13, color: G.text, maxWidth: "70%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-            {c.text?.slice(0, 60)}…
+            {(c.text_preview || c.text || "").slice(0, 60)}…
           </div>
           <span style={{ background: ENTITY_COLORS[c.entity] || "#999", color: "#fff", borderRadius: 4, padding: "2px 8px", fontSize: 11 }}>{c.entity}</span>
         </div>
@@ -440,7 +444,7 @@ function LiveFeed() {
 function TrackingModal({ id, onClose }) {
   const [data, setData] = useState(null);
   useEffect(() => {
-    api(`/complaints/${id}/track`).then((r) => r.ok && r.json()).then(setData);
+    api(`/complaints/track/${id}`).then((r) => r.ok && r.json()).then(setData);
   }, [id]);
   return (
     <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 200 }}>
@@ -449,11 +453,11 @@ function TrackingModal({ id, onClose }) {
         <h3 style={{ margin: "0 0 18px", color: G.text }}>تتبع الشكوى</h3>
         {!data ? <div style={{ color: G.textMuted }}>جاري التحميل...</div> : (
           <div style={{ fontSize: 13, display: "flex", flexDirection: "column", gap: 10 }}>
-            <div><strong>رقم الشكوى:</strong> <span style={{ fontFamily: "monospace" }}>{data.complaint_id?.slice(0, 16)}…</span></div>
-            <div><strong>الجهة:</strong> {data.entity}</div>
-            <div><strong>الحالة:</strong> {data.status}</div>
+            <div><strong>رقم الشكوى:</strong> <span style={{ fontFamily: "monospace" }}>{data.tracking_number || data.complaint_id?.slice(0, 16)}</span></div>
+            <div><strong>الجهة:</strong> {data.entity_ar || data.entity}</div>
+            <div><strong>الحالة:</strong> {data.status_ar || data.status}</div>
             <div><strong>التصنيف:</strong> {data.category}</div>
-            <div><strong>الأولوية:</strong> {data.urgency_score}/10</div>
+            <div><strong>الأولوية:</strong> {data.urgency}</div>
             <div><strong>المشاعر:</strong> {data.sentiment}</div>
           </div>
         )}
@@ -649,12 +653,15 @@ function SimulationScreen({ auth }) {
             <div style={{ background: G.card, borderRadius: 12, padding: 24, border: `1px solid ${G.border}` }}>
               <h2 style={{ margin: "0 0 8px", color: G.text, fontSize: 16 }}>{selected.name}</h2>
               <p style={{ color: G.textMuted, fontSize: 13, marginBottom: 20 }}>{selected.description}</p>
-              {selected.projected_data && (() => {
+              {(() => {
                 let chartData = [];
-                try { chartData = typeof selected.projected_data === "string" ? JSON.parse(selected.projected_data) : selected.projected_data; } catch {}
+                try {
+                  const raw = selected.kpi_effects || selected.projected_data;
+                  chartData = typeof raw === "string" ? JSON.parse(raw) : (raw || []);
+                } catch {}
                 return Array.isArray(chartData) && chartData.length > 0 ? (
                   <div>
-                    <h4 style={{ margin: "0 0 12px", color: G.text, fontSize: 13 }}>البيانات المتوقعة</h4>
+                    <h4 style={{ margin: "0 0 12px", color: G.text, fontSize: 13 }}>التأثيرات المتوقعة</h4>
                     <ResponsiveContainer width="100%" height={260}>
                       <LineChart data={chartData}>
                         <XAxis dataKey="month" tick={{ fontSize: 11 }} />
@@ -669,12 +676,16 @@ function SimulationScreen({ auth }) {
               })()}
               <div style={{ display: "flex", gap: 12, marginTop: 20, flexWrap: "wrap" }}>
                 <div style={{ background: G.bg, borderRadius: 8, padding: "12px 16px", border: `1px solid ${G.border}`, flex: 1 }}>
-                  <div style={{ fontSize: 11, color: G.textMuted }}>معدل النجاح المتوقع</div>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: G.success }}>{selected.success_rate ? `${selected.success_rate}%` : "—"}</div>
+                  <div style={{ fontSize: 11, color: G.textMuted }}>حالة السيناريو</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: selected.status === "running" ? G.success : G.warning }}>
+                    {selected.status === "running" ? "نشط" : selected.status === "inactive" ? "معطّل" : selected.status}
+                  </div>
                 </div>
                 <div style={{ background: G.bg, borderRadius: 8, padding: "12px 16px", border: `1px solid ${G.border}`, flex: 1 }}>
-                  <div style={{ fontSize: 11, color: G.textMuted }}>الجهة</div>
-                  <div style={{ fontSize: 15, fontWeight: 700, color: ENTITY_COLORS[selected.entity] || G.primary }}>{selected.entity || "—"}</div>
+                  <div style={{ fontSize: 11, color: G.textMuted }}>الجهات المتأثرة</div>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: G.primary }}>
+                    {Array.isArray(selected.affected_entities) ? selected.affected_entities.join("، ") : selected.affected_entities || "—"}
+                  </div>
                 </div>
               </div>
             </div>

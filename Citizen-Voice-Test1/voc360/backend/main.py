@@ -13,7 +13,7 @@ from dotenv import load_dotenv
 from database import init_db, get_db, SessionLocal
 from data_generator import generate_all_data
 from models import Complaint, Cluster, KPI, Action, Simulation, AdvancedSignal, User
-from ai_engine import process_complaint as ai_process
+from ai_engine import process_complaint as ai_process, classify_complaint
 from auth import (
     verify_password, hash_password, create_access_token,
     get_current_user, get_current_user_optional, require_admin,
@@ -171,20 +171,92 @@ def dashboard_national(db: Session = Depends(get_db)):
         for r in src_rows
     ]
 
+    # Entity distribution — complaint count per entity
+    entity_rows = (
+        db.query(Complaint.entity, func.count(Complaint.id).label("cnt"))
+        .group_by(Complaint.entity)
+        .all()
+    )
+    entity_distribution = {r.entity: r.cnt for r in entity_rows if r.entity}
+
+    # AI processed — complaints with category set (not pending)
+    ai_processed = db.query(func.count(Complaint.id)).filter(
+        Complaint.category != "pending"
+    ).scalar() or 0
+
+    # High priority count
+    high_priority = db.query(func.count(Complaint.id)).filter(
+        Complaint.urgency.in_(["high", "critical"])
+    ).scalar() or 0
+
+    # Category distribution as dict for frontend compatibility
+    cat_dist_dict = {r["category"]: r["count"] for r in category_distribution}
+
     return {
         "total_complaints": total,
         "open_complaints": open_cnt,
+        "pending_count": open_cnt,
         "in_progress_complaints": in_prog,
         "resolved_complaints": resolved,
+        "ai_processed": ai_processed,
+        "high_priority": high_priority,
         "avg_response_time_hours": round(avg_response, 1),
         "sla_compliance_rate": round(avg_sla, 2),
         "national_cxi": round(national_cxi, 1),
         "cxi_breakdown": cxi_breakdown,
+        "entity_distribution": entity_distribution,
         "monthly_trend": monthly_trend,
-        "category_distribution": category_distribution,
+        "category_distribution": cat_dist_dict,
+        "category_distribution_list": category_distribution,
         "source_distribution": source_distribution,
         "open_rate_percent": round(open_cnt / total * 100, 1) if total else 0.0,
         "complaint_rate_per_month": round(total / 3, 1),
+    }
+
+
+# ── All-entities KPI summary ─────────────────────────────────────────────────
+
+@app.get("/api/kpis")
+def get_all_kpis(db: Session = Depends(get_db)):
+    """Return latest-month KPI summary for all entities, normalised for dashboard."""
+    latest_month = db.query(func.max(KPI.period_month)).scalar() or 3
+    kpis = db.query(KPI).filter(KPI.period_month == latest_month).all()
+    result = []
+    for k in kpis:
+        result.append({
+            "id": str(k.id),
+            "name": f"{k.entity} — CXI",
+            "entity": k.entity,
+            "period": k.period_label,
+            "current_value": round(k.cxi_score, 1),
+            "sla_compliance": round(k.sla_compliance_rate * 100, 1),
+            "avg_response_hours": round(k.avg_response_time_hours, 1),
+            "csat": round(k.csat_score, 1),
+            "nps": round(k.nps_score, 1),
+            "status": "on_track" if k.cxi_score >= 65 else "needs_attention",
+        })
+    return result
+
+
+# ── AI classify ───────────────────────────────────────────────────────────────
+
+class ClassifyRequest(BaseModel):
+    text: str
+
+
+@app.post("/api/ai/classify")
+def classify_text(body: ClassifyRequest):
+    if not body.text or not body.text.strip():
+        raise HTTPException(status_code=400, detail="نص الشكوى مطلوب")
+    result = classify_complaint(body.text)
+    urgency_score_map = {"low": 2, "medium": 5, "high": 8, "critical": 10}
+    return {
+        "entity": result.get("entity", "MOH"),
+        "category": result.get("category", "other"),
+        "sentiment": result.get("sentiment", "neutral"),
+        "urgency": result.get("urgency", "medium"),
+        "urgency_score": urgency_score_map.get(result.get("urgency", "medium"), 5),
+        "archetype": result.get("archetype", "objective"),
     }
 
 
