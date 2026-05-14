@@ -10,7 +10,7 @@
 
 **Your Name**: Abdalrhman Dmour  
 **Date**: May 12, 2026
-**This is my**: ✅ Tuesday check-in ⬜ Thursday check-in
+**This is my**: ✅ Tuesday check-in ✅ Thursday check-in
 
 ---
 
@@ -182,34 +182,33 @@ I wish I had more time to work on the project and to learn more about the topics
 
 | # | Goal I Set on Sunday | Status | Notes |
 |---|---|:---:|---|
-| 1 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
-| 2 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
-| 3 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
-| 4 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
-| 5 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
+| 1 | Build the Citizen Voice project MVP with the required features, no more no less | ⬜ Done ✅ Partial ⬜ Not Started | |
+| 2 | Learn how to build the project alone firstly | ⬜ Done ✅ Partial ⬜ Not Started | |
+| 3 | Try to more understand the project requirements and how to build it alone | ✅ Done ⬜ Partial ⬜ Not Started | _______________ |
+| 4 | Enheance the skills in problem solving and how to approach the project | ✅ Done ⬜ Partial ⬜ Not Started | _______________ |
+| 5 |Try not to communicate with any of my teammates and try to solve problems alone ,just if needed i will talk with them | ⬜ Done ✅ Partial ⬜ Not Started | _______________ |
 
 **If something didn't get done — what happened?**  
-_____________________________________________
+So basically we as a team worked on the project from the beggining of the week , so we was making a plan to how we sholud build the project and how we sholud collecting the data and how we sholud implement the classifier, so we decided to work on it together and help each other to solve the problems, so we was all of us struggling together in how we sholud build the system and how we sholud collecting the data and how we sholud implement the classifier, so we was helping each other to solve the problems. but we faced a problem when we tried to implement the classifier because the dataset we have is not enough to train the model, so we had to find a way to collect more data, also as a bigger team we faced some issues in building the frontend of the project , but we managed to solve them together at the end.
 
 **Was my Sunday plan realistic?**  
 - [ ] Yes — I estimated well
 - [ ] Too ambitious — I set too many goals
 - [ ] Too easy — I finished early and could have done more
-- [ ] Mixed — some goals were right, others were off
+- [x] Mixed — some goals were right, others were off
 
 ### Week Summary
 
-**Hours I put in this week (approx.)**: _____ hours
+**Hours I put in this week (approx.)**: 30 hours
 
-**My biggest strength this week**: _______________
+**My biggest strength this week**: That I fully understand the project requiremnts and that I can build the project alone ,also that I can contribute on building the project with my teamates and solving problems together.which is a great thing for me.
 
-**The skill I most need to level up**: _______________
+**The skill I most need to level up**: I need to improve my skills in building the project which I mean in the technical side of the project.
 
-**If I had to give myself a grade this week (A-F)**: _____  
-**Why?**: _______________
+**If I had to give myself a grade this week (A-F)**: B  
+**Why?**: Because I was able to solve most of the problems that we faced during the week and I was able to contribute on building the project with my teamates and solving problems together.but I still need to improve my skills in building the project.
 
-**What I want to focus on next week** (this feeds into Sunday's plan):  
-_____________________________________________
+**What I want to focus on next week** (this feeds into Sunday's plan): I want to focus on how to build the project from the beggining by myself without any help from my teammates, just if needed i will talk with them. also I want to improve my skills in building the project which I mean in the technical side of the project.
 
 ---
 
