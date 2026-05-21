@@ -9,8 +9,8 @@
 ## 📋 The Basics
 
 **Your Name**: Abdalrhman Dmour 
-**Date**: 19-5-2026 
-**This is my**: ✅ Tuesday check-in ⬜ Thursday check-in
+**Date**: 19-5-2026 && 21-5-2026
+**This is my**: ✅ Tuesday check-in ✅ Thursday check-in
 
 ---
 
@@ -184,34 +184,36 @@ I searched for any solution to solve this problem , but nothing solve this probl
 
 | # | Goal I Set on Sunday | Status | Notes |
 |---|---|:---:|---|
-| 1 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
-| 2 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
-| 3 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
-| 4 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
-| 5 | _________________________________ | ⬜ Done ⬜ Partial ⬜ Not Started | _______________ |
+| 1 | fully Implementing the Voc 360 project with my team | ⬜ Done ✅ Partial ⬜ Not Started | _______________ |
+| 2 | Do final presenttation for ministry about Voc 360 project and sell it for them| ⬜ Done ⬜ Partial ✅ Not Started | _______________ |
+| 3 | Helping my team for anything they need in scope to finish the project | ✅ Done ⬜ Partial ⬜ Not Started | _______________ |
+| 4 | I should learn more about the project structure and architecture and how it works | ⬜ Done ✅ Partial ⬜ Not Started | _______________ |
+| 5 | I should make the next presentation for the ministry about the project| ⬜ Done ⬜ Partial ✅ Not Started | _______________ |
 
 **If something didn't get done — what happened?**  
-_____________________________________________
+
+So we haven't present the project to the ministry yet , also I must know more and more about the structure of the project.
 
 **Was my Sunday plan realistic?**  
 - [ ] Yes — I estimated well
 - [ ] Too ambitious — I set too many goals
 - [ ] Too easy — I finished early and could have done more
-- [ ] Mixed — some goals were right, others were off
+- [x] Mixed — some goals were right, others were off
 
 ### Week Summary
 
-**Hours I put in this week (approx.)**: _____ hours
+**Hours I put in this week (approx.)**: 27 hours
 
-**My biggest strength this week**: _______________
+**My biggest strength this week**: Know more about how to build the voc 360 project with my team , also I have improved my communication and teamwork skills
 
-**The skill I most need to level up**: _______________
+**The skill I most need to level up**: To know the deep details of the project and any project
 
-**If I had to give myself a grade this week (A-F)**: _____  
-**Why?**: _______________
+**If I had to give myself a grade this week (A-F)**: C 
+**Why?**: Becauase I think that I need more improve on my technical skills 
 
 **What I want to focus on next week** (this feeds into Sunday's plan):  
-_____________________________________________
+
+To enhance on my skills to understand the project more and more 
 
 ---
 

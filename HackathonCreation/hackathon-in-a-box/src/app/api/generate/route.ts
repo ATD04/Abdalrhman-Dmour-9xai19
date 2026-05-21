@@ -4,6 +4,7 @@ import { HackathonInputs, HackathonPlan, SkillLevel } from "@/lib/types";
 export const runtime = "nodejs";
 
 const MODEL = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+const FALLBACK_MODELS = ["gemini-2.5-flash-lite", "gemini-2.0-flash"];
 
 function makeId(prefix: string) {
   return `${prefix}-${Math.random().toString(36).slice(2, 8)}`;
@@ -220,20 +221,11 @@ Quality requirements:
 - Timeline must match the provided duration.`;
 }
 
-export async function POST(request: NextRequest) {
-  if (!process.env.GEMINI_API_KEY) {
-    return NextResponse.json(
-      { error: "Missing GEMINI_API_KEY. Add it to .env.local and restart the dev server." },
-      { status: 500 }
-    );
-  }
-
-  const inputs = (await request.json()) as HackathonInputs;
-
-  const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
+async function callGemini(model: string, inputs: HackathonInputs) {
+  return fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
     method: "POST",
     headers: {
-      "x-goog-api-key": process.env.GEMINI_API_KEY,
+      "x-goog-api-key": process.env.GEMINI_API_KEY || "",
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
@@ -256,19 +248,57 @@ export async function POST(request: NextRequest) {
       },
     }),
   });
+}
 
-  if (!response.ok) {
-    const detail = await response.text();
+function extractGeminiError(detail: string) {
+  try {
+    const parsed = JSON.parse(detail);
+    return parsed?.error?.message || detail;
+  } catch {
+    return detail;
+  }
+}
 
+export async function POST(request: NextRequest) {
+  if (!process.env.GEMINI_API_KEY) {
     return NextResponse.json(
-      { error: "Gemini generation failed.", detail },
-      { status: response.status }
+      { error: "Missing GEMINI_API_KEY. Add it to .env.local and restart the dev server." },
+      { status: 500 }
     );
   }
 
-  const payload = await response.json();
-  const text = extractText(payload);
-  const plan = normalizePlan(parseJsonPlan(text), inputs);
+  const inputs = (await request.json()) as HackathonInputs;
+  const models = [MODEL, ...FALLBACK_MODELS.filter((model) => model !== MODEL)];
+  const attempts: string[] = [];
 
-  return NextResponse.json({ plan });
+  for (const model of models) {
+    const response = await callGemini(model, inputs);
+
+    if (response.ok) {
+      const payload = await response.json();
+      const text = extractText(payload);
+      const plan = normalizePlan(parseJsonPlan(text), inputs);
+
+      return NextResponse.json({ plan, model });
+    }
+
+    const detail = await response.text();
+    const message = extractGeminiError(detail);
+    attempts.push(`${model}: ${message}`);
+
+    if (![429, 500, 502, 503, 504].includes(response.status)) {
+      return NextResponse.json(
+        { error: message || "Gemini generation failed.", attempts },
+        { status: response.status }
+      );
+    }
+  }
+
+  return NextResponse.json(
+    {
+      error: "Gemini is overloaded right now. Try again in a moment, or switch GEMINI_MODEL to gemini-2.5-flash-lite.",
+      attempts,
+    },
+    { status: 503 }
+  );
 }

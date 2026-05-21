@@ -60,7 +60,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const payload = await response.json();
 
       if (!response.ok) {
-        throw new Error(payload.error || "Could not generate hackathon plan.");
+        throw new Error(
+          payload.attempts?.length
+            ? `${payload.error} (${payload.attempts[0]})`
+            : payload.error || "Could not generate hackathon plan."
+        );
       }
 
       setState((prev) => ({
