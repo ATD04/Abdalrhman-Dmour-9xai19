@@ -1,7 +1,7 @@
 "use client";
 
 import { useAppContext } from "@/lib/HackathonContext";
-import { Copy, Activity, FileText, ArrowRight, CheckCircle2, Shield, Rocket, Target, Users, LayoutDashboard, Compass, Cpu, Clock, CalendarSync, Sparkles } from "lucide-react";
+import { Copy, Activity, FileText, ArrowRight, CheckCircle2, Shield, Rocket, Target, Users, LayoutDashboard, Compass, Cpu, Clock, CalendarSync, Sparkles, Map, Lightbulb, ListChecks } from "lucide-react";
 import { Badge } from "./ui/Badge";
 import { Button } from "./ui/Button";
 import OptimizerPanel from "./OptimizerPanel";
@@ -52,7 +52,7 @@ export default function DashboardView() {
             {/* 2. Name Meaning */}
             <section className="print-break-inside-avoid">
               <h2 className="text-lg font-bold text-slate-800 flex items-center mb-3">
-                <Compass className="w-5 h-5 mr-3 text-violet-500" /> 2. What Is The "{plan.name}" In This Challenge?
+                <Compass className="w-5 h-5 mr-3 text-violet-500" /> 2. What Is The <span className="mx-1">&quot;{plan.name}&quot;</span> In This Challenge?
               </h2>
               <div className="pl-8 text-slate-600 leading-relaxed">
                 {plan.nameMeaning}
@@ -69,10 +69,65 @@ export default function DashboardView() {
               </div>
             </section>
 
+            {/* 4. Challenge Tracks */}
+            <section className="print-break-inside-avoid">
+              <h2 className="text-lg font-bold text-slate-800 flex items-center mb-4">
+                <Map className="w-5 h-5 mr-3 text-blue-500" /> 4. Challenge Tracks
+              </h2>
+              <div className="pl-8 grid grid-cols-1 md:grid-cols-3 gap-3">
+                {plan.tracks.map((track) => (
+                  <div key={track.id} className="bg-slate-50 border border-slate-100 p-4 rounded-xl print:border-b print:border-slate-200 print:rounded-none print:p-2 print:bg-transparent">
+                    <div className="flex items-center justify-between gap-2 mb-2">
+                      <h3 className="font-bold text-slate-800 text-sm">{track.name}</h3>
+                      <Badge variant="outline" className="shrink-0">{track.difficulty}</Badge>
+                    </div>
+                    <p className="text-xs text-slate-600 leading-relaxed">{track.description}</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            {/* 5. Starter Ideas */}
+            <section className="print-break-inside-avoid">
+              <h2 className="text-lg font-bold text-slate-800 flex items-center mb-4">
+                <Lightbulb className="w-5 h-5 mr-3 text-amber-500" /> 5. Starter Idea Prompts
+              </h2>
+              <div className="pl-8 space-y-3">
+                {plan.ideaPrompts.map((idea) => {
+                  const track = plan.tracks.find((item) => item.id === idea.trackId);
+
+                  return (
+                    <div key={idea.id} className="bg-amber-50/60 border border-amber-100 p-4 rounded-xl print:border-b print:bg-transparent print:rounded-none">
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-bold text-slate-800">{idea.title}</h3>
+                        {track && <Badge variant="secondary">{track.name}</Badge>}
+                      </div>
+                      <p className="text-sm text-slate-600 leading-relaxed">{idea.description}</p>
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+
+            {/* 6. Rules */}
+            <section className="print-break-inside-avoid">
+              <h2 className="text-lg font-bold text-slate-800 flex items-center mb-4">
+                <ListChecks className="w-5 h-5 mr-3 text-emerald-500" /> 6. Rules & Guidelines
+              </h2>
+              <div className="pl-8 space-y-2">
+                {plan.rulesGuidelines.map((rule, idx) => (
+                  <div key={idx} className="flex items-start text-slate-600">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-500 mr-2 mt-1 shrink-0" />
+                    <span>{rule}</span>
+                  </div>
+                ))}
+              </div>
+            </section>
+
             {/* 4. Tech Principles */}
             <section className="print-break-inside-avoid">
               <h2 className="text-lg font-bold text-slate-800 flex items-center mb-4">
-                <Cpu className="w-5 h-5 mr-3 text-emerald-500" /> 4. Technology Principles Suggested
+                <Cpu className="w-5 h-5 mr-3 text-emerald-500" /> 7. Technology Principles Suggested
               </h2>
               <div className="pl-8 grid grid-cols-1 md:grid-cols-2 gap-4">
                 {plan.techPrinciples.map((tp, idx) => (
@@ -92,7 +147,7 @@ export default function DashboardView() {
             {/* 5. Team Format */}
             <section className="print-break-inside-avoid">
               <h2 className="text-lg font-bold text-slate-800 flex items-center mb-4">
-                <Users className="w-5 h-5 mr-3 text-blue-500" /> 5. Team Format
+                <Users className="w-5 h-5 mr-3 text-blue-500" /> 8. Team Format
               </h2>
               <div className="pl-8">
                 <div className="flex gap-4 mb-4">
@@ -118,7 +173,7 @@ export default function DashboardView() {
             {/* 6. Leapfrog */}
             <section className="print-break-inside-avoid">
               <h2 className="text-lg font-bold text-slate-800 flex items-center mb-3">
-                <LayoutDashboard className="w-5 h-5 mr-3 text-amber-500" /> 6. Why This Event Will Leapfrog Skills
+                <LayoutDashboard className="w-5 h-5 mr-3 text-amber-500" /> 9. Why This Event Will Leapfrog Skills
               </h2>
               <div className="pl-8 text-slate-600 leading-relaxed border-l-2 border-amber-200 ml-2.5 overflow-visible">
                 {plan.skillLeapfrog}
@@ -130,7 +185,7 @@ export default function DashboardView() {
             {/* 7. Duration */}
             <section className="print-break-inside-avoid">
               <h2 className="text-lg font-bold text-slate-800 flex items-center mb-3">
-                <Clock className="w-5 h-5 mr-3 text-pink-500" /> 7. Total Duration Logic
+                <Clock className="w-5 h-5 mr-3 text-pink-500" /> 10. Total Duration Logic
               </h2>
               <div className="pl-8 text-slate-600 leading-relaxed font-medium">
                 {plan.durationExplanation}
@@ -140,7 +195,7 @@ export default function DashboardView() {
             {/* 8. Pulse Checks */}
             <section className="print-break-inside-avoid">
               <h2 className="text-lg font-bold text-slate-800 flex items-center mb-4">
-                <CalendarSync className="w-5 h-5 mr-3 text-cyan-500" /> 8. Pulse Check Timing vs Delivery Schedule
+                <CalendarSync className="w-5 h-5 mr-3 text-cyan-500" /> 11. Pulse Check Timing vs Delivery Schedule
               </h2>
               <div className="pl-8 grid md:grid-cols-2 gap-8">
                 <div>
@@ -173,7 +228,7 @@ export default function DashboardView() {
             {/* 9. Final Submission */}
             <section className="print-break-inside-avoid">
               <h2 className="text-lg font-bold text-slate-800 flex items-center mb-3">
-                <FileText className="w-5 h-5 mr-3 text-rose-500" /> 9. Final Submission Deliverables
+                <FileText className="w-5 h-5 mr-3 text-rose-500" /> 12. Final Submission Deliverables
               </h2>
               <div className="pl-8 space-y-2">
                 {plan.finalSubmission.map((fs, idx) => (
@@ -188,7 +243,7 @@ export default function DashboardView() {
             {/* 10. Eval Criteria */}
             <section className="print-break-inside-avoid">
               <h2 className="text-lg font-bold text-slate-800 flex items-center mb-4">
-                <Shield className="w-5 h-5 mr-3 text-indigo-500" /> 10. Evaluation Rubric
+                <Shield className="w-5 h-5 mr-3 text-indigo-500" /> 13. Evaluation Rubric
               </h2>
               <div className="pl-8 space-y-3">
                 {plan.judgingCriteria.map((jc, idx) => (
@@ -206,7 +261,7 @@ export default function DashboardView() {
             {/* 11. Awards */}
             <section className="print-break-inside-avoid">
               <h2 className="text-lg font-bold text-slate-800 flex items-center mb-3">
-                <Copy className="w-5 h-5 mr-3 text-amber-500" /> 11. Awards Architecture
+                <Copy className="w-5 h-5 mr-3 text-amber-500" /> 14. Awards Architecture
               </h2>
               <div className="pl-8 grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {plan.awards.map((aw, idx) => (
@@ -221,7 +276,7 @@ export default function DashboardView() {
             {/* 12. Final Standard */}
             <section className="print-break-inside-avoid bg-slate-900 text-white p-8 rounded-2xl print:bg-transparent print:text-black print:border-t-2 print:border-b-2 print:border-black print:rounded-none">
               <h2 className="text-lg font-bold flex items-center mb-3 uppercase tracking-wider">
-                <CheckCircle2 className="w-5 h-5 mr-3 text-emerald-400 print:text-black" /> 12. The Final Standard
+                <CheckCircle2 className="w-5 h-5 mr-3 text-emerald-400 print:text-black" /> 15. The Final Standard
               </h2>
               <div className="pl-8 text-slate-300 print:text-black leading-relaxed font-light">
                 {plan.finalStandard}

@@ -155,7 +155,7 @@ export default function OptimizerPanel() {
                         </p>
                         <div className="bg-white p-3 rounded-lg border border-indigo-100 shadow-sm">
                           <p className="text-[11px] uppercase tracking-wider text-slate-400 font-bold mb-1">Proposed Better Version</p>
-                          <p className="text-sm text-slate-700 leading-snug italic">"{issue.betterVersion}"</p>
+                          <p className="text-sm text-slate-700 leading-snug italic">&quot;{issue.betterVersion}&quot;</p>
                         </div>
                       </div>
                     </div>

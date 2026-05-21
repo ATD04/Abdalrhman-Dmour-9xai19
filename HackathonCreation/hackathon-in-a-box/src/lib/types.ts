@@ -26,12 +26,16 @@ export interface Idea {
 export interface HackathonPlan {
   name: string;
   theme: string;
+  generationId: string;
   // 1. Purpose of This Hackathon
   purpose: string;
   // 2. What Is the Name in This Challenge
   nameMeaning: string;
   // 3. Core Challenge
   coreChallenge: string;
+  tracks: Track[];
+  ideaPrompts: Idea[];
+  rulesGuidelines: string[];
   // 4. Technology Principles Suggested
   techPrinciples: { category: string; recommendations: string }[];
   // 5. Team Format

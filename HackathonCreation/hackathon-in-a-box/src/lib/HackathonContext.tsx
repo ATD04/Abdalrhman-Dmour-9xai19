@@ -2,7 +2,6 @@
 
 import React, { createContext, useContext, useState, ReactNode } from "react";
 import { HackathonInputs, HackathonPlan, OptimizerResult } from "./types";
-import { generateHackathonPlan } from "./generators";
 import { analyzePlan } from "./optimizer";
 
 interface AppState {
@@ -14,6 +13,7 @@ interface AppState {
   isFixing: boolean;
   showOptimizer: boolean;
   fixDiff: Partial<HackathonPlan> | null;
+  generationError: string | null;
 }
 
 interface AppContextType {
@@ -37,20 +37,45 @@ export function AppProvider({ children }: { children: ReactNode }) {
     isFixing: false,
     showOptimizer: false,
     fixDiff: null,
+    generationError: null,
   });
 
   const generatePlan = async (inputs: HackathonInputs) => {
-    setState((prev) => ({ ...prev, isGenerating: true, optimizerResult: null, fixDiff: null, showOptimizer: false }));
-    // Simulate API call
-    await new Promise((res) => setTimeout(res, 1200));
-
-    const plan = generateHackathonPlan(inputs);
     setState((prev) => ({
       ...prev,
-      inputs,
-      plan,
-      isGenerating: false,
+      isGenerating: true,
+      optimizerResult: null,
+      fixDiff: null,
+      showOptimizer: false,
+      generationError: null,
     }));
+
+    try {
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(inputs),
+      });
+
+      const payload = await response.json();
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Could not generate hackathon plan.");
+      }
+
+      setState((prev) => ({
+        ...prev,
+        inputs,
+        plan: payload.plan,
+        isGenerating: false,
+      }));
+    } catch (error) {
+      setState((prev) => ({
+        ...prev,
+        isGenerating: false,
+        generationError: error instanceof Error ? error.message : "Could not generate hackathon plan.",
+      }));
+    }
   };
 
   const analyzeCurrentPlan = async () => {
@@ -101,6 +126,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       isFixing: false,
       showOptimizer: false,
       fixDiff: null,
+      generationError: null,
     });
   };
 

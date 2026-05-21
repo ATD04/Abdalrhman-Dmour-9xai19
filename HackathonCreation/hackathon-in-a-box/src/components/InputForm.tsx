@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useAppContext } from "@/lib/HackathonContext";
-import { HackathonInputs, SkillLevel } from "@/lib/types";
+import { SkillLevel } from "@/lib/types";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/Card";
 import { Input } from "./ui/Input";
 import { Button } from "./ui/Button";
-import { Badge } from "./ui/Badge";
 import { ArrowLeft, Loader2, Wand2, Lightbulb, AlertCircle, Info } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -117,12 +116,9 @@ export default function InputForm({ onBack }: { onBack: () => void }) {
 
   const [selectedDomainIndex, setSelectedDomainIndex] = useState<number | null>(null);
 
-  // Validation States
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [warnings, setWarnings] = useState<{ [key: string]: string }>({});
   const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
 
-  const validate = () => {
+  const validation = useMemo(() => {
     const newErrors: { [key: string]: string } = {};
     const newWarnings: { [key: string]: string } = {};
 
@@ -185,16 +181,10 @@ export default function InputForm({ onBack }: { onBack: () => void }) {
       newErrors.learningGoals = "Learning goals help the system generate a better hackathon architecture. Please enter at least one.";
     }
 
-    setErrors(newErrors);
-    setWarnings(newWarnings);
-    
-    return Object.keys(newErrors).length === 0;
-  };
-
-  useEffect(() => {
-    validate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    return { errors: newErrors, warnings: newWarnings };
   }, [formData]);
+
+  const { errors, warnings } = validation;
 
   const handleBlur = (field: string) => {
     setTouched((prev) => ({ ...prev, [field]: true }));
@@ -220,7 +210,7 @@ export default function InputForm({ onBack }: { onBack: () => void }) {
     };
     setTouched(allTouched);
 
-    if (validate()) {
+    if (Object.keys(errors).length === 0) {
       // Cast to strict types
       generatePlan({
         domain: formData.domain,
@@ -413,15 +403,21 @@ export default function InputForm({ onBack }: { onBack: () => void }) {
             </div>
 
             {/* ACTION FOOTER */}
-            <div className="p-8 bg-slate-50 flex items-center justify-between">
-              <div className="text-sm text-slate-500 font-medium">
-                {hasHardErrors ? "Please resolve all errors before generating." : "All parameters stable."}
+            <div className="p-8 bg-slate-50 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="text-sm font-medium">
+                {state.generationError ? (
+                  <span className="text-red-600">{state.generationError}</span>
+                ) : (
+                  <span className="text-slate-500">
+                    {hasHardErrors ? "Please resolve all errors before generating." : "All parameters stable."}
+                  </span>
+                )}
               </div>
               <Button type="submit" variant="premium" size="lg" disabled={state.isGenerating || hasHardErrors}>
                 {state.isGenerating ? (
-                  <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Synthesizing Architecture...</>
+                  <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Asking AI to Generate...</>
                 ) : (
-                  <><Wand2 className="w-5 h-5 mr-2" /> Generate Architecture</>
+                  <><Wand2 className="w-5 h-5 mr-2" /> Generate With AI</>
                 )}
               </Button>
             </div>
